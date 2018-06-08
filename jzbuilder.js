@@ -4,7 +4,19 @@ GRID_COLOR = "#000000";
 GRID_CENTER_COLOR = "#888888";
 DRAWLINE_COLOR = "#998811";
 MAPLINE_COLOR = "#cccccc";
+VERTEX_COLOR = "#FF8811";
+DRAWVERTEX_COLOR = "#FFFFFF";
+VERTEX_SIZE = 2;
 ZOOM_SPEED = 1.05;
+
+var EditMode = {
+    VERTEX : "vertex",
+    LINE : "line",
+    SECTOR : "sector",
+    THING : "thing"
+}
+
+editMode = EditMode.LINE;
 
 // View Control Values
 offsetX = -400;
@@ -14,6 +26,7 @@ gridSize = 32;
 
 drawingLinesList = [];
 mapLines = [];
+mpos = {};
 
 // Classes
 var DrawLine = {
@@ -103,6 +116,19 @@ function updateCanvas() {
         }
         ctx.stroke();
     }
+
+    // Draw Vertexes
+    if (editMode == EditMode.VERTEX) {
+        ctx.fillStyle = VERTEX_COLOR;
+        for (i = 0; i < mapLines.length; i++) {
+            p = posToView(mapLines[i].x1, mapLines[i].y1);
+            ctx.fillRect(p.x - VERTEX_SIZE, p.y - VERTEX_SIZE, VERTEX_SIZE * 2, VERTEX_SIZE * 2);
+        }
+
+        ctx.fillStyle = DRAWVERTEX_COLOR;
+        p = posToView(mpos.x, mpos.y);
+        ctx.fillRect(p.x - VERTEX_SIZE, p.y - VERTEX_SIZE, VERTEX_SIZE * 2, VERTEX_SIZE * 2);
+    }
 }
 
 // Input Handler
@@ -119,7 +145,14 @@ function getMouseGridPosition(e) {
 function onKeyDown(e) {
     if (e.key == " ") {
         dragging = true;
-    }   
+    }
+
+    if (e.key == "v") editMode = EditMode.VERTEX;
+    if (e.key == "s") editMode = EditMode.SECTOR;
+    if (e.key == "l") editMode = EditMode.LINE;
+    if (e.key == "t") editMode = EditMode.THING;
+
+    updateCanvas();
 }
 
 function onKeyUp(e) {
@@ -137,7 +170,6 @@ function onMouseMove(e) {
     }
 
     if (drawingLines) {
-
         pos = getMouseGridPosition(e);
         //console.log(e);
         drawingLinesList[drawingLinesList.length - 1].x2 = pos.x;
@@ -145,6 +177,9 @@ function onMouseMove(e) {
         //console.log(drawingLinesList[drawingLinesList.length - 1]);
         updateCanvas();
     }
+
+    mpos = getMouseGridPosition(e);
+    if (editMode == EditMode.VERTEX) updateCanvas();
 }
 
 function onMouseWheel(e) {
