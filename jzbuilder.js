@@ -24,7 +24,10 @@ var DrawLine = {
 };
 
 var MapLine = {
-    drawLine : {},
+    x1 : 0,
+    y1 : 0,
+    x2 : 0,
+    y2 : 0
 }
 
 // Good Variables
@@ -78,10 +81,10 @@ function updateCanvas() {
         ctx.lineWidth = 1.0;
         ctx.strokeStyle = MAPLINE_COLOR;
         ctx.beginPath();
-        p = posToView(mapLines[0].drawLine.x1, mapLines[0].drawLine.y1);
-        ctx.moveTo(p.x, p.y);
         for (i = 0; i < mapLines.length; i++) {
-            p = posToView(mapLines[i].drawLine.x2, mapLines[i].drawLine.y2);
+            p = posToView(mapLines[i].x1, mapLines[i].y1);
+            ctx.moveTo(p.x, p.y);
+            p = posToView(mapLines[i].x2, mapLines[i].y2);
             ctx.lineTo(p.x, p.y);
         }
         ctx.stroke();
@@ -92,9 +95,9 @@ function updateCanvas() {
         ctx.lineWidth = 2.0;
         ctx.strokeStyle = DRAWLINE_COLOR;
         ctx.beginPath();
-        p = posToView(drawingLinesList[0].x1, drawingLinesList[0].y1);
-        ctx.moveTo(p.x, p.y);
         for (i = 0; i < drawingLinesList.length; i++) {
+            p = posToView(drawingLinesList[i].x1, drawingLinesList[i].y1);
+            ctx.moveTo(p.x, p.y);
             p = posToView(drawingLinesList[i].x2, drawingLinesList[i].y2);
             ctx.lineTo(p.x, p.y);
         }
@@ -187,9 +190,14 @@ function finishDrawing() {
     drawingLines = false;
     for (i = 0; i < drawingLinesList.length; i++) {
         newLine = Object.create(MapLine);
-        newLine.drawLine = drawingLinesList[i];
+        newLine.x1 = drawingLinesList[i].x1;
+        newLine.x2 = drawingLinesList[i].x2;
+        newLine.y1 = drawingLinesList[i].y1;
+        newLine.y2 = drawingLinesList[i].y2;
         mapLines.push(newLine);
     }
+
+    console.log(mapLines);
 
     drawingLinesList = [];
 
