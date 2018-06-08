@@ -1,0 +1,10 @@
+body {
+    background: #dddada;
+    text-align: center;
+}
+
+#maincanvas {
+    border: 4px;
+    border-style: dashed;
+    border-color: #000;
+}
