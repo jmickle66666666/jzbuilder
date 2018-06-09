@@ -34,7 +34,8 @@ drawingLinesList = [];
 mapLines = [];
 sectors = [];
 mpos = {};
-freepos = {};
+freepos = {x:0, y:0};
+gridpos = {x:0, y:0};
 
 // test
 sector_img = document.createElement('img');
@@ -360,11 +361,43 @@ function updateCanvas() {
         ctx.lineTo(p.x, p.y);
         ctx.stroke();
     }
+
+    // Extruding Line
+    if (extrudingLines) {
+        ctx.lineWidth = 2.0;
+        ctx.strokeStyle = DRAWLINE_COLOR;
+
+        ctx.beginPath();
+        p = posToView(extrudeLineStart.x1, extrudeLineStart.y1);
+        ctx.moveTo(p.x, p.y);
+        p = posToView(extrudeLineEnd.x2, extrudeLineEnd.y2);
+        ctx.lineTo(p.x, p.y);
+        p = posToView(extrudeLineStart.x2, extrudeLineStart.y2);
+        ctx.moveTo(p.x, p.y);
+        p = posToView(extrudeLineEnd.x1, extrudeLineEnd.y1);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+
+        ctx.lineWidth = 2.0;
+
+        ctx.strokeStyle = HIGHLIGHTLINE_COLOR;
+        ctx.beginPath();
+        p = posToView(extrudeLineEnd.x1, extrudeLineEnd.y1);
+        ctx.moveTo(p.x, p.y);
+        p = posToView(extrudeLineEnd.x2, extrudeLineEnd.y2);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+
+    }
 }
 
 // Input Handler
 dragging = false;
 drawingLines = false;
+extrudingLines = false;
+extrudeLineEnd = null;
+extrudeLineStart = null;
+extrudePointStart = {x:0, y:0};
 
 function getMouseGridPosition(e) {
     p = viewToPos(e.offsetX, e.offsetY);
@@ -375,6 +408,8 @@ function getMouseGridPosition(e) {
 
 function getMouseFreePosition(e) {
     p = viewToPos(e.offsetX, e.offsetY);
+    gridpos.x = Math.round(p.x / gridSize) * gridSize;
+    gridpos.y = Math.round(p.y / gridSize) * gridSize;
     return p;
 }
 
@@ -386,12 +421,23 @@ function onKeyDown(e) {
         dragging = true;
     }
 
+    if (e.key == "e" && editMode == EditMode.LINE && !drawingLines) {
+        extrudingLines = true;
+        extrudePointStart.x = gridpos.x;
+        extrudePointStart.y = gridpos.y;
+        startExtrude();
+    }
+
     if (e.key == "v") editMode = EditMode.VERTEX;
     if (e.key == "s") editMode = EditMode.SECTOR;
     if (e.key == "l") editMode = EditMode.LINE;
     if (e.key == "t") editMode = EditMode.THING;
 
-    if (e.key == "Escape" && drawingLines) cancelDrawing();
+    if (e.key == "Escape") {
+        if (drawingLines) cancelDrawing();
+        if (extrudingLines) cancelExtrude();
+    }
+    
 
     updateCanvas();
 }
@@ -404,7 +450,9 @@ function onKeyUp(e) {
 
 function onMouseMove(e) {
     //console.log(dragging);
-    freepos = getMouseFreePosition(e);
+    var p = getMouseFreePosition(e);
+    freepos.x = p.x;
+    freepos.y = p.y;
 
     if (dragging) {
         offsetX -= e.movementX;
@@ -429,9 +477,16 @@ function onMouseMove(e) {
     }
 
     if (editMode == EditMode.LINE) {
-        getHighlightLine(freepos.x, freepos.y);
-        //console.log(highlightedLine);
-        updateCanvas();
+
+        if (extrudingLines) {
+            updateExtrude(e);
+            updateCanvas();
+        } else {
+            getHighlightLine(freepos.x, freepos.y);
+            //console.log(highlightedLine);
+            updateCanvas();
+        }
+        
     } else {
         highlightedLine = null;
     }
@@ -456,6 +511,16 @@ function onMouseWheel(e) {
 function onMouseDown(e) {
     e.preventDefault();
     pos = getMouseGridPosition(e);
+
+    if (extrudingLines) {
+
+        if (e.button == 0) {
+            finishExtrude();
+        }
+
+        return;
+    }
+
     if (!drawingLines) {
         if (e.button == 2) {
             drawingLines = true;
@@ -478,6 +543,73 @@ function onMouseDown(e) {
     }
 }
 
+function cancelExtrude() {
+    extrudingLines = false;
+    updateCanvas();
+}
+
+function startExtrude() {
+    extrudeLineStart = Object.create(DrawLine);
+    extrudeLineStart.x1 = highlightedLine.x1;
+    extrudeLineStart.y1 = highlightedLine.y1;
+    extrudeLineStart.x2 = highlightedLine.x2;
+    extrudeLineStart.y2 = highlightedLine.y2;
+
+    extrudeLineEnd = Object.create(DrawLine);
+    // extrudeLineEnd.x2 = highlightedLine.x1;
+    // extrudeLineEnd.y2 = highlightedLine.y1;
+    // extrudeLineEnd.x1 = highlightedLine.x2;
+    // extrudeLineEnd.y1 = highlightedLine.y2;
+}
+
+function updateExtrude() {
+    var p = {x:gridpos.x-extrudePointStart.x, y:gridpos.y-extrudePointStart.y};
+
+    extrudeLineEnd.x2 = highlightedLine.x1 + p.x;
+    extrudeLineEnd.y2 = highlightedLine.y1 + p.y;
+    extrudeLineEnd.x1 = highlightedLine.x2 + p.x;
+    extrudeLineEnd.y1 = highlightedLine.y2 + p.y;
+}
+
+function finishExtrude() {
+    extrudingLines = false;
+
+    var l1 = Object.create(MapLine);
+    l1.x1 = extrudeLineStart.x1;
+    l1.y1 = extrudeLineStart.y1;
+    l1.x2 = extrudeLineStart.x2;
+    l1.y2 = extrudeLineStart.y2;
+    
+    var l2 = Object.create(MapLine);
+    l2.x1 = extrudeLineStart.x2;
+    l2.y1 = extrudeLineStart.y2;
+    l2.x2 = extrudeLineEnd.x1;
+    l2.y2 = extrudeLineEnd.y1;
+
+    var l3 = Object.create(MapLine);
+    l3.x1 = extrudeLineEnd.x1;
+    l3.y1 = extrudeLineEnd.y1;
+    l3.x2 = extrudeLineEnd.x2;
+    l3.y2 = extrudeLineEnd.y2;
+
+    var l4 = Object.create(MapLine);
+    l4.x1 = extrudeLineEnd.x2;
+    l4.y1 = extrudeLineEnd.y2;
+    l4.x2 = extrudeLineStart.x1;
+    l4.y2 = extrudeLineStart.y1;
+
+    var newSect = Object.create(Sector);
+    newSect.lines = [];
+    newSect.lines.push(l1);
+    newSect.lines.push(l2);
+    newSect.lines.push(l3);
+    newSect.lines.push(l4);
+    //console.log(newSect.lines);
+    newSect.invalidate();
+    sectors.push(newSect);
+    updateCanvas();
+}
+
 function cancelDrawing() {
     drawingLines = false;
     drawingLinesList = [];
@@ -487,10 +619,9 @@ function cancelDrawing() {
 function finishDrawingSector() {
     drawingLines = false;
 
-    newSector = Object.create(Sector);
+    var newSector = Object.create(Sector);
     newSector.lines = [];
     for (i = 0; i < drawingLinesList.length; i++) {
-        console.log("beep");
         newLine = Object.create(MapLine);
         newLine.x1 = drawingLinesList[i].x1;
         newLine.x2 = drawingLinesList[i].x2;
