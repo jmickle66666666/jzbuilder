@@ -8,6 +8,7 @@ HIGHLIGHTLINE_COLOR = "#FFFFFF";
 VERTEX_COLOR = "#FF8811";
 DRAWVERTEX_COLOR = "#FFFFFF";
 SECTOR_COLOR = "#22441144";
+SELECTEDLINE_COLOR = "#FFAA11";
 LINE_SELECT_DISTANCE = 5;
 VERTEX_SIZE = 2;
 ZOOM_SPEED = 1.05;
@@ -30,6 +31,7 @@ gridSize = 32;
 highlightedSector = -1;
 highlightedLine = { x1:0, y2:0, x2:0, y1:0 };
 
+selectedLines = [];
 drawingLinesList = [];
 mapLines = [];
 sectors = [];
@@ -87,6 +89,7 @@ var Sector = {
     invalidate : function() {
         if (this.lines.length != 0) {
             console.log("lines: ", this.lines.length);
+            console.log(this.lines);
 
             this.bounds = { x1 : 0, y1 : 0, x2 : 0, y2 : 0, width : 0, height : 0, mpx : 0, mpy : 0 };
 
@@ -231,6 +234,62 @@ function getHighlightLine(x, y) {
     highlightedLine.y2 = allLines[lIndex].y2;
 }
 
+function cross(a, b, o) {
+    return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+}
+
+function convexHull(points) {
+    points.sort(function(a, b) {
+        return a.x == b.x ? a.y - b.y : a.x - b.x;
+    });
+
+    var lower = [];
+    for (var i = 0; i < points.length; i++) {
+        while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], points[i]) <= 0) {
+            lower.pop();
+        }
+        lower.push(points[i]);
+    }
+
+    var upper = [];
+    for (var i = points.length - 1; i >= 0; i--) {
+        while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], points[i]) <= 0) {
+            upper.pop();
+        }
+        upper.push(points[i]);
+    }
+
+    upper.pop();
+    lower.pop();
+    return lower.concat(upper);
+}
+
+function createSectorOfConvexPoints(points) {
+    var hullPoints = convexHull(points);
+    var newSector = Object.create(Sector);
+    newSector.lines = [];
+    for (i = 0 ; i < hullPoints.length - 1; i++) {
+        var newLine = Object.create(MapLine);
+        newLine.x1 = hullPoints[i].x;
+        newLine.y1 = hullPoints[i].y;
+        newLine.x2 = hullPoints[i+1].x;
+        newLine.y2 = hullPoints[i+1].y;
+        newSector.lines.push(newLine);
+    }
+    newSector.invalidate();
+    sectors.push(newSector);
+    updateCanvas();
+}
+
+function convexMergeLines() {
+    var pts = [];
+    for (var i = 0; i < selectedLines.length; i++) {
+        pts.push({x:selectedLines[i].x1, y:selectedLines[i].y1});
+        pts.push({x:selectedLines[i].x2, y:selectedLines[i].y2});
+    }
+    createSectorOfConvexPoints(pts);
+}
+
 // Good Variables
 canvas = document.getElementById("maincanvas");
 ctx = canvas.getContext('2d');
@@ -350,6 +409,20 @@ function updateCanvas() {
         ctx.fillRect(p.x - VERTEX_SIZE, p.y - VERTEX_SIZE, VERTEX_SIZE * 2, VERTEX_SIZE * 2);
     }
 
+    // Draw Selected Lines
+    if (selectedLines.length != 0) {
+        ctx.lineWidth = 2.0;
+        ctx.strokeStyle = SELECTEDLINE_COLOR;
+        ctx.beginPath();
+        for (i = 0; i < selectedLines.length; i++) {
+            p = posToView(selectedLines[i].x1, selectedLines[i].y1);
+            ctx.moveTo(p.x, p.y);
+            p = posToView(selectedLines[i].x2, selectedLines[i].y2);
+            ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+    }
+
     // Draw highlighted line
     if (highlightedLine != null && editMode == EditMode.LINE) {
         ctx.strokeStyle = HIGHLIGHTLINE_COLOR;
@@ -387,8 +460,9 @@ function updateCanvas() {
         p = posToView(extrudeLineEnd.x2, extrudeLineEnd.y2);
         ctx.lineTo(p.x, p.y);
         ctx.stroke();
-
     }
+
+    
 }
 
 // Input Handler
@@ -422,12 +496,19 @@ function onKeyDown(e) {
     }
 
     if (e.key == "e" && editMode == EditMode.LINE && !drawingLines) {
+        clearSelection();
         extrudingLines = true;
         extrudePointStart.x = gridpos.x;
         extrudePointStart.y = gridpos.y;
         startExtrude();
     }
 
+    if (e.key == "j" && selectedLines.length != 0) {
+        convexMergeLines();
+        clearSelection();
+    }
+
+    if (e.key == "c") clearSelection();
     if (e.key == "v") editMode = EditMode.VERTEX;
     if (e.key == "s") editMode = EditMode.SECTOR;
     if (e.key == "l") editMode = EditMode.LINE;
@@ -521,6 +602,17 @@ function onMouseDown(e) {
         return;
     }
 
+    if (editMode == EditMode.LINE) {
+        if (e.button == 0 && !drawingLines) {
+            var nLine = Object.create(DrawLine);
+            nLine.x1 = highlightedLine.x1;
+            nLine.y1 = highlightedLine.y1;
+            nLine.x2 = highlightedLine.x2;
+            nLine.y2 = highlightedLine.y2;
+            selectedLines.push(nLine);
+        }
+    }
+
     if (!drawingLines) {
         if (e.button == 2) {
             drawingLines = true;
@@ -545,6 +637,11 @@ function onMouseDown(e) {
 
 function cancelExtrude() {
     extrudingLines = false;
+    updateCanvas();
+}
+
+function clearSelection() {
+    selectedLines = [];
     updateCanvas();
 }
 
