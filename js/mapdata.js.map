@@ -1,1 +1,1 @@
-{"version":3,"file":"mapdata.js","sourceRoot":"","sources":["../src/mapdata.ts"],"names":[],"mappings":"AAAA,IAAU,SAAS,CASlB;AATD,WAAU,SAAS;IAEf;QAAA;QAKA,CAAC;QAAD,cAAC;IAAD,CAAC,AALD,IAKC;IALY,iBAAO,UAKnB,CAAA;AAEL,CAAC,EATS,SAAS,KAAT,SAAS,QASlB"}
+{"version":3,"file":"mapdata.js","sourceRoot":"","sources":["../src/mapdata.ts"],"names":[],"mappings":"AAAA;IAKI;QACI,IAAI,CAAC,KAAK,GAAG,IAAI,KAAK,EAAQ,CAAC;QAC/B,IAAI,CAAC,OAAO,GAAG,IAAI,KAAK,EAAU,CAAC;IACvC,CAAC;IAEL,cAAC;AAAD,CAAC,AAVD,IAUC"}
