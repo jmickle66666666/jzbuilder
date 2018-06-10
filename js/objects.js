@@ -6,6 +6,9 @@ var Vertex = /** @class */ (function () {
     Vertex.prototype.equals = function (point) {
         return this.x == point.x && this.y == point.y;
     };
+    Vertex.prototype.clone = function () {
+        return new Vertex(this.x, this.y);
+    };
     return Vertex;
 }());
 var Rect = /** @class */ (function () {
@@ -78,12 +81,22 @@ var Sector = /** @class */ (function () {
             }
         }
     };
+    Sector.fromConvexPoints = function (points, texture) {
+        var hullPoints = convexHull(points);
+        var newSector = new Sector(texture);
+        for (var i = 0; i < hullPoints.length - 1; i++) {
+            var newLine = new Line(hullPoints[i], hullPoints[i + 1]);
+            newSector.lines.push(newLine);
+        }
+        newSector.invalidate();
+        return newSector;
+    };
     return Sector;
 }());
 var Line = /** @class */ (function () {
     function Line(start, end) {
-        this.start = start;
-        this.end = end;
+        this.start = start.clone();
+        this.end = end.clone();
     }
     return Line;
 }());

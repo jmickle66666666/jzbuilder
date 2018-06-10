@@ -1,8 +1,8 @@
 var InputState;
 (function (InputState) {
-    InputState[InputState["NONE"] = 0] = "NONE";
-    InputState[InputState["DRAWING"] = 1] = "DRAWING";
-    InputState[InputState["EXTRUDING"] = 2] = "EXTRUDING";
+    InputState["NONE"] = "none";
+    InputState["DRAWING"] = "drawing";
+    InputState["EXTRUDING"] = "extruding";
 })(InputState || (InputState = {}));
 var Input = /** @class */ (function () {
     function Input() {

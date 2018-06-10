@@ -28,6 +28,7 @@ var BuilderCanvas = /** @class */ (function () {
         this.mapData = mapData;
         this.canvas = canvas;
         this.drawingLines = new Array();
+        this.selectedLines = new Array();
         this.ctx = this.canvas.getContext('2d');
     }
     BuilderCanvas.prototype.posToView = function (p) {
@@ -47,9 +48,17 @@ var BuilderCanvas = /** @class */ (function () {
         this.drawSectors();
         this.drawMapLines();
         this.drawDrawLines();
-        this.drawVertexes();
+        if (Input.state == InputState.EXTRUDING)
+            this.drawExtrudeLine();
+        if (editMode == EditMode.VERTEX)
+            this.drawVertexes();
         this.drawSelectedLines();
-        this.drawHighlightedLines();
+        if (editMode == EditMode.LINE)
+            this.drawHighlightedLines();
+        //this.drawDebug();
+    };
+    BuilderCanvas.prototype.drawDebug = function () {
+        this.ctx.strokeText(Input.state.toString(), 10, 10);
     };
     BuilderCanvas.prototype.drawGrid = function () {
         this.ctx.fillStyle = this.CANVAS_BG_COLOR;
@@ -88,7 +97,7 @@ var BuilderCanvas = /** @class */ (function () {
             for (var i = 0; i < mapData.sectors.length; i++) {
                 var p = this.posToView(this.mapData.sectors[i].bounds.topLeft);
                 this.ctx.drawImage(this.mapData.sectors[i].preview, p.x, p.y, this.mapData.sectors[i].bounds.width / this.zoom, this.mapData.sectors[i].bounds.height / this.zoom);
-                this.drawLines(this.mapData.sectors[i].lines, this.MAPLINE_COLOR, 1.0);
+                this.drawLines(this.mapData.sectors[i].lines, (i == this.highlightSector) ? this.HIGHLIGHTLINE_COLOR : this.MAPLINE_COLOR, (i == this.highlightSector) ? 2.0 : 1.0);
             }
         }
     };
@@ -99,12 +108,22 @@ var BuilderCanvas = /** @class */ (function () {
         this.drawLines(this.drawingLines, this.DRAWLINE_COLOR, 2);
     };
     BuilderCanvas.prototype.drawVertexes = function () {
+        this.ctx.fillStyle = this.VERTEX_COLOR;
+        var allLines = mapData.getAllLines();
+        for (var i = 0; i < allLines.length; i++) {
+            var p_1 = this.posToView(allLines[i].start);
+            this.ctx.fillRect(p_1.x - this.VERTEX_SIZE, p_1.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
+        }
+        this.ctx.fillStyle = this.DRAWVERTEX_COLOR;
+        var p = this.posToView(Input.mouseGridPos);
+        this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
     };
     BuilderCanvas.prototype.drawSelectedLines = function () {
-        //this.drawLines(this.mapData.lines, this.MAPLINE_COLOR);
+        this.drawLines(this.selectedLines, this.SELECTEDLINE_COLOR, 2.0);
     };
     BuilderCanvas.prototype.drawHighlightedLines = function () {
-        //this.drawLines(this.mapData.lines, this.MAPLINE_COLOR);
+        if (this.highlightLine != null)
+            this.drawLines([this.highlightLine,], this.HIGHLIGHTLINE_COLOR, 2.0);
     };
     BuilderCanvas.prototype.drawLines = function (lines, color, width) {
         if (width === void 0) { width = 1.0; }
@@ -120,6 +139,14 @@ var BuilderCanvas = /** @class */ (function () {
             this.ctx.lineTo(p.x, p.y);
         }
         this.ctx.stroke();
+    };
+    BuilderCanvas.prototype.drawExtrudeLine = function () {
+        this.drawLines([
+            extrudeStart,
+            new Line(extrudeStart.end, extrudeEnd.start),
+            extrudeEnd,
+            new Line(extrudeEnd.end, extrudeStart.start)
+        ], this.DRAWLINE_COLOR, 2.0);
     };
     return BuilderCanvas;
 }());

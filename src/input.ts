@@ -1,7 +1,7 @@
 enum InputState {
-    NONE,
-    DRAWING,
-    EXTRUDING
+    NONE = "none",
+    DRAWING = "drawing",
+    EXTRUDING = "extruding"
 }
 
 class Input {

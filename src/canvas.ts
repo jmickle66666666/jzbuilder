@@ -32,11 +32,15 @@ class BuilderCanvas {
     mapData : MapData;
 
     drawingLines : Array<Line>;
+    selectedLines : Array<Line>;
+    highlightSector : number;
+    highlightLine : Line;
 
     public constructor (canvas: HTMLCanvasElement, mapData : MapData) {
         this.mapData = mapData;
         this.canvas = canvas;
         this.drawingLines = new Array<Line>();
+        this.selectedLines = new Array<Line>();
         this.ctx = <CanvasRenderingContext2D> this.canvas.getContext('2d');
     }
 
@@ -60,9 +64,15 @@ class BuilderCanvas {
         this.drawSectors();
         this.drawMapLines();
         this.drawDrawLines();
-        this.drawVertexes();
+        if (Input.state == InputState.EXTRUDING) this.drawExtrudeLine();
+        if (editMode == EditMode.VERTEX) this.drawVertexes();
         this.drawSelectedLines();
-        this.drawHighlightedLines();
+        if (editMode == EditMode.LINE) this.drawHighlightedLines();
+        //this.drawDebug();
+    }
+
+    drawDebug() {
+        this.ctx.strokeText(Input.state.toString(), 10, 10);
     }
 
     drawGrid():void {
@@ -100,7 +110,7 @@ class BuilderCanvas {
             for (let i = 0; i < mapData.sectors.length; i++) {
                 let p = this.posToView(this.mapData.sectors[i].bounds.topLeft);
                 this.ctx.drawImage(this.mapData.sectors[i].preview, p.x, p.y, this.mapData.sectors[i].bounds.width / this.zoom, this.mapData.sectors[i].bounds.height / this.zoom);
-                this.drawLines(this.mapData.sectors[i].lines, this.MAPLINE_COLOR, 1.0);
+                this.drawLines(this.mapData.sectors[i].lines, (i == this.highlightSector)?this.HIGHLIGHTLINE_COLOR: this.MAPLINE_COLOR, (i == this.highlightSector)?2.0:1.0);
             }
         }
     }
@@ -114,15 +124,24 @@ class BuilderCanvas {
     }
 
     drawVertexes():void {
+        this.ctx.fillStyle = this.VERTEX_COLOR;
+        let allLines:Array<Line> = mapData.getAllLines();
+        for (let i = 0; i < allLines.length; i++) {
+            let p = this.posToView(allLines[i].start);
+            this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
+        }
 
+        this.ctx.fillStyle = this.DRAWVERTEX_COLOR;
+        let p = this.posToView(Input.mouseGridPos);
+        this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
     }
 
     drawSelectedLines():void {
-        //this.drawLines(this.mapData.lines, this.MAPLINE_COLOR);
+        this.drawLines(this.selectedLines, this.SELECTEDLINE_COLOR, 2.0);
     }
 
     drawHighlightedLines():void {
-        //this.drawLines(this.mapData.lines, this.MAPLINE_COLOR);
+        if (this.highlightLine != null) this.drawLines([this.highlightLine,], this.HIGHLIGHTLINE_COLOR, 2.0);
     }
 
     drawLines(lines : Array<Line>, color:string, width:number = 1.0):void {
@@ -137,5 +156,14 @@ class BuilderCanvas {
             this.ctx.lineTo(p.x, p.y);
         }
         this.ctx.stroke();
+    }
+
+    drawExtrudeLine():void {
+        this.drawLines( [
+            extrudeStart,
+            new Line(extrudeStart.end, extrudeEnd.start),
+            extrudeEnd,
+            new Line(extrudeEnd.end, extrudeStart.start)
+        ], this.DRAWLINE_COLOR, 2.0);
     }
 }

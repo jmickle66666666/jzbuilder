@@ -28,16 +28,16 @@
 // zoom = 1.0;
 // gridSize = 32;
 
-highlightedSector = -1;
-highlightedLine = { x1:0, y2:0, x2:0, y1:0 };
+// highlightedSector = -1;
+// highlightedLine = { x1:0, y2:0, x2:0, y1:0 };
 
-selectedLines = [];
-drawingLinesList = [];
-mapLines = [];
-sectors = [];
-mpos = {};
-freepos = {x:0, y:0};
-gridpos = {x:0, y:0};
+// selectedLines = [];
+// drawingLinesList = [];
+// mapLines = [];
+// sectors = [];
+// mpos = {};
+// freepos = {x:0, y:0};
+// gridpos = {x:0, y:0};
 
 // test
 // sector_img = document.createElement('img');
@@ -160,135 +160,135 @@ gridpos = {x:0, y:0};
 //     return sqrDist(p, { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) });
 // }
 
-function getHighlightSector(x, y) {
-    if (sectors.length == 0) return -1;
+// function getHighlightSector(x, y) {
+//     if (sectors.length == 0) return -1;
 
-    var s = [];
-    for (i = 0; i < sectors.length; i++) {
-        if (sectors[i].pointInBounds(x, y)) s.push(i);
-    }
+//     var s = [];
+//     for (i = 0; i < sectors.length; i++) {
+//         if (sectors[i].pointInBounds(x, y)) s.push(i);
+//     }
 
-    if (s.length == 0) return -1;
-    if (s.length == 1) return s[0];
+//     if (s.length == 0) return -1;
+//     if (s.length == 1) return s[0];
 
-    var nIndex = s[0];
-    var nDist = sqrDist(x, y, sectors[s[0]].bounds.mpx, sectors[s[0]].bounds.mpy);
-    for (i = 1; i < s.length; i++) {
-        var sDist = sqrDist(x, y, sectors[s[i]].bounds.mpx, sectors[s[i]].bounds.mpy);
-        if (sDist < nDist) {
-            nDist = sDist;
-            nIndex = s[i];
-        }
-    }
+//     var nIndex = s[0];
+//     var nDist = sqrDist(x, y, sectors[s[0]].bounds.mpx, sectors[s[0]].bounds.mpy);
+//     for (i = 1; i < s.length; i++) {
+//         var sDist = sqrDist(x, y, sectors[s[i]].bounds.mpx, sectors[s[i]].bounds.mpy);
+//         if (sDist < nDist) {
+//             nDist = sDist;
+//             nIndex = s[i];
+//         }
+//     }
 
-    return nIndex;
-}
+//     return nIndex;
+// }
 
-function getAllLines() {
-    var output = [];
-    for (var i = 0; i < mapLines.length; i++) {
-        output.push(mapLines[i]);
-    }
-    for (i = 0; i < sectors.length; i++) {
-        for (var j = 0; j < sectors[i].lines.length; j++) {
-            output.push(sectors[i].lines[j]);
-        }
-    }
-    //console.log(output);
-    return output;
-}
+// function getAllLines() {
+//     var output = [];
+//     for (var i = 0; i < mapLines.length; i++) {
+//         output.push(mapLines[i]);
+//     }
+//     for (i = 0; i < sectors.length; i++) {
+//         for (var j = 0; j < sectors[i].lines.length; j++) {
+//             output.push(sectors[i].lines[j]);
+//         }
+//     }
+//     //console.log(output);
+//     return output;
+// }
 
-function getHighlightLine(x, y) {
+// function getHighlightLine(x, y) {
 
-    var allLines = getAllLines();
+//     var allLines = getAllLines();
 
-    if (allLines.length == 0) {
-        //highlightedLine = null;
-        return;
-    }
-    if (allLines.length == 1) {
-        if (distToSegmentMidpoint(x, y, allLines[0].x1, allLines[0].y1, allLines[0].x2, allLines[0].y2 ) < LINE_SELECT_DISTANCE) {
-            highlightedLine.x1 = allLines[0].x1;
-            highlightedLine.x2 = allLines[0].x2;
-            highlightedLine.y1 = allLines[0].y1;
-            highlightedLine.y2 = allLines[0].y2;
-            return;
-        } else {
-            //highlightedLine = null;
-            return;
-        }
-    }
+//     if (allLines.length == 0) {
+//         //highlightedLine = null;
+//         return;
+//     }
+//     if (allLines.length == 1) {
+//         if (distToSegmentMidpoint(x, y, allLines[0].x1, allLines[0].y1, allLines[0].x2, allLines[0].y2 ) < LINE_SELECT_DISTANCE) {
+//             highlightedLine.x1 = allLines[0].x1;
+//             highlightedLine.x2 = allLines[0].x2;
+//             highlightedLine.y1 = allLines[0].y1;
+//             highlightedLine.y2 = allLines[0].y2;
+//             return;
+//         } else {
+//             //highlightedLine = null;
+//             return;
+//         }
+//     }
 
-    var lIndex = 0;
-    lDist = distToSegmentMidpoint(x, y, allLines[0].x1, allLines[0].y1, allLines[0].x2, allLines[0].y2 );
-    for (i = 0; i < allLines.length; i++) {
-        nDist = distToSegmentMidpoint(x, y, allLines[i].x1, allLines[i].y1, allLines[i].x2, allLines[i].y2 );
-        if (nDist < lDist) {
-            lDist = nDist;
-            lIndex = i;
-        }
-    }
-    highlightedLine.x1 = allLines[lIndex].x1;
-    highlightedLine.x2 = allLines[lIndex].x2;
-    highlightedLine.y1 = allLines[lIndex].y1;
-    highlightedLine.y2 = allLines[lIndex].y2;
-}
+//     var lIndex = 0;
+//     lDist = distToSegmentMidpoint(x, y, allLines[0].x1, allLines[0].y1, allLines[0].x2, allLines[0].y2 );
+//     for (i = 0; i < allLines.length; i++) {
+//         nDist = distToSegmentMidpoint(x, y, allLines[i].x1, allLines[i].y1, allLines[i].x2, allLines[i].y2 );
+//         if (nDist < lDist) {
+//             lDist = nDist;
+//             lIndex = i;
+//         }
+//     }
+//     highlightedLine.x1 = allLines[lIndex].x1;
+//     highlightedLine.x2 = allLines[lIndex].x2;
+//     highlightedLine.y1 = allLines[lIndex].y1;
+//     highlightedLine.y2 = allLines[lIndex].y2;
+// }
 
-function cross(a, b, o) {
-    return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
-}
+// function cross(a, b, o) {
+//     return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+// }
 
-function convexHull(points) {
-    points.sort(function(a, b) {
-        return a.x == b.x ? a.y - b.y : a.x - b.x;
-    });
+// function convexHull(points) {
+//     points.sort(function(a, b) {
+//         return a.x == b.x ? a.y - b.y : a.x - b.x;
+//     });
 
-    var lower = [];
-    for (var i = 0; i < points.length; i++) {
-        while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], points[i]) <= 0) {
-            lower.pop();
-        }
-        lower.push(points[i]);
-    }
+//     var lower = [];
+//     for (var i = 0; i < points.length; i++) {
+//         while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], points[i]) <= 0) {
+//             lower.pop();
+//         }
+//         lower.push(points[i]);
+//     }
 
-    var upper = [];
-    for (var i = points.length - 1; i >= 0; i--) {
-        while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], points[i]) <= 0) {
-            upper.pop();
-        }
-        upper.push(points[i]);
-    }
+//     var upper = [];
+//     for (var i = points.length - 1; i >= 0; i--) {
+//         while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], points[i]) <= 0) {
+//             upper.pop();
+//         }
+//         upper.push(points[i]);
+//     }
 
-    upper.pop();
-    lower.pop();
-    return lower.concat(upper);
-}
+//     upper.pop();
+//     lower.pop();
+//     return lower.concat(upper);
+// }
 
-function createSectorOfConvexPoints(points) {
-    var hullPoints = convexHull(points);
-    var newSector = Object.create(Sector);
-    newSector.lines = [];
-    for (i = 0 ; i < hullPoints.length - 1; i++) {
-        var newLine = Object.create(MapLine);
-        newLine.x1 = hullPoints[i].x;
-        newLine.y1 = hullPoints[i].y;
-        newLine.x2 = hullPoints[i+1].x;
-        newLine.y2 = hullPoints[i+1].y;
-        newSector.lines.push(newLine);
-    }
-    newSector.invalidate();
-    sectors.push(newSector);
-    updateCanvas();
-}
+// function createSectorOfConvexPoints(points) {
+//     var hullPoints = convexHull(points);
+//     var newSector = Object.create(Sector);
+//     newSector.lines = [];
+//     for (i = 0 ; i < hullPoints.length - 1; i++) {
+//         var newLine = Object.create(MapLine);
+//         newLine.x1 = hullPoints[i].x;
+//         newLine.y1 = hullPoints[i].y;
+//         newLine.x2 = hullPoints[i+1].x;
+//         newLine.y2 = hullPoints[i+1].y;
+//         newSector.lines.push(newLine);
+//     }
+//     newSector.invalidate();
+//     sectors.push(newSector);
+//     updateCanvas();
+// }
 
-function convexMergeLines() {
-    var pts = [];
-    for (var i = 0; i < selectedLines.length; i++) {
-        pts.push({x:selectedLines[i].x1, y:selectedLines[i].y1});
-        pts.push({x:selectedLines[i].x2, y:selectedLines[i].y2});
-    }
-    createSectorOfConvexPoints(pts);
-}
+// function convexMergeLines() {
+//     var pts = [];
+//     for (var i = 0; i < selectedLines.length; i++) {
+//         pts.push({x:selectedLines[i].x1, y:selectedLines[i].y1});
+//         pts.push({x:selectedLines[i].x2, y:selectedLines[i].y2});
+//     }
+//     createSectorOfConvexPoints(pts);
+// }
 
 // Good Variables
 // canvas = document.getElementById("maincanvas");
@@ -340,30 +340,30 @@ function updateCanvas() {
     // }
 
     // Draw Sectors
-    if (sectors.length != 0) {
-        for (i = 0; i < sectors.length; i++) {
-            if (sectors[i].inView()) {
-                p = posToView(sectors[i].bounds.x1, sectors[i].bounds.y1);
-                ctx.drawImage(sectors[i].preview, p.x, p.y, sectors[i].bounds.width / zoom, sectors[i].bounds.height / zoom);
+    // if (sectors.length != 0) {
+    //     for (i = 0; i < sectors.length; i++) {
+    //         if (sectors[i].inView()) {
+    //             p = posToView(sectors[i].bounds.x1, sectors[i].bounds.y1);
+    //             ctx.drawImage(sectors[i].preview, p.x, p.y, sectors[i].bounds.width / zoom, sectors[i].bounds.height / zoom);
 
-                if (highlightedSector == i) {
-                    ctx.strokeStyle = HIGHLIGHTLINE_COLOR;
-                    ctx.lineWidth = 2.0;
-                } else {
-                    ctx.strokeStyle = MAPLINE_COLOR;
-                    ctx.lineWidth = 1.0;
-                }
-                ctx.beginPath();
-                for (j = 0; j < sectors[i].lines.length; j++) {
-                    p = posToView(sectors[i].lines[j].x1, sectors[i].lines[j].y1);
-                    ctx.moveTo(p.x, p.y);
-                    p = posToView(sectors[i].lines[j].x2, sectors[i].lines[j].y2);
-                    ctx.lineTo(p.x, p.y);
-                }
-                ctx.stroke();
-            }
-        }
-    }
+    //             if (highlightedSector == i) {
+    //                 ctx.strokeStyle = HIGHLIGHTLINE_COLOR;
+    //                 ctx.lineWidth = 2.0;
+    //             } else {
+    //                 ctx.strokeStyle = MAPLINE_COLOR;
+    //                 ctx.lineWidth = 1.0;
+    //             }
+    //             ctx.beginPath();
+    //             for (j = 0; j < sectors[i].lines.length; j++) {
+    //                 p = posToView(sectors[i].lines[j].x1, sectors[i].lines[j].y1);
+    //                 ctx.moveTo(p.x, p.y);
+    //                 p = posToView(sectors[i].lines[j].x2, sectors[i].lines[j].y2);
+    //                 ctx.lineTo(p.x, p.y);
+    //             }
+    //             ctx.stroke();
+    //         }
+    //     }
+    // }
 
     // Draw Map Lines
     // if (mapLines.length != 0) {
@@ -409,119 +409,119 @@ function updateCanvas() {
         ctx.fillRect(p.x - VERTEX_SIZE, p.y - VERTEX_SIZE, VERTEX_SIZE * 2, VERTEX_SIZE * 2);
     }
 
-    // Draw Selected Lines
-    if (selectedLines.length != 0) {
-        ctx.lineWidth = 2.0;
-        ctx.strokeStyle = SELECTEDLINE_COLOR;
-        ctx.beginPath();
-        for (i = 0; i < selectedLines.length; i++) {
-            p = posToView(selectedLines[i].x1, selectedLines[i].y1);
-            ctx.moveTo(p.x, p.y);
-            p = posToView(selectedLines[i].x2, selectedLines[i].y2);
-            ctx.lineTo(p.x, p.y);
-        }
-        ctx.stroke();
-    }
+    // // Draw Selected Lines
+    // if (selectedLines.length != 0) {
+    //     ctx.lineWidth = 2.0;
+    //     ctx.strokeStyle = SELECTEDLINE_COLOR;
+    //     ctx.beginPath();
+    //     for (i = 0; i < selectedLines.length; i++) {
+    //         p = posToView(selectedLines[i].x1, selectedLines[i].y1);
+    //         ctx.moveTo(p.x, p.y);
+    //         p = posToView(selectedLines[i].x2, selectedLines[i].y2);
+    //         ctx.lineTo(p.x, p.y);
+    //     }
+    //     ctx.stroke();
+    // }
 
-    // Draw highlighted line
-    if (highlightedLine != null && editMode == EditMode.LINE) {
-        ctx.strokeStyle = HIGHLIGHTLINE_COLOR;
-        ctx.lineWidth = 2.0;
-        ctx.beginPath();
-        p = posToView(highlightedLine.x1, highlightedLine.y1);
-        ctx.moveTo(p.x, p.y);
-        p = posToView(highlightedLine.x2, highlightedLine.y2);
-        ctx.lineTo(p.x, p.y);
-        ctx.stroke();
-    }
+    // // Draw highlighted line
+    // if (highlightedLine != null && editMode == EditMode.LINE) {
+    //     ctx.strokeStyle = HIGHLIGHTLINE_COLOR;
+    //     ctx.lineWidth = 2.0;
+    //     ctx.beginPath();
+    //     p = posToView(highlightedLine.x1, highlightedLine.y1);
+    //     ctx.moveTo(p.x, p.y);
+    //     p = posToView(highlightedLine.x2, highlightedLine.y2);
+    //     ctx.lineTo(p.x, p.y);
+    //     ctx.stroke();
+    // }
 
-    // Extruding Line
-    if (extrudingLines) {
-        ctx.lineWidth = 2.0;
-        ctx.strokeStyle = DRAWLINE_COLOR;
+    // // Extruding Line
+    // if (extrudingLines) {
+    //     ctx.lineWidth = 2.0;
+    //     ctx.strokeStyle = DRAWLINE_COLOR;
 
-        ctx.beginPath();
-        p = posToView(extrudeLineStart.x1, extrudeLineStart.y1);
-        ctx.moveTo(p.x, p.y);
-        p = posToView(extrudeLineEnd.x2, extrudeLineEnd.y2);
-        ctx.lineTo(p.x, p.y);
-        p = posToView(extrudeLineStart.x2, extrudeLineStart.y2);
-        ctx.moveTo(p.x, p.y);
-        p = posToView(extrudeLineEnd.x1, extrudeLineEnd.y1);
-        ctx.lineTo(p.x, p.y);
-        ctx.stroke();
+    //     ctx.beginPath();
+    //     p = posToView(extrudeLineStart.x1, extrudeLineStart.y1);
+    //     ctx.moveTo(p.x, p.y);
+    //     p = posToView(extrudeLineEnd.x2, extrudeLineEnd.y2);
+    //     ctx.lineTo(p.x, p.y);
+    //     p = posToView(extrudeLineStart.x2, extrudeLineStart.y2);
+    //     ctx.moveTo(p.x, p.y);
+    //     p = posToView(extrudeLineEnd.x1, extrudeLineEnd.y1);
+    //     ctx.lineTo(p.x, p.y);
+    //     ctx.stroke();
 
-        ctx.lineWidth = 2.0;
+    //     ctx.lineWidth = 2.0;
 
-        ctx.strokeStyle = HIGHLIGHTLINE_COLOR;
-        ctx.beginPath();
-        p = posToView(extrudeLineEnd.x1, extrudeLineEnd.y1);
-        ctx.moveTo(p.x, p.y);
-        p = posToView(extrudeLineEnd.x2, extrudeLineEnd.y2);
-        ctx.lineTo(p.x, p.y);
-        ctx.stroke();
-    }
+    //     ctx.strokeStyle = HIGHLIGHTLINE_COLOR;
+    //     ctx.beginPath();
+    //     p = posToView(extrudeLineEnd.x1, extrudeLineEnd.y1);
+    //     ctx.moveTo(p.x, p.y);
+    //     p = posToView(extrudeLineEnd.x2, extrudeLineEnd.y2);
+    //     ctx.lineTo(p.x, p.y);
+    //     ctx.stroke();
+    // }
 
     
-}
+// }
 
 // Input Handler
-dragging = false;
-drawingLines = false;
-extrudingLines = false;
-extrudeLineEnd = null;
-extrudeLineStart = null;
-extrudePointStart = {x:0, y:0};
+// dragging = false;
+// drawingLines = false;
+// extrudingLines = false;
+// extrudeLineEnd = null;
+// extrudeLineStart = null;
+// extrudePointStart = {x:0, y:0};
 
-function getMouseGridPosition(e) {
-    p = viewToPos(e.offsetX, e.offsetY);
-    p.x = Math.round(p.x / gridSize) * gridSize;
-    p.y = Math.round(p.y / gridSize) * gridSize;
-    return p;
-}
+// function getMouseGridPosition(e) {
+//     p = viewToPos(e.offsetX, e.offsetY);
+//     p.x = Math.round(p.x / gridSize) * gridSize;
+//     p.y = Math.round(p.y / gridSize) * gridSize;
+//     return p;
+// }
 
-function getMouseFreePosition(e) {
-    p = viewToPos(e.offsetX, e.offsetY);
-    gridpos.x = Math.round(p.x / gridSize) * gridSize;
-    gridpos.y = Math.round(p.y / gridSize) * gridSize;
-    return p;
-}
+// function getMouseFreePosition(e) {
+//     p = viewToPos(e.offsetX, e.offsetY);
+//     gridpos.x = Math.round(p.x / gridSize) * gridSize;
+//     gridpos.y = Math.round(p.y / gridSize) * gridSize;
+//     return p;
+// }
 
-function onKeyDown(e) {
+// function onKeyDown(e) {
 
-    //console.log(e.key);
+//     //console.log(e.key);
 
-    if (e.key == " ") {
-        dragging = true;
-    }
+//     // if (e.key == " ") {
+//     //     dragging = true;
+//     // }
 
-    if (e.key == "e" && editMode == EditMode.LINE && !drawingLines) {
-        clearSelection();
-        extrudingLines = true;
-        extrudePointStart.x = gridpos.x;
-        extrudePointStart.y = gridpos.y;
-        startExtrude();
-    }
+//     if (e.key == "e" && editMode == EditMode.LINE && !drawingLines) {
+//         clearSelection();
+//         extrudingLines = true;
+//         extrudePointStart.x = gridpos.x;
+//         extrudePointStart.y = gridpos.y;
+//         startExtrude();
+//     }
 
-    if (e.key == "j" && selectedLines.length != 0) {
-        convexMergeLines();
-        clearSelection();
-    }
+//     if (e.key == "j" && selectedLines.length != 0) {
+//         convexMergeLines();
+//         clearSelection();
+//     }
 
-    if (e.key == "c") clearSelection();
-    if (e.key == "v") editMode = EditMode.VERTEX;
-    if (e.key == "s") editMode = EditMode.SECTOR;
-    if (e.key == "l") editMode = EditMode.LINE;
-    if (e.key == "t") editMode = EditMode.THING;
+//     if (e.key == "c") clearSelection();
+//     if (e.key == "v") editMode = EditMode.VERTEX;
+//     if (e.key == "s") editMode = EditMode.SECTOR;
+//     if (e.key == "l") editMode = EditMode.LINE;
+//     if (e.key == "t") editMode = EditMode.THING;
 
-    if (e.key == "Escape") {
-        if (drawingLines) cancelDrawing();
-        if (extrudingLines) cancelExtrude();
-    }
+//     if (e.key == "Escape") {
+//         if (drawingLines) cancelDrawing();
+//         if (extrudingLines) cancelExtrude();
+//     }
     
 
-    updateCanvas();
-}
+//     updateCanvas();
+// }
 
 // function onKeyUp(e) {
 //     if (e.key == " ") {
@@ -529,51 +529,51 @@ function onKeyDown(e) {
 //     }   
 // }
 
-function onMouseMove(e) {
+// function onMouseMove(e) {
     //console.log(dragging);
-    var p = getMouseFreePosition(e);
-    freepos.x = p.x;
-    freepos.y = p.y;
+    // var p = getMouseFreePosition(e);
+    // freepos.x = p.x;
+    // freepos.y = p.y;
 
-    if (dragging) {
-        offsetX -= e.movementX;
-        offsetY -= e.movementY;
-        updateCanvas();
-    }
+    // if (dragging) {
+    //     offsetX -= e.movementX;
+    //     offsetY -= e.movementY;
+    //     updateCanvas();
+    // }
 
-    if (drawingLines) {
-        pos = getMouseGridPosition(e);
-        //console.log(e);
-        drawingLinesList[drawingLinesList.length - 1].x2 = pos.x;
-        drawingLinesList[drawingLinesList.length - 1].y2 = pos.y;
-        //console.log(drawingLinesList[drawingLinesList.length - 1]);
-        updateCanvas();
-    }
+    // if (drawingLines) {
+    //     pos = getMouseGridPosition(e);
+    //     //console.log(e);
+    //     drawingLinesList[drawingLinesList.length - 1].x2 = pos.x;
+    //     drawingLinesList[drawingLinesList.length - 1].y2 = pos.y;
+    //     //console.log(drawingLinesList[drawingLinesList.length - 1]);
+    //     updateCanvas();
+    // }
 
-    if (editMode == EditMode.SECTOR) {
-        highlightedSector = getHighlightSector(freepos.x, freepos.y);
-        updateCanvas();
-    } else {
-        highlightedSector = -1;
-    }
+    // if (editMode == EditMode.SECTOR) {
+    //     highlightedSector = getHighlightSector(freepos.x, freepos.y);
+    //     updateCanvas();
+    // } else {
+    //     highlightedSector = -1;
+    // }
 
-    if (editMode == EditMode.LINE) {
+    // if (editMode == EditMode.LINE) {
 
-        if (extrudingLines) {
-            updateExtrude(e);
-            updateCanvas();
-        } else {
-            getHighlightLine(freepos.x, freepos.y);
-            //console.log(highlightedLine);
-            updateCanvas();
-        }
+    //     if (extrudingLines) {
+    //         updateExtrude(e);
+    //         updateCanvas();
+    //     } else {
+    //         getHighlightLine(freepos.x, freepos.y);
+    //         //console.log(highlightedLine);
+    //         updateCanvas();
+    //     }
         
-    } else {
-        highlightedLine = null;
-    }
+    // } else {
+    //     highlightedLine = null;
+    // }
 
-    mpos = getMouseGridPosition(e);
-    if (editMode == EditMode.VERTEX) updateCanvas();
+    // mpos = getMouseGridPosition(e);
+    // if (editMode == EditMode.VERTEX) updateCanvas();
 }
 
 // function onMouseWheel(e) {
@@ -589,175 +589,175 @@ function onMouseMove(e) {
 //     if (e.deltaY != 0) updateCanvas();
 // }
 
-function onMouseDown(e) {
-    e.preventDefault();
-    pos = getMouseGridPosition(e);
+// function onMouseDown(e) {
+//     e.preventDefault();
+//     pos = getMouseGridPosition(e);
 
-    if (extrudingLines) {
+//     if (extrudingLines) {
 
-        if (e.button == 0) {
-            finishExtrude();
-        }
+//         if (e.button == 0) {
+//             finishExtrude();
+//         }
 
-        return;
-    }
+//         return;
+//     }
 
-    if (editMode == EditMode.LINE) {
-        if (e.button == 0 && !drawingLines) {
-            var nLine = Object.create(DrawLine);
-            nLine.x1 = highlightedLine.x1;
-            nLine.y1 = highlightedLine.y1;
-            nLine.x2 = highlightedLine.x2;
-            nLine.y2 = highlightedLine.y2;
-            selectedLines.push(nLine);
-        }
-    }
+    // if (editMode == EditMode.LINE) {
+    //     if (e.button == 0 && !drawingLines) {
+    //         var nLine = Object.create(DrawLine);
+    //         nLine.x1 = highlightedLine.x1;
+    //         nLine.y1 = highlightedLine.y1;
+    //         nLine.x2 = highlightedLine.x2;
+    //         nLine.y2 = highlightedLine.y2;
+    //         selectedLines.push(nLine);
+    //     }
+    // }
 
-    if (!drawingLines) {
-        if (e.button == 2) {
-            drawingLines = true;
-            drawingLinesList.push(Object.create(DrawLine));
-            drawingLinesList[0].x1 = pos.x;
-            drawingLinesList[0].y1 = pos.y;
-        }
-    } else {
-        if (e.button == 0) {
-            if (pos.x == drawingLinesList[0].x1 && pos.y == drawingLinesList[0].y1) {
-                drawingLinesList[drawingLinesList.length - 1].x2 = pos.x;
-                drawingLinesList[drawingLinesList.length - 1].y2 = pos.y;
-                finishDrawingSector();
-            } else {
-                drawingLinesList.push(Object.create(DrawLine));
-                drawingLinesList[drawingLinesList.length - 1].x1 = pos.x;
-                drawingLinesList[drawingLinesList.length - 1].y1 = pos.y;
-            }
-        }
-    }
-}
+    // if (!drawingLines) {
+        // if (e.button == 2) {
+        //     drawingLines = true;
+        //     drawingLinesList.push(Object.create(DrawLine));
+        //     drawingLinesList[0].x1 = pos.x;
+        //     drawingLinesList[0].y1 = pos.y;
+        // }
+    // } else {
+        // if (e.button == 0) {
+        //     if (pos.x == drawingLinesList[0].x1 && pos.y == drawingLinesList[0].y1) {
+        //         drawingLinesList[drawingLinesList.length - 1].x2 = pos.x;
+        //         drawingLinesList[drawingLinesList.length - 1].y2 = pos.y;
+        //         finishDrawingSector();
+        //     } else {
+        //         drawingLinesList.push(Object.create(DrawLine));
+        //         drawingLinesList[drawingLinesList.length - 1].x1 = pos.x;
+        //         drawingLinesList[drawingLinesList.length - 1].y1 = pos.y;
+        //     }
+        // }
+//     }
+// }
 
-function cancelExtrude() {
-    extrudingLines = false;
-    updateCanvas();
-}
+// function cancelExtrude() {
+//     extrudingLines = false;
+//     updateCanvas();
+// }
 
-function clearSelection() {
-    selectedLines = [];
-    updateCanvas();
-}
+// function clearSelection() {
+//     selectedLines = [];
+//     updateCanvas();
+// }
 
-function startExtrude() {
-    extrudeLineStart = Object.create(DrawLine);
-    extrudeLineStart.x1 = highlightedLine.x1;
-    extrudeLineStart.y1 = highlightedLine.y1;
-    extrudeLineStart.x2 = highlightedLine.x2;
-    extrudeLineStart.y2 = highlightedLine.y2;
+// function startExtrude() {
+//     extrudeLineStart = Object.create(DrawLine);
+//     extrudeLineStart.x1 = highlightedLine.x1;
+//     extrudeLineStart.y1 = highlightedLine.y1;
+//     extrudeLineStart.x2 = highlightedLine.x2;
+//     extrudeLineStart.y2 = highlightedLine.y2;
 
-    extrudeLineEnd = Object.create(DrawLine);
-    // extrudeLineEnd.x2 = highlightedLine.x1;
-    // extrudeLineEnd.y2 = highlightedLine.y1;
-    // extrudeLineEnd.x1 = highlightedLine.x2;
-    // extrudeLineEnd.y1 = highlightedLine.y2;
-}
+//     extrudeLineEnd = Object.create(DrawLine);
+//     // extrudeLineEnd.x2 = highlightedLine.x1;
+//     // extrudeLineEnd.y2 = highlightedLine.y1;
+//     // extrudeLineEnd.x1 = highlightedLine.x2;
+//     // extrudeLineEnd.y1 = highlightedLine.y2;
+// }
 
-function updateExtrude() {
-    var p = {x:gridpos.x-extrudePointStart.x, y:gridpos.y-extrudePointStart.y};
+// function updateExtrude() {
+//     var p = {x:gridpos.x-extrudePointStart.x, y:gridpos.y-extrudePointStart.y};
 
-    extrudeLineEnd.x2 = highlightedLine.x1 + p.x;
-    extrudeLineEnd.y2 = highlightedLine.y1 + p.y;
-    extrudeLineEnd.x1 = highlightedLine.x2 + p.x;
-    extrudeLineEnd.y1 = highlightedLine.y2 + p.y;
-}
+//     extrudeLineEnd.x2 = highlightedLine.x1 + p.x;
+//     extrudeLineEnd.y2 = highlightedLine.y1 + p.y;
+//     extrudeLineEnd.x1 = highlightedLine.x2 + p.x;
+//     extrudeLineEnd.y1 = highlightedLine.y2 + p.y;
+// }
 
-function finishExtrude() {
-    extrudingLines = false;
+// function finishExtrude() {
+//     extrudingLines = false;
 
-    var l1 = Object.create(MapLine);
-    l1.x1 = extrudeLineStart.x1;
-    l1.y1 = extrudeLineStart.y1;
-    l1.x2 = extrudeLineStart.x2;
-    l1.y2 = extrudeLineStart.y2;
+//     var l1 = Object.create(MapLine);
+//     l1.x1 = extrudeLineStart.x1;
+//     l1.y1 = extrudeLineStart.y1;
+//     l1.x2 = extrudeLineStart.x2;
+//     l1.y2 = extrudeLineStart.y2;
     
-    var l2 = Object.create(MapLine);
-    l2.x1 = extrudeLineStart.x2;
-    l2.y1 = extrudeLineStart.y2;
-    l2.x2 = extrudeLineEnd.x1;
-    l2.y2 = extrudeLineEnd.y1;
+//     var l2 = Object.create(MapLine);
+//     l2.x1 = extrudeLineStart.x2;
+//     l2.y1 = extrudeLineStart.y2;
+//     l2.x2 = extrudeLineEnd.x1;
+//     l2.y2 = extrudeLineEnd.y1;
 
-    var l3 = Object.create(MapLine);
-    l3.x1 = extrudeLineEnd.x1;
-    l3.y1 = extrudeLineEnd.y1;
-    l3.x2 = extrudeLineEnd.x2;
-    l3.y2 = extrudeLineEnd.y2;
+//     var l3 = Object.create(MapLine);
+//     l3.x1 = extrudeLineEnd.x1;
+//     l3.y1 = extrudeLineEnd.y1;
+//     l3.x2 = extrudeLineEnd.x2;
+//     l3.y2 = extrudeLineEnd.y2;
 
-    var l4 = Object.create(MapLine);
-    l4.x1 = extrudeLineEnd.x2;
-    l4.y1 = extrudeLineEnd.y2;
-    l4.x2 = extrudeLineStart.x1;
-    l4.y2 = extrudeLineStart.y1;
+//     var l4 = Object.create(MapLine);
+//     l4.x1 = extrudeLineEnd.x2;
+//     l4.y1 = extrudeLineEnd.y2;
+//     l4.x2 = extrudeLineStart.x1;
+//     l4.y2 = extrudeLineStart.y1;
 
-    var newSect = Object.create(Sector);
-    newSect.lines = [];
-    newSect.lines.push(l1);
-    newSect.lines.push(l2);
-    newSect.lines.push(l3);
-    newSect.lines.push(l4);
-    //console.log(newSect.lines);
-    newSect.invalidate();
-    sectors.push(newSect);
-    updateCanvas();
-}
+//     var newSect = Object.create(Sector);
+//     newSect.lines = [];
+//     newSect.lines.push(l1);
+//     newSect.lines.push(l2);
+//     newSect.lines.push(l3);
+//     newSect.lines.push(l4);
+//     //console.log(newSect.lines);
+//     newSect.invalidate();
+//     sectors.push(newSect);
+//     updateCanvas();
+// }
 
-function cancelDrawing() {
-    drawingLines = false;
-    drawingLinesList = [];
-    updateCanvas();
-}
+// function cancelDrawing() {
+//     drawingLines = false;
+//     drawingLinesList = [];
+//     updateCanvas();
+// }
 
-function finishDrawingSector() {
-    drawingLines = false;
+// function finishDrawingSector() {
+//     drawingLines = false;
 
-    var newSector = Object.create(Sector);
-    newSector.lines = [];
-    for (i = 0; i < drawingLinesList.length; i++) {
-        newLine = Object.create(MapLine);
-        newLine.x1 = drawingLinesList[i].x1;
-        newLine.x2 = drawingLinesList[i].x2;
-        newLine.y1 = drawingLinesList[i].y1;
-        newLine.y2 = drawingLinesList[i].y2;
-        newSector.lines.push(newLine);
-    }
+//     var newSector = Object.create(Sector);
+//     newSector.lines = [];
+//     for (i = 0; i < drawingLinesList.length; i++) {
+//         newLine = Object.create(MapLine);
+//         newLine.x1 = drawingLinesList[i].x1;
+//         newLine.x2 = drawingLinesList[i].x2;
+//         newLine.y1 = drawingLinesList[i].y1;
+//         newLine.y2 = drawingLinesList[i].y2;
+//         newSector.lines.push(newLine);
+//     }
 
-    newSector.invalidate();
-    sectors.push(newSector);
-    drawingLinesList = [];
-    updateCanvas();
-}
+//     newSector.invalidate();
+//     sectors.push(newSector);
+//     drawingLinesList = [];
+//     updateCanvas();
+// }
 
-function finishDrawingLine() {
-    drawingLines = false;
+// function finishDrawingLine() {
+//     drawingLines = false;
 
-    for (i = 0; i < drawingLinesList.length; i++) {
-        newLine = Object.create(MapLine);
-        newLine.x1 = drawingLinesList[i].x1;
-        newLine.x2 = drawingLinesList[i].x2;
-        newLine.y1 = drawingLinesList[i].y1;
-        newLine.y2 = drawingLinesList[i].y2;
-        mapLines.push(newLine);
-    }
-    drawingLinesList = [];
-    updateCanvas();
-}
+//     for (i = 0; i < drawingLinesList.length; i++) {
+//         newLine = Object.create(MapLine);
+//         newLine.x1 = drawingLinesList[i].x1;
+//         newLine.x2 = drawingLinesList[i].x2;
+//         newLine.y1 = drawingLinesList[i].y1;
+//         newLine.y2 = drawingLinesList[i].y2;
+//         mapLines.push(newLine);
+//     }
+//     drawingLinesList = [];
+//     updateCanvas();
+// }
 
 // function tick() {
 //     offsetX += 1;
 //     drawGrid();
 // }
 
-updateCanvas();
+// updateCanvas();
 //window.setInterval(tick, 1);
 
-window.addEventListener("keydown", onKeyDown);
-window.addEventListener("keyup", onKeyUp);
-window.addEventListener("mousemove", onMouseMove);
-window.addEventListener("mousewheel", onMouseWheel);
-window.addEventListener("mousedown", onMouseDown);
+// window.addEventListener("keydown", onKeyDown);
+// window.addEventListener("keyup", onKeyUp);
+// window.addEventListener("mousemove", onMouseMove);
+// window.addEventListener("mousewheel", onMouseWheel);
+// window.addEventListener("mousedown", onMouseDown);

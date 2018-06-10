@@ -8,6 +8,9 @@ class Vertex {
     public equals(point:Vertex):boolean {
         return this.x == point.x && this.y == point.y;
     }
+    public clone():Vertex {
+        return new Vertex(this.x, this.y);
+    }
 }
 
 class Rect {
@@ -84,6 +87,17 @@ class Sector {
         }
 
     }
+
+    public static fromConvexPoints(points:Array<Vertex>, texture:HTMLImageElement) {
+        var hullPoints = convexHull(points);
+        var newSector = new Sector(texture);
+        for (let i = 0 ; i < hullPoints.length - 1; i++) {
+            var newLine = new Line(hullPoints[i], hullPoints[i+1]);
+            newSector.lines.push(newLine);
+        }
+        newSector.invalidate();
+        return newSector;
+    }
 }
 
 class Line {
@@ -95,7 +109,7 @@ class Line {
     public shapeDefining : boolean;
 
     public constructor (start:Vertex, end:Vertex) {
-        this.start = start;
-        this.end = end;
+        this.start = start.clone();
+        this.end = end.clone();
     }
 }

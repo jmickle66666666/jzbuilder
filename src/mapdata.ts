@@ -8,4 +8,47 @@ class MapData {
         this.sectors = new Array<Sector>();
     }
 
+    getAllLines():Array<Line> {
+        let output:Array<Line> = new Array<Line>();
+        output = output.concat(this.lines);
+        for (let i = 0; i < this.sectors.length; i++) {
+            output = output.concat(this.sectors[i].lines);
+        }
+        return output;
+    }
+
+    getSectorIndexAt(p:Vertex):number {
+        if (this.sectors.length == 0) return -1;
+        var nIndex = -1;
+        var nDist = Number.MAX_VALUE;
+        for (let i = 0; i < this.sectors.length; i++) {
+            if (this.sectors[i].bounds.pointInBounds(p)) {
+                let d = sqrDist(p, this.sectors[i].bounds.midPoint);
+                if (d < nDist) {
+                    nDist = d;
+                    nIndex = i;
+                }
+            }
+        }
+
+        return nIndex;
+    }
+
+    getNearestLine(p:Vertex):Line {
+        let allLines:Array<Line> = this.getAllLines();
+        if (allLines.length == 0) return null;
+        if (allLines.length == 1) return allLines[0];
+
+        let nDist = distToSegmentMidpoint(p, allLines[0]);
+        let nLine = allLines[0];
+        for (let i = 1; i < allLines.length; i++) {
+            let d = distToSegmentMidpoint(p, allLines[i]);
+            if (d < nDist) {
+                nDist = d;
+                nLine = new Line(allLines[i].start, allLines[i].end);
+            }
+        }
+        return nLine;
+    }
+
 }
