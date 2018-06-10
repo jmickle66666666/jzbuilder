@@ -65,7 +65,7 @@ class BuilderCanvas {
         this.drawMapLines();
         this.drawDrawLines();
         if (Input.state == InputState.EXTRUDING) this.drawExtrudeLine();
-        if (editMode == EditMode.VERTEX) this.drawVertexes();
+        this.drawVertexes();
         this.drawSelectedLines();
         if (editMode == EditMode.LINE) this.drawHighlightedLines();
         //this.drawDebug();
@@ -145,6 +145,7 @@ class BuilderCanvas {
     }
 
     drawLines(lines : Array<Line>, color:string, width:number = 1.0):void {
+        if (lines == null) return;
         if (lines.length == 0) return;
         this.ctx.lineWidth = width;
         this.ctx.strokeStyle = color;

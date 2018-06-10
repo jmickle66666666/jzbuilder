@@ -2,10 +2,16 @@ body {
     background: #dddada;
     text-align: center;
     width: 100%;
+    font-family: 'Archivo Narrow', sans-serif;
 }
 
 #maincanvas {
     border: 4px;
     border-style: dashed;
     border-color: #000;
+}
+
+#helpArea {
+    padding-left: 30%;
+    text-align: left;
 }

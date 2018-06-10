@@ -50,8 +50,7 @@ var BuilderCanvas = /** @class */ (function () {
         this.drawDrawLines();
         if (Input.state == InputState.EXTRUDING)
             this.drawExtrudeLine();
-        if (editMode == EditMode.VERTEX)
-            this.drawVertexes();
+        this.drawVertexes();
         this.drawSelectedLines();
         if (editMode == EditMode.LINE)
             this.drawHighlightedLines();
@@ -127,6 +126,8 @@ var BuilderCanvas = /** @class */ (function () {
     };
     BuilderCanvas.prototype.drawLines = function (lines, color, width) {
         if (width === void 0) { width = 1.0; }
+        if (lines == null)
+            return;
         if (lines.length == 0)
             return;
         this.ctx.lineWidth = width;

@@ -15,6 +15,14 @@ function finishDrawingSector() {
     mainCanvas.drawingLines.length = 0;
     mainCanvas.redraw();
 }
+function finishDrawingLines() {
+    Input.state = InputState.NONE;
+    for (var i = 0; i < mainCanvas.drawingLines.length; i++) {
+        mapData.lines.push(mainCanvas.drawingLines[i]);
+    }
+    mainCanvas.drawingLines.length = 0;
+    mainCanvas.redraw();
+}
 function clearSelection() {
     mainCanvas.selectedLines.length = 0;
     mainCanvas.redraw();
@@ -95,6 +103,9 @@ function onKeyDown(e) {
     if (e.key == "Escape") {
         cancelDrawing();
         cancelExtrude();
+    }
+    if (e.key == "Enter") {
+        finishDrawingLines();
     }
     mainCanvas.redraw();
 }
@@ -183,7 +194,7 @@ function onMouseDown(e) {
 }
 window.addEventListener("keydown", onKeyDown);
 window.addEventListener("keyup", onKeyUp);
-window.addEventListener("mousemove", onMouseMove);
-window.addEventListener("mousewheel", onMouseWheel);
-window.addEventListener("mousedown", onMouseDown);
+mainCanvas.canvas.addEventListener("mousemove", onMouseMove);
+mainCanvas.canvas.addEventListener("mousewheel", onMouseWheel);
+mainCanvas.canvas.addEventListener("mousedown", onMouseDown);
 //# sourceMappingURL=main.js.map
