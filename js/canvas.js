@@ -27,6 +27,7 @@ var BuilderCanvas = /** @class */ (function () {
         this.gridSize = 32;
         this.mapData = mapData;
         this.canvas = canvas;
+        this.drawingLines = new Array();
         this.ctx = this.canvas.getContext('2d');
     }
     BuilderCanvas.prototype.posToView = function (p) {
@@ -82,12 +83,20 @@ var BuilderCanvas = /** @class */ (function () {
         }
     };
     BuilderCanvas.prototype.drawSectors = function () {
+        if (this.mapData.sectors.length != 0) {
+            //console.log("hello");
+            for (var i = 0; i < mapData.sectors.length; i++) {
+                var p = this.posToView(this.mapData.sectors[i].bounds.topLeft);
+                this.ctx.drawImage(this.mapData.sectors[i].preview, p.x, p.y, this.mapData.sectors[i].bounds.width / this.zoom, this.mapData.sectors[i].bounds.height / this.zoom);
+                this.drawLines(this.mapData.sectors[i].lines, this.MAPLINE_COLOR, 1.0);
+            }
+        }
     };
     BuilderCanvas.prototype.drawMapLines = function () {
         this.drawLines(this.mapData.lines, this.MAPLINE_COLOR);
     };
     BuilderCanvas.prototype.drawDrawLines = function () {
-        //this.drawLines(this.mapData.lines, this.MAPLINE_COLOR);
+        this.drawLines(this.drawingLines, this.DRAWLINE_COLOR, 2);
     };
     BuilderCanvas.prototype.drawVertexes = function () {
     };
@@ -99,6 +108,18 @@ var BuilderCanvas = /** @class */ (function () {
     };
     BuilderCanvas.prototype.drawLines = function (lines, color, width) {
         if (width === void 0) { width = 1.0; }
+        if (lines.length == 0)
+            return;
+        this.ctx.lineWidth = width;
+        this.ctx.strokeStyle = color;
+        this.ctx.beginPath();
+        for (var i = 0; i < lines.length; i++) {
+            var p = this.posToView(lines[i].start);
+            this.ctx.moveTo(p.x, p.y);
+            p = this.posToView(lines[i].end);
+            this.ctx.lineTo(p.x, p.y);
+        }
+        this.ctx.stroke();
     };
     return BuilderCanvas;
 }());

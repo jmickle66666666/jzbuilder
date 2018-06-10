@@ -31,9 +31,12 @@ class BuilderCanvas {
 
     mapData : MapData;
 
+    drawingLines : Array<Line>;
+
     public constructor (canvas: HTMLCanvasElement, mapData : MapData) {
         this.mapData = mapData;
         this.canvas = canvas;
+        this.drawingLines = new Array<Line>();
         this.ctx = <CanvasRenderingContext2D> this.canvas.getContext('2d');
     }
 
@@ -92,7 +95,14 @@ class BuilderCanvas {
     }
 
     drawSectors():void {
-
+        if (this.mapData.sectors.length != 0) {
+            //console.log("hello");
+            for (let i = 0; i < mapData.sectors.length; i++) {
+                let p = this.posToView(this.mapData.sectors[i].bounds.topLeft);
+                this.ctx.drawImage(this.mapData.sectors[i].preview, p.x, p.y, this.mapData.sectors[i].bounds.width / this.zoom, this.mapData.sectors[i].bounds.height / this.zoom);
+                this.drawLines(this.mapData.sectors[i].lines, this.MAPLINE_COLOR, 1.0);
+            }
+        }
     }
 
     drawMapLines():void {
@@ -100,7 +110,7 @@ class BuilderCanvas {
     }
 
     drawDrawLines():void {
-        //this.drawLines(this.mapData.lines, this.MAPLINE_COLOR);
+        this.drawLines(this.drawingLines, this.DRAWLINE_COLOR, 2);
     }
 
     drawVertexes():void {
@@ -116,6 +126,16 @@ class BuilderCanvas {
     }
 
     drawLines(lines : Array<Line>, color:string, width:number = 1.0):void {
-
+        if (lines.length == 0) return;
+        this.ctx.lineWidth = width;
+        this.ctx.strokeStyle = color;
+        this.ctx.beginPath();
+        for (let i = 0; i < lines.length; i++) {
+            let p:Vertex = this.posToView(lines[i].start);
+            this.ctx.moveTo(p.x, p.y);
+            p = this.posToView(lines[i].end);
+            this.ctx.lineTo(p.x, p.y);
+        }
+        this.ctx.stroke();
     }
 }

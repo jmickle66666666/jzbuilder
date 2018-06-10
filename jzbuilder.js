@@ -1,32 +1,32 @@
 // Constants
-CANVAS_BG_COLOR = "#434043";
-GRID_COLOR = "#000000";
-GRID_CENTER_COLOR = "#888888";
-DRAWLINE_COLOR = "#998811";
-MAPLINE_COLOR = "#cccccc";
-HIGHLIGHTLINE_COLOR = "#FFFFFF";
-VERTEX_COLOR = "#FF8811";
-DRAWVERTEX_COLOR = "#FFFFFF";
-SECTOR_COLOR = "#22441144";
-SELECTEDLINE_COLOR = "#FFAA11";
-LINE_SELECT_DISTANCE = 5;
-VERTEX_SIZE = 2;
-ZOOM_SPEED = 1.05;
+// CANVAS_BG_COLOR = "#434043";
+// GRID_COLOR = "#000000";
+// GRID_CENTER_COLOR = "#888888";
+// DRAWLINE_COLOR = "#998811";
+// MAPLINE_COLOR = "#cccccc";
+// HIGHLIGHTLINE_COLOR = "#FFFFFF";
+// VERTEX_COLOR = "#FF8811";
+// DRAWVERTEX_COLOR = "#FFFFFF";
+// SECTOR_COLOR = "#22441144";
+// SELECTEDLINE_COLOR = "#FFAA11";
+// LINE_SELECT_DISTANCE = 5;
+// VERTEX_SIZE = 2;
+// ZOOM_SPEED = 1.05;
 
-var EditMode = {
-    VERTEX : "vertex",
-    LINE : "line",
-    SECTOR : "sector",
-    THING : "thing"
-}
+// var EditMode = {
+//     VERTEX : "vertex",
+//     LINE : "line",
+//     SECTOR : "sector",
+//     THING : "thing"
+// }
 
-editMode = EditMode.LINE;
+// editMode = EditMode.LINE;
 
 // View Control Values
-offsetX = -400;
-offsetY = -300;
-zoom = 1.0;
-gridSize = 32;
+// offsetX = -400;
+// offsetY = -300;
+// zoom = 1.0;
+// gridSize = 32;
 
 highlightedSector = -1;
 highlightedLine = { x1:0, y2:0, x2:0, y1:0 };
@@ -40,125 +40,125 @@ freepos = {x:0, y:0};
 gridpos = {x:0, y:0};
 
 // test
-sector_img = document.createElement('img');
-sector_img.src = "JZCRATE2.png";
+// sector_img = document.createElement('img');
+// sector_img.src = "JZCRATE2.png";
 
 // Classes
-var DrawLine = {
-    x1 : 0,
-    y1 : 0,
-    x2 : 0,
-    y2 : 0
-};
+// var DrawLine = {
+//     x1 : 0,
+//     y1 : 0,
+//     x2 : 0,
+//     y2 : 0
+// };
 
-var MapLine = {
-    x1 : 0,
-    y1 : 0,
-    x2 : 0,
-    y2 : 0,
-    inView : function() {
-        return (this.x1 > offsetX && this.x1 < offsetX + canvas.width && 
-                this.y1 > offsetY && this.y1 < offsetY + canvas.height) ||
-               (this.x2 > offsetX && this.x2 < offsetX + canvas.width && 
-                this.y2 > offsetY && this.y2 < offsetY + canvas.height);
-    },
-    frontSector : null,
-    backSector : null,
-    shapeDefining : false,
-    invalidate : function() {
-        if (this.shapeDefining) {
-            if (this.frontSector != null) this.frontSector.invalidate();
-            if (this.backSector != null) this.frontSector.invalidate();
-        }
-    }
-}
+// var MapLine = {
+//     x1 : 0,
+//     y1 : 0,
+//     x2 : 0,
+//     y2 : 0,
+//     inView : function() {
+//         return (this.x1 > offsetX && this.x1 < offsetX + canvas.width && 
+//                 this.y1 > offsetY && this.y1 < offsetY + canvas.height) ||
+//                (this.x2 > offsetX && this.x2 < offsetX + canvas.width && 
+//                 this.y2 > offsetY && this.y2 < offsetY + canvas.height);
+//     },
+//     frontSector : null,
+//     backSector : null,
+//     shapeDefining : false,
+//     invalidate : function() {
+//         if (this.shapeDefining) {
+//             if (this.frontSector != null) this.frontSector.invalidate();
+//             if (this.backSector != null) this.frontSector.invalidate();
+//         }
+//     }
+// }
 
-var Sector = {
-    bounds : null,
-    lines : null,
-    preview : null,
-    inView : function() {
-        return (this.bounds.x1 > offsetX && this.bounds.x1 < offsetX + canvas.width && 
-                this.bounds.y1 > offsetY && this.bounds.y1 < offsetY + canvas.height) ||
-               (this.bounds.x2 > offsetX && this.bounds.x2 < offsetX + canvas.width && 
-                this.bounds.y2 > offsetY && this.bounds.y2 < offsetY + canvas.height);
-    },
-    pointInBounds : function(x, y) {
-        return (x > this.bounds.x1 && x < this.bounds.x2 && y > this.bounds.y1 && y < this.bounds.y2);
-    },
-    invalidate : function() {
-        if (this.lines.length != 0) {
-            console.log("lines: ", this.lines.length);
-            console.log(this.lines);
+// var Sector = {
+//     bounds : null,
+//     lines : null,
+//     preview : null,
+//     inView : function() {
+//         return (this.bounds.x1 > offsetX && this.bounds.x1 < offsetX + canvas.width && 
+//                 this.bounds.y1 > offsetY && this.bounds.y1 < offsetY + canvas.height) ||
+//                (this.bounds.x2 > offsetX && this.bounds.x2 < offsetX + canvas.width && 
+//                 this.bounds.y2 > offsetY && this.bounds.y2 < offsetY + canvas.height);
+//     },
+//     pointInBounds : function(x, y) {
+//         return (x > this.bounds.x1 && x < this.bounds.x2 && y > this.bounds.y1 && y < this.bounds.y2);
+//     },
+//     invalidate : function() {
+//         if (this.lines.length != 0) {
+//             console.log("lines: ", this.lines.length);
+//             console.log(this.lines);
 
-            this.bounds = { x1 : 0, y1 : 0, x2 : 0, y2 : 0, width : 0, height : 0, mpx : 0, mpy : 0 };
+//             this.bounds = { x1 : 0, y1 : 0, x2 : 0, y2 : 0, width : 0, height : 0, mpx : 0, mpy : 0 };
 
-            for (i = 0; i < this.lines.length; i++) {
-                this.bounds.x1 = Math.min(this.bounds.x1, this.lines[i].x1, this.lines[i].x2);
-                this.bounds.x2 = Math.max(this.bounds.x2, this.lines[i].x1, this.lines[i].x2);
-                this.bounds.y1 = Math.min(this.bounds.y1, this.lines[i].y1, this.lines[i].y2);
-                this.bounds.y2 = Math.max(this.bounds.y2, this.lines[i].y1, this.lines[i].y2);
-            }
-            this.bounds.width = this.bounds.x2 - this.bounds.x1;
-            this.bounds.height = this.bounds.y2 - this.bounds.y1;
-            this.bounds.mpx = this.bounds.x1 + this.bounds.width/2;
-            this.bounds.mpy = this.bounds.y1 + this.bounds.height/2;
+//             for (i = 0; i < this.lines.length; i++) {
+//                 this.bounds.x1 = Math.min(this.bounds.x1, this.lines[i].x1, this.lines[i].x2);
+//                 this.bounds.x2 = Math.max(this.bounds.x2, this.lines[i].x1, this.lines[i].x2);
+//                 this.bounds.y1 = Math.min(this.bounds.y1, this.lines[i].y1, this.lines[i].y2);
+//                 this.bounds.y2 = Math.max(this.bounds.y2, this.lines[i].y1, this.lines[i].y2);
+//             }
+//             this.bounds.width = this.bounds.x2 - this.bounds.x1;
+            // this.bounds.height = this.bounds.y2 - this.bounds.y1;
+            // this.bounds.mpx = this.bounds.x1 + this.bounds.width/2;
+            // this.bounds.mpy = this.bounds.y1 + this.bounds.height/2;
 
-            this.preview = document.createElement("canvas");
-            this.preview.width = this.bounds.width;
-            this.preview.height = this.bounds.height;
-            _ctx = this.preview.getContext('2d');
-            _ctx.fillStyle = SECTOR_COLOR;
-            //_ctx.strokeStyle = MAPLINE_COLOR;
-            _ctx.beginPath();
-            _ctx.moveTo(this.lines[0].x1 - this.bounds.x1, this.lines[0].y1 - this.bounds.y1);
-            for (i = 0; i < this.lines.length; i++) {
-                _ctx.lineTo(this.lines[i].x2 - this.bounds.x1, this.lines[i].y2 - this.bounds.y1);
-            }
-            _ctx.imageSmoothingEnabled = false;
-            _ctx.clip();
+            // this.preview = document.createElement("canvas");
+            // this.preview.width = this.bounds.width;
+            // this.preview.height = this.bounds.height;
+            // _ctx = this.preview.getContext('2d');
+            // _ctx.fillStyle = SECTOR_COLOR;
+            // //_ctx.strokeStyle = MAPLINE_COLOR;
+            // _ctx.beginPath();
+            // _ctx.moveTo(this.lines[0].x1 - this.bounds.x1, this.lines[0].y1 - this.bounds.y1);
+            // for (i = 0; i < this.lines.length; i++) {
+            //     _ctx.lineTo(this.lines[i].x2 - this.bounds.x1, this.lines[i].y2 - this.bounds.y1);
+            // }
+            // _ctx.imageSmoothingEnabled = false;
+            // _ctx.clip();
 
-            var ox = this.bounds.x1 % 64;
-            var oy = this.bounds.y1 % 64;
+            // var ox = this.bounds.x1 % 64;
+            // var oy = this.bounds.y1 % 64;
 
-            for (i = -ox - 64; i < this.bounds.width; i += 64) {
-                for (j = -oy - 64; j < this.bounds.height; j += 64) {
-                    _ctx.drawImage(sector_img, i, j);
-                }
-            }
+            // for (i = -ox - 64; i < this.bounds.width; i += 64) {
+            //     for (j = -oy - 64; j < this.bounds.height; j += 64) {
+            //         _ctx.drawImage(sector_img, i, j);
+            //     }
+            // }
 
             //_ctx.drawImage(document.getElementById("logo"), 0, 0);
             //_ctx.fill();
             //_ctx.stroke();
-        }
-    }
-}
+//         }
+//     }
+// }
 
-function sqrDist(x1, y1, x2, y2) {
-    a = x2 - x1;
-    b = y2 - y1;
-    return a**2 + b**2;
-}
+// function sqrDist(x1, y1, x2, y2) {
+//     a = x2 - x1;
+//     b = y2 - y1;
+//     return a**2 + b**2;
+// }
 
-function distToSegmentMidpoint(x, y, x1, y1, x2 ,y2) {
-    return sqrDist(x, y, (x1 + x2)/2, (y1 + y2)/2);
-}
+// function distToSegmentMidpoint(x, y, x1, y1, x2 ,y2) {
+//     return sqrDist(x, y, (x1 + x2)/2, (y1 + y2)/2);
+// }
 
-function distToSegmentSquared(x, y, x1, y1, x2, y2) {
-    var p = {x, y};
-    var v = {x1, y1};
-    var w = {x2, y2};
-    var l2 = sqrDist(v, w);
+// function distToSegmentSquared(x, y, x1, y1, x2, y2) {
+//     var p = {x, y};
+//     var v = {x1, y1};
+//     var w = {x2, y2};
+//     var l2 = sqrDist(v, w);
       
-    if (l2 == 0) return sqrDist(p, v);
+//     if (l2 == 0) return sqrDist(p, v);
       
-    var t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+//     var t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
       
-    if (t < 0) return sqrDist(p, v);
-    if (t > 1) return sqrDist(p, w);
+//     if (t < 0) return sqrDist(p, v);
+//     if (t > 1) return sqrDist(p, w);
       
-    return sqrDist(p, { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) });
-}
+//     return sqrDist(p, { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) });
+// }
 
 function getHighlightSector(x, y) {
     if (sectors.length == 0) return -1;
@@ -291,53 +291,53 @@ function convexMergeLines() {
 }
 
 // Good Variables
-canvas = document.getElementById("maincanvas");
-ctx = canvas.getContext('2d');
-ctx.imageSmoothingEnabled = false;
+// canvas = document.getElementById("maincanvas");
+// ctx = canvas.getContext('2d');
+// ctx.imageSmoothingEnabled = false;
 
-function posToView(x, y) {
-    x = (x / zoom) - offsetX;
-    y = (y / zoom) - offsetY;
-    return {x, y};
-}
+// function posToView(x, y) {
+//     x = (x / zoom) - offsetX;
+//     y = (y / zoom) - offsetY;
+//     return {x, y};
+// }
 
-function viewToPos(x, y) {
-    x = (x + offsetX) * zoom;
-    y = (y + offsetY) * zoom;
-    return {x, y};
-}
+// function viewToPos(x, y) {
+//     x = (x + offsetX) * zoom;
+//     y = (y + offsetY) * zoom;
+//     return {x, y};
+// }
 
 function updateCanvas() {
 
-    ctx = canvas.getContext('2d');
+    // ctx = canvas.getContext('2d');
 
     // Draw Grid 
-    ctx.fillStyle = CANVAS_BG_COLOR;
-    ctx.fillRect(0, 0, 800, 600);
+    // ctx.fillStyle = CANVAS_BG_COLOR;
+    // ctx.fillRect(0, 0, 800, 600);
 
-    ctx.lineWidth = 0.5;
-    ctx.strokeStyle = GRID_COLOR;
-    for (i = 0; i < canvas.width; i++) {
-        if ( (i + offsetX) % Math.round(gridSize/zoom) == 0 ) {
-            if (i + offsetX == 0) ctx.strokeStyle = GRID_CENTER_COLOR;
-            ctx.beginPath();
-            ctx.moveTo(i, 0);
-            ctx.lineTo(i, canvas.height);
-            ctx.stroke();
-            if (i + offsetX == 0) ctx.strokeStyle = GRID_COLOR;
-        }
-    }
+    // ctx.lineWidth = 0.5;
+    // ctx.strokeStyle = GRID_COLOR;
+    // for (i = 0; i < canvas.width; i++) {
+    //     if ( (i + offsetX) % Math.round(gridSize/zoom) == 0 ) {
+    //         if (i + offsetX == 0) ctx.strokeStyle = GRID_CENTER_COLOR;
+    //         ctx.beginPath();
+    //         ctx.moveTo(i, 0);
+    //         ctx.lineTo(i, canvas.height);
+    //         ctx.stroke();
+    //         if (i + offsetX == 0) ctx.strokeStyle = GRID_COLOR;
+    //     }
+    // }
 
-    for (i = 0; i < canvas.height; i++) {
-        if ( (i + offsetY) % Math.round(gridSize/zoom) == 0 ) {
-            if (i + offsetY == 0) ctx.strokeStyle = GRID_CENTER_COLOR;
-            ctx.beginPath();
-            ctx.moveTo(0, i);
-            ctx.lineTo(canvas.width, i);
-            ctx.stroke();
-            if (i + offsetY == 0) ctx.strokeStyle = GRID_COLOR;
-        }
-    }
+    // for (i = 0; i < canvas.height; i++) {
+    //     if ( (i + offsetY) % Math.round(gridSize/zoom) == 0 ) {
+    //         if (i + offsetY == 0) ctx.strokeStyle = GRID_CENTER_COLOR;
+    //         ctx.beginPath();
+    //         ctx.moveTo(0, i);
+    //         ctx.lineTo(canvas.width, i);
+    //         ctx.stroke();
+    //         if (i + offsetY == 0) ctx.strokeStyle = GRID_COLOR;
+    //     }
+    // }
 
     // Draw Sectors
     if (sectors.length != 0) {
@@ -366,35 +366,35 @@ function updateCanvas() {
     }
 
     // Draw Map Lines
-    if (mapLines.length != 0) {
-        ctx.lineWidth = 1.0;
-        ctx.strokeStyle = MAPLINE_COLOR;
+    // if (mapLines.length != 0) {
+    //     ctx.lineWidth = 1.0;
+    //     ctx.strokeStyle = MAPLINE_COLOR;
         
-        ctx.beginPath();
-        for (i = 0; i < mapLines.length; i++) {
-            if (mapLines[i].inView()) {
-                p = posToView(mapLines[i].x1, mapLines[i].y1);
-                ctx.moveTo(p.x, p.y);
-                p = posToView(mapLines[i].x2, mapLines[i].y2);
-                ctx.lineTo(p.x, p.y);
-            }
-        }
-        ctx.stroke();   
-    }
+    //     ctx.beginPath();
+    //     for (i = 0; i < mapLines.length; i++) {
+    //         if (mapLines[i].inView()) {
+    //             p = posToView(mapLines[i].x1, mapLines[i].y1);
+    //             ctx.moveTo(p.x, p.y);
+    //             p = posToView(mapLines[i].x2, mapLines[i].y2);
+    //             ctx.lineTo(p.x, p.y);
+    //         }
+    //     }
+    //     ctx.stroke();   
+    // }
 
     // Draw DrawLines
-    if (drawingLinesList.length != 0) {
-        ctx.lineWidth = 2.0;
-        ctx.strokeStyle = DRAWLINE_COLOR;
-        ctx.beginPath();
-        for (i = 0; i < drawingLinesList.length; i++) {
-            p = posToView(drawingLinesList[i].x1, drawingLinesList[i].y1);
-            ctx.moveTo(p.x, p.y);
-            p = posToView(drawingLinesList[i].x2, drawingLinesList[i].y2);
-            ctx.lineTo(p.x, p.y);
-        }
-        ctx.stroke();
-    }
+    // if (drawingLinesList.length != 0) {
+    //     ctx.lineWidth = 2.0;
+    //     ctx.strokeStyle = DRAWLINE_COLOR;
+    //     ctx.beginPath();
+    //     for (i = 0; i < drawingLinesList.length; i++) {
+    //         p = posToView(drawingLinesList[i].x1, drawingLinesList[i].y1);
+    //         ctx.moveTo(p.x, p.y);
+    //         p = posToView(drawingLinesList[i].x2, drawingLinesList[i].y2);
+    //         ctx.lineTo(p.x, p.y);
+    //     }
+    //     ctx.stroke();
+    // }
 
     // Draw Vertexes
     if (editMode == EditMode.VERTEX) {
@@ -523,11 +523,11 @@ function onKeyDown(e) {
     updateCanvas();
 }
 
-function onKeyUp(e) {
-    if (e.key == " ") {
-        dragging = false;
-    }   
-}
+// function onKeyUp(e) {
+//     if (e.key == " ") {
+//         dragging = false;
+//     }   
+// }
 
 function onMouseMove(e) {
     //console.log(dragging);
@@ -576,18 +576,18 @@ function onMouseMove(e) {
     if (editMode == EditMode.VERTEX) updateCanvas();
 }
 
-function onMouseWheel(e) {
-    e.preventDefault();
-    //console.log(e);
+// function onMouseWheel(e) {
+//     e.preventDefault();
+//     //console.log(e);
 
-    if (e.deltaY > 0) {
-        zoom *= ZOOM_SPEED;
-    }
-    if (e.deltaY < 0) {
-        zoom /= ZOOM_SPEED;
-    }
-    if (e.deltaY != 0) updateCanvas();
-}
+//     if (e.deltaY > 0) {
+//         zoom *= ZOOM_SPEED;
+//     }
+//     if (e.deltaY < 0) {
+//         zoom /= ZOOM_SPEED;
+//     }
+//     if (e.deltaY != 0) updateCanvas();
+// }
 
 function onMouseDown(e) {
     e.preventDefault();

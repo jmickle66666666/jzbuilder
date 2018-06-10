@@ -3,6 +3,9 @@ var Vertex = /** @class */ (function () {
         this.x = x;
         this.y = y;
     }
+    Vertex.prototype.equals = function (point) {
+        return this.x == point.x && this.y == point.y;
+    };
     return Vertex;
 }());
 var Rect = /** @class */ (function () {
@@ -41,9 +44,10 @@ var Rect = /** @class */ (function () {
     return Rect;
 }());
 var Sector = /** @class */ (function () {
-    function Sector() {
-        this.floorTexture = document.createElement("img");
-        this.floorTexture.src = "JZCRATE2";
+    function Sector(floorTexture) {
+        this.lines = new Array();
+        this.floorTexture = floorTexture;
+        //document.body.appendChild(this.floorTexture);
     }
     Sector.prototype.invalidate = function () {
         if (this.lines.length == 0)
@@ -53,7 +57,7 @@ var Sector = /** @class */ (function () {
             this.bounds.topLeft.x = Math.min(this.bounds.topLeft.x, this.lines[i].start.x, this.lines[i].end.x);
             this.bounds.topLeft.y = Math.min(this.bounds.topLeft.y, this.lines[i].start.y, this.lines[i].end.y);
             this.bounds.bottomRight.x = Math.max(this.bounds.bottomRight.x, this.lines[i].start.x, this.lines[i].end.x);
-            this.bounds.bottomRight.y = Math.max(this.bounds.bottomRight.x, this.lines[i].start.y, this.lines[i].end.y);
+            this.bounds.bottomRight.y = Math.max(this.bounds.bottomRight.y, this.lines[i].start.y, this.lines[i].end.y);
         }
         this.preview = document.createElement("canvas");
         this.preview.width = this.bounds.width;
@@ -61,14 +65,14 @@ var Sector = /** @class */ (function () {
         var ctx = this.preview.getContext('2d');
         ctx.beginPath();
         ctx.moveTo(this.lines[0].start.x - this.bounds.topLeft.x, this.lines[0].start.y - this.bounds.topLeft.y);
-        for (i = 0; i < this.lines.length; i++) {
+        for (var i = 0; i < this.lines.length; i++) {
             ctx.lineTo(this.lines[i].end.x - this.bounds.topLeft.x, this.lines[i].end.y - this.bounds.topLeft.y);
         }
         ctx.imageSmoothingEnabled = false;
         ctx.clip();
         var ox = this.bounds.topLeft.x % 64;
         var oy = this.bounds.topLeft.y % 64;
-        for (i = -ox - 64; i < this.bounds.width; i += 64) {
+        for (var i = -ox - 64; i < this.bounds.width; i += 64) {
             for (var j = -oy - 64; j < this.bounds.height; j += 64) {
                 ctx.drawImage(this.floorTexture, i, j);
             }
