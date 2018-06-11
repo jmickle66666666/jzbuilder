@@ -110,12 +110,16 @@ var BuilderCanvas = /** @class */ (function () {
         this.ctx.fillStyle = this.VERTEX_COLOR;
         var allLines = mapData.getAllLines();
         for (var i = 0; i < allLines.length; i++) {
-            var p_1 = this.posToView(allLines[i].start);
-            this.ctx.fillRect(p_1.x - this.VERTEX_SIZE, p_1.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
+            var p = this.posToView(allLines[i].start);
+            this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
+            p = this.posToView(allLines[i].end);
+            this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
         }
-        this.ctx.fillStyle = this.DRAWVERTEX_COLOR;
-        var p = this.posToView(Input.mouseGridPos);
-        this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
+        if (editMode == EditMode.VERTEX) {
+            this.ctx.fillStyle = this.DRAWVERTEX_COLOR;
+            var p = this.posToView(Input.mouseGridPos);
+            this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
+        }
     };
     BuilderCanvas.prototype.drawSelectedLines = function () {
         this.drawLines(this.selectedLines, this.SELECTEDLINE_COLOR, 2.0);

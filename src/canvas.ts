@@ -129,11 +129,16 @@ class BuilderCanvas {
         for (let i = 0; i < allLines.length; i++) {
             let p = this.posToView(allLines[i].start);
             this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
+
+            p = this.posToView(allLines[i].end);
+            this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
         }
 
-        this.ctx.fillStyle = this.DRAWVERTEX_COLOR;
-        let p = this.posToView(Input.mouseGridPos);
-        this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
+        if (editMode == EditMode.VERTEX) {
+            this.ctx.fillStyle = this.DRAWVERTEX_COLOR;
+            let p = this.posToView(Input.mouseGridPos);
+            this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
+        }
     }
 
     drawSelectedLines():void {
