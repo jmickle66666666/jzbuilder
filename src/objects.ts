@@ -58,6 +58,10 @@ class Sector {
         this.bounds = new Rect();
 
         for (let i = 0; i < this.lines.length; i++) {
+
+            this.lines[i].sector = this;
+            //this.lines[i].shapeDefining = true;
+
             this.bounds.topLeft.x = Math.min(this.bounds.topLeft.x, this.lines[i].start.x, this.lines[i].end.x);
             this.bounds.topLeft.y = Math.min(this.bounds.topLeft.y, this.lines[i].start.y, this.lines[i].end.y);
             this.bounds.bottomRight.x = Math.max(this.bounds.bottomRight.x, this.lines[i].start.x, this.lines[i].end.x);
@@ -104,12 +108,23 @@ class Line {
     public start : Vertex;
     public end : Vertex;
 
-    public frontSector : Sector;
-    public backSector : Sector;
-    public shapeDefining : boolean;
+    public sector : Sector;
+    //public shapeDefining : boolean = false;
 
     public constructor (start:Vertex, end:Vertex) {
         this.start = start.clone();
         this.end = end.clone();
+    }
+
+    public equals(line:Line):boolean {
+        if ((line.start.equals(this.start) && line.end.equals(this.end)) ||
+        (line.start.equals(this.end) && line.end.equals(this.start))) {
+            return true;
+        }
+        return false;
+    }
+
+    public containsVertex(p:Vertex):boolean {
+        return (this.start.equals(p) || this.end.equals(p));
     }
 }

@@ -57,6 +57,8 @@ var Sector = /** @class */ (function () {
             return;
         this.bounds = new Rect();
         for (var i = 0; i < this.lines.length; i++) {
+            this.lines[i].sector = this;
+            //this.lines[i].shapeDefining = true;
             this.bounds.topLeft.x = Math.min(this.bounds.topLeft.x, this.lines[i].start.x, this.lines[i].end.x);
             this.bounds.topLeft.y = Math.min(this.bounds.topLeft.y, this.lines[i].start.y, this.lines[i].end.y);
             this.bounds.bottomRight.x = Math.max(this.bounds.bottomRight.x, this.lines[i].start.x, this.lines[i].end.x);
@@ -94,10 +96,21 @@ var Sector = /** @class */ (function () {
     return Sector;
 }());
 var Line = /** @class */ (function () {
+    //public shapeDefining : boolean = false;
     function Line(start, end) {
         this.start = start.clone();
         this.end = end.clone();
     }
+    Line.prototype.equals = function (line) {
+        if ((line.start.equals(this.start) && line.end.equals(this.end)) ||
+            (line.start.equals(this.end) && line.end.equals(this.start))) {
+            return true;
+        }
+        return false;
+    };
+    Line.prototype.containsVertex = function (p) {
+        return (this.start.equals(p) || this.end.equals(p));
+    };
     return Line;
 }());
 //# sourceMappingURL=objects.js.map
