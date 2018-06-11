@@ -46,8 +46,12 @@ let extrudeEnd : Line = null;
 let extrudePointStart : Vertex = null;
 
 function beginExtrude() {
-    Input.state = InputState.EXTRUDING;
     extrudeStart = mapData.getNearestLine(Input.mousePos);
+    if (extrudeStart == null) {
+        return;
+    }
+
+    Input.state = InputState.EXTRUDING;
     extrudePointStart = Input.mouseGridPos;
     extrudeEnd = new Line(extrudeStart.start, extrudeStart.end);
 }
