@@ -21,8 +21,8 @@ function finishDrawingSector() {
 
 function finishDrawingLines() {
     Input.state = InputState.NONE;
-    for (let i =0 ; i < mainCanvas.drawingLines.length; i++) {
-        mapData.lines.push(mainCanvas.drawingLines[i])
+    for (let i = 0; i < mainCanvas.drawingLines.length - 1; i++) {
+        mapData.lines.push(mainCanvas.drawingLines[i]);
     }
     mainCanvas.drawingLines.length = 0;
     mainCanvas.redraw();
@@ -109,6 +109,29 @@ function onKeyDown(e : KeyboardEvent):void {
 
     if (e.key == "j") {
         convexMerge();
+    }
+
+    if (e.key == "Backspace" && e.ctrlKey) {
+        if (editMode == EditMode.LINE) {
+            if (mainCanvas.selectedLines.length == 0) {
+                mapData.deleteLine(mainCanvas.highlightLine);
+            } else {
+                for (let i = 0; i < mainCanvas.selectedLines.length; i++) {
+                    mapData.deleteLine(mainCanvas.selectedLines[i]);
+                }
+            }
+        }
+
+        if (editMode == EditMode.VERTEX) {
+            mapData.deleteVertex(Input.mouseGridPos);
+        }
+
+        if (editMode == EditMode.SECTOR) {
+            mapData.deleteSectorAt(Input.mousePos);
+        }
+
+        clearSelection();
+        mainCanvas.redraw();
     }
 
     if (e.key == "c") clearSelection();

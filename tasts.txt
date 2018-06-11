@@ -1,8 +1,6 @@
-* grid size change
-* delete lines
-* delete sectors
-* delete vertex
 * move vertex
 * move lines
 * move sectors
 * split line at vertex
+* create sector from traced lines
+* select vertexes
