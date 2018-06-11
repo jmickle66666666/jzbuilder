@@ -52,6 +52,10 @@ class MapData {
     }
 
     moveVertex(from:Vertex, to:Vertex) {
+
+        // This gets slower the more lines there are. If this gets bad, sort the lines and do a binary search
+        // Also, this invalidates sectors a lot. I should really have a system for marking sectors as dirty and invalidate later.
+
         let allLines:Array<Line> = this.getAllLines();
         if (allLines.length == 0) return null;
 
@@ -131,6 +135,21 @@ class MapData {
         }
 
         this.sectors.splice(nIndex, 1);
+    }
+
+    vertexExists(p:Vertex) {
+        let allLines:Array<Line> = this.getAllLines();
+        if (allLines.length == 0) return null;
+
+        for (let i = 0; i < allLines.length; i++) {
+            if (allLines[i].start.equals(p)) {
+                return true;
+            } else if (allLines[i].end.equals(p)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

@@ -6,6 +6,7 @@ tempTexture.src = "JZCRATE2.png";
 var editMode = EditMode.LINE;
 var vertexDragStart = null;
 function finishDrawingSector() {
+    undoStack.save();
     Input.state = InputState.NONE;
     var newSector = new Sector(tempTexture);
     for (var i = 0; i < mainCanvas.drawingLines.length; i++) {
@@ -17,6 +18,7 @@ function finishDrawingSector() {
     mainCanvas.redraw();
 }
 function finishDrawingLines() {
+    undoStack.save();
     Input.state = InputState.NONE;
     for (var i = 0; i < mainCanvas.drawingLines.length - 1; i++) {
         mapData.lines.push(mainCanvas.drawingLines[i]);
@@ -61,6 +63,7 @@ function cancelExtrude() {
     }
 }
 function finishExtrude() {
+    undoStack.save();
     Input.state = InputState.NONE;
     var l1 = extrudeStart;
     var l2 = new Line(extrudeStart.end, extrudeEnd.start);
@@ -76,6 +79,7 @@ function finishExtrude() {
     mainCanvas.redraw();
 }
 function convexMerge() {
+    undoStack.save();
     var pts = [];
     for (var i = 0; i < mainCanvas.selectedLines.length; i++) {
         pts.push(mainCanvas.selectedLines[i].start);
@@ -96,6 +100,7 @@ function onKeyDown(e) {
     }
     if (e.key == "Backspace" && e.ctrlKey) {
         if (editMode == EditMode.LINE) {
+            undoStack.save();
             if (mainCanvas.selectedLines.length == 0) {
                 mapData.deleteLine(mainCanvas.highlightLine);
             }
@@ -106,11 +111,18 @@ function onKeyDown(e) {
             }
         }
         if (editMode == EditMode.VERTEX) {
+            undoStack.save();
             mapData.deleteVertex(Input.mouseGridPos);
         }
         if (editMode == EditMode.SECTOR) {
+            undoStack.save();
             mapData.deleteSectorAt(Input.mousePos);
         }
+        clearSelection();
+        mainCanvas.redraw();
+    }
+    if (e.key == "z" && e.ctrlKey) {
+        undoStack.restore();
         clearSelection();
         mainCanvas.redraw();
     }
@@ -118,9 +130,15 @@ function onKeyDown(e) {
         clearSelection();
     if (e.key == "v")
         editMode = EditMode.VERTEX;
-    if (e.key == "s")
+    if (e.key == "s" && !e.ctrlKey)
         editMode = EditMode.SECTOR;
-    if (e.key == "l")
+    if (e.key == "s" && e.ctrlKey)
+        saveMap();
+    // if (e.key == "l" && e.ctrlKey) {
+    //     testSave.restore();
+    //     mainCanvas.redraw();
+    // }
+    if (e.key == "l" && !e.ctrlKey)
         editMode = EditMode.LINE;
     if (e.key == "t")
         editMode = EditMode.THING;
@@ -210,6 +228,7 @@ function onMouseDown(e) {
             }
         }
         if (editMode == EditMode.VERTEX) {
+            undoStack.save();
             vertexDragStart = Input.mouseGridPos;
             Input.state = InputState.DRAGGING;
         }
@@ -247,4 +266,6 @@ mainCanvas.canvas.addEventListener("mousemove", onMouseMove);
 mainCanvas.canvas.addEventListener("mousewheel", onMouseWheel);
 mainCanvas.canvas.addEventListener("mousedown", onMouseDown);
 mainCanvas.canvas.addEventListener("mouseup", onMouseUp);
+var undoStack = new UndoStack();
+undoStack.save();
 //# sourceMappingURL=main.js.map

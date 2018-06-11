@@ -1,6 +1,8 @@
-* move vertex
+* move multiple vertexes
+* - select vertexes
+* - - check if they exist
 * move lines
 * move sectors
 * split line at vertex
 * create sector from traced lines
-* select vertexes
+* undos -> store a minimal version of the state after actions
