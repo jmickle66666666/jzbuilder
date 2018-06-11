@@ -103,6 +103,10 @@ function onKeyDown(e) {
         editMode = EditMode.LINE;
     if (e.key == "t")
         editMode = EditMode.THING;
+    if (e.key == "[")
+        mainCanvas.gridSize /= 2;
+    if (e.key == "]")
+        mainCanvas.gridSize *= 2;
     if (e.key == "Escape") {
         cancelDrawing();
         cancelExtrude();
@@ -169,6 +173,7 @@ function onMouseDown(e) {
         if (editMode == EditMode.LINE) {
             if (Input.state == InputState.NONE) {
                 Input.state = InputState.DRAWING;
+                clearSelection();
                 mainCanvas.drawingLines = new Array();
                 mainCanvas.drawingLines.push(new Line(Input.mouseGridPos, Input.mouseGridPos));
                 mainCanvas.redraw();
