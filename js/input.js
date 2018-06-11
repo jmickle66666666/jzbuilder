@@ -3,6 +3,7 @@ var InputState;
     InputState["NONE"] = "none";
     InputState["DRAWING"] = "drawing";
     InputState["EXTRUDING"] = "extruding";
+    InputState["DRAGGING"] = "dragging";
 })(InputState || (InputState = {}));
 var Input = /** @class */ (function () {
     function Input() {

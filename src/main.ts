@@ -6,6 +6,7 @@ let tempTexture : HTMLImageElement = document.createElement("img");
 tempTexture.src = "JZCRATE2.png";
 
 let editMode = EditMode.LINE;
+let vertexDragStart = null;
 
 function finishDrawingSector() {
     Input.state = InputState.NONE;
@@ -163,6 +164,17 @@ function onMouseMove(e:MouseEvent) {
     Input.mousePos = mainCanvas.viewToPos(new Vertex(e.offsetX, e.offsetY));
     Input.mouseGridPos = mainCanvas.viewToGridPos(new Vertex(e.offsetX, e.offsetY));
 
+    if (Input.state == InputState.DRAGGING) {
+        if (editMode == EditMode.VERTEX) {
+            if (!Input.mouseGridPos.equals(vertexDragStart)) {
+                mapData.moveVertex(vertexDragStart, Input.mouseGridPos);
+                mainCanvas.redraw();
+                vertexDragStart = Input.mouseGridPos;
+            }
+            
+        }
+    }
+
     if (Input.viewDragging) {
         mainCanvas.viewOffset.x -= e.movementX;
         mainCanvas.viewOffset.y -= e.movementY;
@@ -222,6 +234,11 @@ function onMouseDown(e:MouseEvent) {
                 mainCanvas.redraw();
             }
         }
+
+        if (editMode == EditMode.VERTEX) {
+            vertexDragStart = Input.mouseGridPos;
+            Input.state = InputState.DRAGGING;
+        }
     }
 
     if (e.button == 0) {
@@ -248,8 +265,17 @@ function onMouseDown(e:MouseEvent) {
     }
 }
 
+function onMouseUp(e:MouseEvent) {
+    if (e.button == 2) {
+        if (Input.state == InputState.DRAGGING) {
+            Input.state = InputState.NONE;
+        }
+    }
+}
+
 window.addEventListener("keydown", onKeyDown);
 window.addEventListener("keyup", onKeyUp);
 mainCanvas.canvas.addEventListener("mousemove", onMouseMove);
 mainCanvas.canvas.addEventListener("mousewheel", onMouseWheel);
 mainCanvas.canvas.addEventListener("mousedown", onMouseDown);
+mainCanvas.canvas.addEventListener("mouseup", onMouseUp);

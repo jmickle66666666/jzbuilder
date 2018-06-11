@@ -127,4 +127,8 @@ class Line {
     public containsVertex(p:Vertex):boolean {
         return (this.start.equals(p) || this.end.equals(p));
     }
+
+    public invalidate() {
+        this.sector.invalidate();
+    }
 }

@@ -51,6 +51,23 @@ class MapData {
         return nLine;
     }
 
+    moveVertex(from:Vertex, to:Vertex) {
+        let allLines:Array<Line> = this.getAllLines();
+        if (allLines.length == 0) return null;
+
+        for (let i = 0; i < allLines.length; i++) {
+            if (allLines[i].start.equals(from)) {
+                allLines[i].start.x = to.x;
+                allLines[i].start.y = to.y;
+                allLines[i].invalidate();
+            } else if (allLines[i].end.equals(from)) {
+                allLines[i].end.x = to.x;
+                allLines[i].end.y = to.y;
+                allLines[i].invalidate();
+            }
+        }
+    }
+
     deleteLine(l:Line):void {
         for (let i = 0; i < this.lines.length; i++) {
             if (this.lines[i].equals(l)) {

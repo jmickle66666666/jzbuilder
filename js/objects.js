@@ -111,6 +111,9 @@ var Line = /** @class */ (function () {
     Line.prototype.containsVertex = function (p) {
         return (this.start.equals(p) || this.end.equals(p));
     };
+    Line.prototype.invalidate = function () {
+        this.sector.invalidate();
+    };
     return Line;
 }());
 //# sourceMappingURL=objects.js.map
