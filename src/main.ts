@@ -275,6 +275,7 @@ function onMouseMove(e:MouseEvent) {
 
     if (editMode == EditMode.MAKESECTOR) {
         makeSectorHighlightLines();
+        mainCanvas.redraw();
     }
 
     if (editMode == EditMode.LINE) {

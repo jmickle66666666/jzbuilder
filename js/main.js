@@ -240,6 +240,7 @@ function onMouseMove(e) {
     }
     if (editMode == EditMode.MAKESECTOR) {
         makeSectorHighlightLines();
+        mainCanvas.redraw();
     }
     if (editMode == EditMode.LINE) {
         if (Input.state == InputState.NONE) {
