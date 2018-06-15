@@ -63,6 +63,36 @@ var MapData = /** @class */ (function () {
             }
         }
     };
+    MapData.prototype.getLinesWithVertex = function (p) {
+        var allLines = this.getAllLines();
+        if (allLines.length == 0)
+            return null;
+        var output = [];
+        for (var i = 0; i < allLines.length; i++) {
+            if (allLines[i].start.equals(p)) {
+                output.push({ line: allLines[i], position: "start" });
+            }
+            else if (allLines[i].end.equals(p)) {
+                output.push({ line: allLines[i], position: "end" });
+            }
+        }
+        return output;
+    };
+    MapData.prototype.getNextConnectedVertexes = function (p) {
+        var allLines = this.getAllLines();
+        if (allLines.length == 0)
+            return null;
+        var output = new Array();
+        for (var i = 0; i < allLines.length; i++) {
+            if (allLines[i].start.equals(p)) {
+                output.push(allLines[i].end);
+            }
+            else if (allLines[i].end.equals(p)) {
+                output.push(allLines[i].start);
+            }
+        }
+        return output;
+    };
     MapData.prototype.deleteLine = function (l) {
         for (var i = 0; i < this.lines.length; i++) {
             if (this.lines[i].equals(l)) {

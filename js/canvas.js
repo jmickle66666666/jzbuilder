@@ -52,8 +52,7 @@ var BuilderCanvas = /** @class */ (function () {
             this.drawExtrudeLine();
         this.drawVertexes();
         this.drawSelectedLines();
-        if (editMode == EditMode.LINE)
-            this.drawHighlightedLines();
+        this.drawHighlightedLines();
         //this.drawDebug();
     };
     BuilderCanvas.prototype.drawDebug = function () {
@@ -125,8 +124,8 @@ var BuilderCanvas = /** @class */ (function () {
         this.drawLines(this.selectedLines, this.SELECTEDLINE_COLOR, 2.0);
     };
     BuilderCanvas.prototype.drawHighlightedLines = function () {
-        if (this.highlightLine != null)
-            this.drawLines([this.highlightLine,], this.HIGHLIGHTLINE_COLOR, 2.0);
+        if (this.highlightLines != null)
+            this.drawLines(this.highlightLines, this.HIGHLIGHTLINE_COLOR, 2.0);
     };
     BuilderCanvas.prototype.drawLines = function (lines, color, width) {
         if (width === void 0) { width = 1.0; }
@@ -138,10 +137,12 @@ var BuilderCanvas = /** @class */ (function () {
         this.ctx.strokeStyle = color;
         this.ctx.beginPath();
         for (var i = 0; i < lines.length; i++) {
-            var p = this.posToView(lines[i].start);
-            this.ctx.moveTo(p.x, p.y);
-            p = this.posToView(lines[i].end);
-            this.ctx.lineTo(p.x, p.y);
+            if (lines[i] != null) {
+                var p = this.posToView(lines[i].start);
+                this.ctx.moveTo(p.x, p.y);
+                p = this.posToView(lines[i].end);
+                this.ctx.lineTo(p.x, p.y);
+            }
         }
         this.ctx.stroke();
     };

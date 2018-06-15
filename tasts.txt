@@ -4,5 +4,3 @@
 * move lines
 * move sectors
 * split line at vertex
-* create sector from traced lines
-* undos -> store a minimal version of the state after actions

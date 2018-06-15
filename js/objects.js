@@ -114,6 +114,9 @@ var Line = /** @class */ (function () {
     Line.prototype.invalidate = function () {
         this.sector.invalidate();
     };
+    Line.prototype.reversed = function () {
+        return new Line(this.end, this.start);
+    };
     return Line;
 }());
 //# sourceMappingURL=objects.js.map

@@ -72,6 +72,38 @@ class MapData {
         }
     }
 
+    getLinesWithVertex(p:Vertex):Array<any> {
+        let allLines:Array<Line> = this.getAllLines();
+        if (allLines.length == 0) return null;
+
+        let output = [];
+
+        for (let i = 0; i < allLines.length; i++) {
+            if (allLines[i].start.equals(p)) {
+                output.push({line:allLines[i],position:"start"});
+            } else if (allLines[i].end.equals(p)) {
+                output.push({line:allLines[i],position:"end"});
+            }
+        }
+        return output;
+    }
+
+    getNextConnectedVertexes(p:Vertex):Array<Vertex> {
+        let allLines:Array<Line> = this.getAllLines();
+        if (allLines.length == 0) return null;
+
+        let output:Array<Vertex> = new Array<Vertex>();
+
+        for (let i = 0; i < allLines.length; i++) {
+            if (allLines[i].start.equals(p)) {
+                output.push(allLines[i].end);
+            } else if (allLines[i].end.equals(p)) {
+                output.push(allLines[i].start);
+            }
+        }
+        return output;
+    }
+
     deleteLine(l:Line):void {
         for (let i = 0; i < this.lines.length; i++) {
             if (this.lines[i].equals(l)) {

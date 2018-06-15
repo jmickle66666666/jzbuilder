@@ -34,7 +34,7 @@ class BuilderCanvas {
     drawingLines : Array<Line>;
     selectedLines : Array<Line>;
     highlightSector : number;
-    highlightLine : Line;
+    highlightLines : Array<Line>;
 
     public constructor (canvas: HTMLCanvasElement, mapData : MapData) {
         this.mapData = mapData;
@@ -67,7 +67,7 @@ class BuilderCanvas {
         if (Input.state == InputState.EXTRUDING) this.drawExtrudeLine();
         this.drawVertexes();
         this.drawSelectedLines();
-        if (editMode == EditMode.LINE) this.drawHighlightedLines();
+        this.drawHighlightedLines();
         //this.drawDebug();
     }
 
@@ -146,7 +146,7 @@ class BuilderCanvas {
     }
 
     drawHighlightedLines():void {
-        if (this.highlightLine != null) this.drawLines([this.highlightLine,], this.HIGHLIGHTLINE_COLOR, 2.0);
+        if (this.highlightLines != null) this.drawLines(this.highlightLines, this.HIGHLIGHTLINE_COLOR, 2.0);
     }
 
     drawLines(lines : Array<Line>, color:string, width:number = 1.0):void {
@@ -156,10 +156,12 @@ class BuilderCanvas {
         this.ctx.strokeStyle = color;
         this.ctx.beginPath();
         for (let i = 0; i < lines.length; i++) {
-            let p:Vertex = this.posToView(lines[i].start);
-            this.ctx.moveTo(p.x, p.y);
-            p = this.posToView(lines[i].end);
-            this.ctx.lineTo(p.x, p.y);
+            if (lines[i] != null) {
+                let p:Vertex = this.posToView(lines[i].start);
+                this.ctx.moveTo(p.x, p.y);
+                p = this.posToView(lines[i].end);
+                this.ctx.lineTo(p.x, p.y);
+            }
         }
         this.ctx.stroke();
     }

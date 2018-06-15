@@ -8,6 +8,47 @@ tempTexture.src = "JZCRATE2.png";
 let editMode = EditMode.LINE;
 let vertexDragStart = null;
 
+function makeSector() {
+    console.log("make sector");
+    undoStack.save();
+    let nearestList = mapData.getNearestLine(Input.mousePos);
+
+    console.log(nearestList);
+
+    let points = traceShallowSector(nearestList);
+    if (points == null) {
+        clearSelection();
+        mainCanvas.redraw();
+        return;
+    }
+
+    console.log(points);
+
+    clearSelection();
+    let newSector:Sector = new Sector(tempTexture);
+
+    for (let i = 0; i < points.length-1; i++) {
+        newSector.lines.push(new Line(points[i], points[i+1]));
+    }
+    newSector.invalidate();
+    mapData.sectors.push(newSector);
+
+    mainCanvas.redraw();
+}
+
+function makeSectorHighlightLines() {
+    let nearestList = mapData.getNearestLine(Input.mousePos);
+    if (nearestList == null) return;
+    let points = traceShallowSector(nearestList);
+    if (points == null) {
+        return;
+    }
+    mainCanvas.highlightLines.length = 0;
+    for (let i = 0; i < points.length-1; i++) {
+        mainCanvas.highlightLines.push(new Line(points[i], points[i+1]));
+    }
+}
+
 function finishDrawingSector() {
     undoStack.save();
     Input.state = InputState.NONE;
@@ -120,7 +161,9 @@ function onKeyDown(e : KeyboardEvent):void {
         if (editMode == EditMode.LINE) {
             undoStack.save();
             if (mainCanvas.selectedLines.length == 0) {
-                mapData.deleteLine(mainCanvas.highlightLine);
+                for (let i = 0; i < mainCanvas.highlightLines.length; i++) {
+                    mapData.deleteLine(mainCanvas.highlightLines[i]);
+                }
             } else {
                 for (let i = 0; i < mainCanvas.selectedLines.length; i++) {
                     mapData.deleteLine(mainCanvas.selectedLines[i]);
@@ -161,6 +204,10 @@ function onKeyDown(e : KeyboardEvent):void {
 
     if (e.key == "[") mainCanvas.gridSize /= 2;
     if (e.key == "]") mainCanvas.gridSize *= 2;
+
+    if (e.key == "m" && editMode == EditMode.SECTOR) {
+        makeSector();
+    } 
 
     if (e.key == "Escape") {
         cancelDrawing();
@@ -210,6 +257,7 @@ function onMouseMove(e:MouseEvent) {
 
     if (editMode == EditMode.SECTOR) {
         mainCanvas.highlightSector = mapData.getSectorIndexAt(Input.mousePos);
+        makeSectorHighlightLines();
         mainCanvas.redraw();
     } else {
         mainCanvas.highlightSector = -1;
@@ -217,13 +265,13 @@ function onMouseMove(e:MouseEvent) {
 
     if (editMode == EditMode.LINE) {
         if (Input.state == InputState.NONE) {
-            mainCanvas.highlightLine = mapData.getNearestLine(Input.mousePos);
+            mainCanvas.highlightLines = [mapData.getNearestLine(Input.mousePos)];
             mainCanvas.redraw();
         } else {
-            mainCanvas.highlightLine = null;
+            mainCanvas.highlightLines.length = 0;
         }
     } else {
-        mainCanvas.highlightLine = null;
+        mainCanvas.highlightLines.length = 0;
     }
 
     if (editMode == EditMode.VERTEX) {

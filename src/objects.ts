@@ -131,4 +131,8 @@ class Line {
     public invalidate() {
         this.sector.invalidate();
     }
+
+    public reversed():Line {
+        return new Line(this.end, this.start);
+    }
 }
