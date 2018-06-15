@@ -2,7 +2,8 @@ enum EditMode {
     VERTEX,
     LINE,
     SECTOR,
-    THING
+    THING,
+    MAKESECTOR
 }
 
 class BuilderCanvas {

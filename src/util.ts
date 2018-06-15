@@ -12,6 +12,30 @@ function crossProduct(a:Vertex, b:Vertex, o:Vertex):number {
     return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
 }
 
+function ccw(a:Vertex, b:Vertex, c:Vertex):boolean {
+    return ((c.y-a.y) * (b.x-a.x) > (b.y-a.y) * (c.x-a.x));
+}
+
+function linesIntersect(l1:Line, l2:Line):boolean {
+    if (l1.angle() == l2.angle()) return false;
+    if (l1.angle() == l2.reversed().angle()) return false;
+    if (l1.equals(l2)) return false;
+    return (ccw(l1.start,l2.start,l2.end) != ccw(l1.end,l2.start,l2.end)) && (ccw(l1.start,l1.end,l2.start) != ccw(l1.start,l1.end,l2.end));
+}
+
+function lineIntersection(l1:Line, l2:Line):Vertex {
+    let dx12 = l1.end.x - l1.start.x;
+    let dy12 = l1.end.y - l1.start.y;
+    let dx34 = l2.end.x - l2.start.x;
+    let dy34 = l2.end.y - l2.start.y;
+
+    let denom = (dy12 * dx34 - dx12 * dy34);
+
+    let t1 = ((l1.start.x - l2.start.x) * dy34 + (l2.start.y - l1.start.y) * dx34) / denom;
+
+    return new Vertex(l1.start.x + dx12 * t1, l1.start.y + dy12 * t1);
+}
+
 function convexHull(points:Array<Vertex>):Array<Vertex> {
     points.sort(function(a, b) {
         return a.x == b.x ? a.y - b.y : a.x - b.x;

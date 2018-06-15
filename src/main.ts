@@ -9,7 +9,6 @@ let editMode = EditMode.LINE;
 let vertexDragStart = null;
 
 function makeSector() {
-    console.log("make sector");
     undoStack.save();
     let nearestList = mapData.getNearestLine(Input.mousePos);
 
@@ -56,8 +55,8 @@ function finishDrawingSector() {
     for (let i = 0; i < mainCanvas.drawingLines.length; i++) {
         mainCanvas.drawingLines[i].sector = newSector;
         newSector.lines.push(mainCanvas.drawingLines[i]);
-        mapData.createSplits(mainCanvas.drawingLines[i].start);
-        mapData.createSplits(mainCanvas.drawingLines[i].end);
+
+        mapData.addLine(mainCanvas.drawingLines[i]);
     }
     newSector.invalidate();
     mapData.sectors.push(newSector);
@@ -69,9 +68,8 @@ function finishDrawingLines() {
     undoStack.save();
     Input.state = InputState.NONE;
     for (let i = 0; i < mainCanvas.drawingLines.length - 1; i++) {
-        mapData.lines.push(mainCanvas.drawingLines[i]);
-        mapData.createSplits(mainCanvas.drawingLines[i].start);
-        mapData.createSplits(mainCanvas.drawingLines[i].end);
+        mapData.addLine(mainCanvas.drawingLines[i]);
+        //mapData.lines.push(mainCanvas.drawingLines[i]);
     }
     mainCanvas.drawingLines.length = 0;
     mainCanvas.redraw();
@@ -135,14 +133,10 @@ function finishExtrude() {
     newSector.lines.push(l3);
     newSector.lines.push(l4);
     newSector.invalidate();
-    mapData.createSplits(l1.start);
-    mapData.createSplits(l1.end);
-    mapData.createSplits(l2.start);
-    mapData.createSplits(l2.end);
-    mapData.createSplits(l3.start);
-    mapData.createSplits(l3.end);
-    mapData.createSplits(l4.start);
-    mapData.createSplits(l4.end);
+    mapData.checkOverlaps(l1);
+    mapData.checkOverlaps(l2);
+    mapData.checkOverlaps(l3);
+    mapData.checkOverlaps(l4);
     mapData.sectors.push(newSector);
     mainCanvas.redraw();
 }
@@ -218,7 +212,11 @@ function onKeyDown(e : KeyboardEvent):void {
     if (e.key == "[") mainCanvas.gridSize /= 2;
     if (e.key == "]") mainCanvas.gridSize *= 2;
 
-    if (e.key == "m" && editMode == EditMode.SECTOR) {
+    if (e.key == "m") {
+        editMode = EditMode.MAKESECTOR;
+    } 
+
+    if (e.key == "Enter" && editMode == EditMode.MAKESECTOR) {
         makeSector();
     } 
 
@@ -227,7 +225,7 @@ function onKeyDown(e : KeyboardEvent):void {
         cancelExtrude();
     }
 
-    if (e.key == "Enter") {
+    if (e.key == "Enter" && editMode == EditMode.LINE) {
         finishDrawingLines();
     }
 
@@ -270,10 +268,13 @@ function onMouseMove(e:MouseEvent) {
 
     if (editMode == EditMode.SECTOR) {
         mainCanvas.highlightSector = mapData.getSectorIndexAt(Input.mousePos);
-        makeSectorHighlightLines();
         mainCanvas.redraw();
     } else {
         mainCanvas.highlightSector = -1;
+    }
+
+    if (editMode == EditMode.MAKESECTOR) {
+        makeSectorHighlightLines();
     }
 
     if (editMode == EditMode.LINE) {

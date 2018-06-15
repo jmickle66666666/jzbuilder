@@ -48,13 +48,38 @@ var Rect = /** @class */ (function () {
 }());
 var Sector = /** @class */ (function () {
     function Sector(floorTexture) {
+        this.dirty = false;
         this.lines = new Array();
         this.floorTexture = floorTexture;
         //document.body.appendChild(this.floorTexture);
     }
+    // public retrace():void {
+    //     let newList:Array<Line> = new Array<Line>();
+    //     let used:Array<number> = new Array<number>();
+    //     // Find first non-zero length line:
+    //     let first:Line = this.lines[0];
+    //     newList.push()
+    //     let i = 0;
+    //     while (first.length() != 0) {
+    //         i += 1;
+    //         first = this.lines[i];
+    //     }
+    //     let last:Line = first;
+    //     let next:Line = null;
+    //     i = 0;
+    //     while (next == null) {
+    //         if (!this.lines[i].equals(last) && this.lines[i].length() != 0) {
+    //             if (this.lines[i].sharePoint(last)) {
+    //                 next = this.lines[i];
+    //             }
+    //         }
+    //         i++;
+    //     }
+    // }
     Sector.prototype.invalidate = function () {
         if (this.lines.length == 0)
             return;
+        this.dirty = false;
         this.bounds = new Rect();
         for (var i = 0; i < this.lines.length; i++) {
             this.lines[i].sector = this;
@@ -96,11 +121,15 @@ var Sector = /** @class */ (function () {
     return Sector;
 }());
 var Line = /** @class */ (function () {
-    //public shapeDefining : boolean = false;
     function Line(start, end) {
+        //public shapeDefining : boolean = false;
+        this.dirty = false;
         this.start = start.clone();
         this.end = end.clone();
     }
+    Line.prototype.length = function () {
+        return pointDistance(this.start, this.end);
+    };
     Line.prototype.equals = function (line) {
         if ((line.start.equals(this.start) && line.end.equals(this.end)) ||
             (line.start.equals(this.end) && line.end.equals(this.start))) {
@@ -112,7 +141,9 @@ var Line = /** @class */ (function () {
         return (this.start.equals(p) || this.end.equals(p));
     };
     Line.prototype.invalidate = function () {
-        this.sector.invalidate();
+        if (this.sector != null)
+            this.sector.invalidate();
+        this.dirty = false;
     };
     Line.prototype.reversed = function () {
         return new Line(this.end, this.start);
@@ -122,6 +153,17 @@ var Line = /** @class */ (function () {
             return false;
         return Math.abs(angleBetweenPoints(this.start, p, this.end) - Math.PI) < 0.05;
     };
+    Line.prototype.angle = function () {
+        return lineAngle(this.start, this.end);
+    };
+    Line.prototype.shareAngle = function (l) {
+        // check if this angle or opposite angle matches l
+        if (l.angle() == this.angle())
+            return true;
+        if (l.reversed().angle() == this.angle())
+            return true;
+        return false;
+    };
     Line.prototype.split = function (p) {
         var tempPoint = this.end;
         this.end = p;
@@ -129,10 +171,14 @@ var Line = /** @class */ (function () {
         if (this.sector != null) {
             var index = this.sector.lines.indexOf(this);
             this.sector.lines.splice(index + 1, 0, newLine);
+            newLine.sector = this.sector;
         }
         else {
             mapData.lines.push(newLine);
         }
+    };
+    Line.prototype.sharePoint = function (l) {
+        return (l.start.equals(this.start) || l.end.equals(this.start) || l.start.equals(this.end) || l.end.equals(this.end));
     };
     return Line;
 }());

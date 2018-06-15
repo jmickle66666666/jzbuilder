@@ -4,6 +4,7 @@ var EditMode;
     EditMode[EditMode["LINE"] = 1] = "LINE";
     EditMode[EditMode["SECTOR"] = 2] = "SECTOR";
     EditMode[EditMode["THING"] = 3] = "THING";
+    EditMode[EditMode["MAKESECTOR"] = 4] = "MAKESECTOR";
 })(EditMode || (EditMode = {}));
 var BuilderCanvas = /** @class */ (function () {
     function BuilderCanvas(canvas, mapData) {

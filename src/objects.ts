@@ -45,6 +45,8 @@ class Sector {
     public preview : HTMLCanvasElement;
     public floorTexture : HTMLImageElement;
 
+    public dirty : boolean = false;
+
     public constructor (floorTexture : HTMLImageElement) {
         this.lines = new Array<Line>();
 
@@ -52,8 +54,37 @@ class Sector {
         //document.body.appendChild(this.floorTexture);
     }
 
+    // public retrace():void {
+    //     let newList:Array<Line> = new Array<Line>();
+
+    //     let used:Array<number> = new Array<number>();
+
+    //     // Find first non-zero length line:
+    //     let first:Line = this.lines[0];
+    //     newList.push()
+    //     let i = 0;
+    //     while (first.length() != 0) {
+    //         i += 1;
+    //         first = this.lines[i];
+    //     }
+    //     let last:Line = first;
+    //     let next:Line = null;
+    //     i = 0;
+    //     while (next == null) {
+    //         if (!this.lines[i].equals(last) && this.lines[i].length() != 0) {
+    //             if (this.lines[i].sharePoint(last)) {
+    //                 next = this.lines[i];
+    //             }
+    //         }
+    //         i++;
+    //     }
+
+    // }
+
     public invalidate():void {
         if (this.lines.length == 0) return;
+
+        this.dirty = false;
 
         this.bounds = new Rect();
 
@@ -111,9 +142,15 @@ class Line {
     public sector : Sector;
     //public shapeDefining : boolean = false;
 
+    public dirty : boolean = false;
+
     public constructor (start:Vertex, end:Vertex) {
         this.start = start.clone();
         this.end = end.clone();
+    }
+
+    public length():number { 
+        return pointDistance(this.start, this.end);
     }
 
     public equals(line:Line):boolean {
@@ -129,7 +166,9 @@ class Line {
     }
 
     public invalidate() {
-        this.sector.invalidate();
+        if (this.sector != null) this.sector.invalidate();
+
+        this.dirty = false;
     }
 
     public reversed():Line {
@@ -141,6 +180,17 @@ class Line {
         return Math.abs(angleBetweenPoints(this.start, p, this.end) - Math.PI) < 0.05;
     }
 
+    public angle():number {
+        return lineAngle(this.start, this.end);
+    }
+
+    public shareAngle(l:Line):boolean {
+        // check if this angle or opposite angle matches l
+        if (l.angle() == this.angle()) return true;
+        if (l.reversed().angle() == this.angle()) return true;
+        return false;
+    }
+
     public split(p:Vertex) {
         let tempPoint:Vertex = this.end;
         this.end = p;
@@ -148,8 +198,13 @@ class Line {
         if (this.sector != null) {
             let index = this.sector.lines.indexOf(this);
             this.sector.lines.splice(index + 1, 0, newLine);
+            newLine.sector = this.sector;
         } else {
             mapData.lines.push(newLine);
         }
+    }
+
+    public sharePoint(l:Line):boolean {
+        return (l.start.equals(this.start) || l.end.equals(this.start) || l.start.equals(this.end) || l.end.equals(this.end));
     }
 }

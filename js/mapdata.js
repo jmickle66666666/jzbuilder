@@ -54,14 +54,16 @@ var MapData = /** @class */ (function () {
             if (allLines[i].start.equals(from)) {
                 allLines[i].start.x = to.x;
                 allLines[i].start.y = to.y;
-                allLines[i].invalidate();
+                allLines[i].dirty = true;
             }
-            else if (allLines[i].end.equals(from)) {
+            if (allLines[i].end.equals(from)) {
                 allLines[i].end.x = to.x;
                 allLines[i].end.y = to.y;
-                allLines[i].invalidate();
+                allLines[i].dirty = true;
             }
         }
+        this.revalidateDirty();
+        mainCanvas.redraw();
     };
     MapData.prototype.getLinesWithVertex = function (p) {
         var allLines = this.getAllLines();
@@ -176,6 +178,62 @@ var MapData = /** @class */ (function () {
                 return;
             }
         }
+    };
+    MapData.prototype.checkOverlaps = function (newLine) {
+        var allLines = this.getAllLines();
+        if (allLines.length == 0)
+            return;
+        for (var i = 0; i < allLines.length; i++) {
+            if (linesIntersect(newLine, allLines[i])) {
+                var inter = lineIntersection(newLine, allLines[i]);
+                allLines[i].split(inter);
+                newLine.split(inter);
+            }
+        }
+        this.createSplits(newLine.start);
+        this.createSplits(newLine.end);
+    };
+    MapData.prototype.revalidateDirty = function () {
+        var allLines = this.getAllLines();
+        for (var i = 0; i < allLines.length; i++) {
+            if (allLines[i].dirty) {
+                allLines[i].invalidate();
+            }
+        }
+        for (var i = 0; i < this.sectors.length; i++) {
+            if (this.sectors[i].dirty) {
+                this.sectors[i].invalidate();
+            }
+        }
+    };
+    MapData.prototype.addLine = function (l) {
+        // First check if it completely overlaps an existing line
+        for (var i = 0; i < this.sectors.length; i++) {
+            for (var j = 0; j < this.sectors[i].lines.length; j++) {
+                if (l.shareAngle(this.sectors[i].lines[j])) {
+                    if (this.sectors[i].lines[j].pointOnLine(l.start) &&
+                        this.sectors[i].lines[j].pointOnLine(l.end)) {
+                        if (l.angle() != this.sectors[i].lines[j].angle())
+                            l = l.reversed();
+                        this.sectors[i].lines[j].split(l.start);
+                        this.sectors[i].lines[j + 1].split(l.end);
+                        console.log("ya");
+                        return;
+                    }
+                    else if (this.sectors[i].lines[j].pointOnLine(l.start)) {
+                        // Then check if it partially overlaps an existing line
+                        this.sectors[i].lines[j].split(l.start);
+                        return;
+                    }
+                    else if (this.sectors[i].lines[j].pointOnLine(l.end)) {
+                        this.sectors[i].lines[j].split(l.end);
+                        return;
+                    }
+                }
+            }
+        }
+        // Then check if it crosses an existing line
+        // Then check if one of the vertexes touches an existing line
     };
     return MapData;
 }());
