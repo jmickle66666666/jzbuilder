@@ -117,6 +117,23 @@ var Line = /** @class */ (function () {
     Line.prototype.reversed = function () {
         return new Line(this.end, this.start);
     };
+    Line.prototype.pointOnLine = function (p) {
+        if (p.equals(this.start) || p.equals(this.end))
+            return false;
+        return Math.abs(angleBetweenPoints(this.start, p, this.end) - Math.PI) < 0.05;
+    };
+    Line.prototype.split = function (p) {
+        var tempPoint = this.end;
+        this.end = p;
+        var newLine = new Line(p, tempPoint);
+        if (this.sector != null) {
+            var index = this.sector.lines.indexOf(this);
+            this.sector.lines.splice(index + 1, 0, newLine);
+        }
+        else {
+            mapData.lines.push(newLine);
+        }
+    };
     return Line;
 }());
 //# sourceMappingURL=objects.js.map

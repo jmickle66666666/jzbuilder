@@ -135,4 +135,21 @@ class Line {
     public reversed():Line {
         return new Line(this.end, this.start);
     }
+
+    public pointOnLine(p:Vertex):boolean {
+        if (p.equals(this.start) || p.equals(this.end)) return false;
+        return Math.abs(angleBetweenPoints(this.start, p, this.end) - Math.PI) < 0.05;
+    }
+
+    public split(p:Vertex) {
+        let tempPoint:Vertex = this.end;
+        this.end = p;
+        let newLine = new Line(p, tempPoint);
+        if (this.sector != null) {
+            let index = this.sector.lines.indexOf(this);
+            this.sector.lines.splice(index + 1, 0, newLine);
+        } else {
+            mapData.lines.push(newLine);
+        }
+    }
 }

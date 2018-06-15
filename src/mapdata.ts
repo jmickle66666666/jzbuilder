@@ -184,4 +184,17 @@ class MapData {
         return false;
     }
 
+    createSplits(v:Vertex) {
+        let allLines:Array<Line> = this.getAllLines();
+        if (allLines.length == 0) return;
+
+        for (let i = 0; i < allLines.length; i++) {
+            if (allLines[i].pointOnLine(v)) {
+                allLines[i].split(v);
+                this.createSplits(v);
+                return;
+            }
+        }
+    }
+
 }

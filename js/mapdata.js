@@ -165,6 +165,18 @@ var MapData = /** @class */ (function () {
         }
         return false;
     };
+    MapData.prototype.createSplits = function (v) {
+        var allLines = this.getAllLines();
+        if (allLines.length == 0)
+            return;
+        for (var i = 0; i < allLines.length; i++) {
+            if (allLines[i].pointOnLine(v)) {
+                allLines[i].split(v);
+                this.createSplits(v);
+                return;
+            }
+        }
+    };
     return MapData;
 }());
 //# sourceMappingURL=mapdata.js.map

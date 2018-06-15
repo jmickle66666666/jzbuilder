@@ -54,7 +54,10 @@ function finishDrawingSector() {
     Input.state = InputState.NONE;
     let newSector = new Sector(tempTexture);
     for (let i = 0; i < mainCanvas.drawingLines.length; i++) {
+        mainCanvas.drawingLines[i].sector = newSector;
         newSector.lines.push(mainCanvas.drawingLines[i]);
+        mapData.createSplits(mainCanvas.drawingLines[i].start);
+        mapData.createSplits(mainCanvas.drawingLines[i].end);
     }
     newSector.invalidate();
     mapData.sectors.push(newSector);
@@ -67,6 +70,8 @@ function finishDrawingLines() {
     Input.state = InputState.NONE;
     for (let i = 0; i < mainCanvas.drawingLines.length - 1; i++) {
         mapData.lines.push(mainCanvas.drawingLines[i]);
+        mapData.createSplits(mainCanvas.drawingLines[i].start);
+        mapData.createSplits(mainCanvas.drawingLines[i].end);
     }
     mainCanvas.drawingLines.length = 0;
     mainCanvas.redraw();
@@ -130,6 +135,14 @@ function finishExtrude() {
     newSector.lines.push(l3);
     newSector.lines.push(l4);
     newSector.invalidate();
+    mapData.createSplits(l1.start);
+    mapData.createSplits(l1.end);
+    mapData.createSplits(l2.start);
+    mapData.createSplits(l2.end);
+    mapData.createSplits(l3.start);
+    mapData.createSplits(l3.end);
+    mapData.createSplits(l4.start);
+    mapData.createSplits(l4.end);
     mapData.sectors.push(newSector);
     mainCanvas.redraw();
 }
