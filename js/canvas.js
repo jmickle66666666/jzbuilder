@@ -23,6 +23,7 @@ var BuilderCanvas = /** @class */ (function () {
         this.VERTEX_SIZE = 2;
         this.ZOOM_SPEED = 1.05;
         this.GRIDLINE_WIDTH = 0.5;
+        this.PERP_LENGTH = 5.0;
         this.viewOffset = new Vertex(-400, -300);
         this.zoom = 1.0;
         this.gridSize = 32;
@@ -143,6 +144,10 @@ var BuilderCanvas = /** @class */ (function () {
                 this.ctx.moveTo(p.x, p.y);
                 p = this.posToView(lines[i].end);
                 this.ctx.lineTo(p.x, p.y);
+                p = this.posToView(lines[i].getMidpoint());
+                this.ctx.moveTo(p.x, p.y);
+                var perp = lines[i].getPerpendicular();
+                this.ctx.lineTo(p.x + (perp.x * this.PERP_LENGTH), p.y + (perp.y * this.PERP_LENGTH));
             }
         }
         this.ctx.stroke();

@@ -22,6 +22,7 @@ class BuilderCanvas {
     VERTEX_SIZE : number            = 2;
     ZOOM_SPEED : number             = 1.05;
     GRIDLINE_WIDTH : number         = 0.5;
+    PERP_LENGTH : number            = 5.0;
 
     viewOffset : Vertex = new Vertex(-400, -300);
     zoom : number = 1.0;
@@ -162,6 +163,10 @@ class BuilderCanvas {
                 this.ctx.moveTo(p.x, p.y);
                 p = this.posToView(lines[i].end);
                 this.ctx.lineTo(p.x, p.y);
+                p = this.posToView(lines[i].getMidpoint());
+                this.ctx.moveTo(p.x, p.y);
+                let perp = lines[i].getPerpendicular();
+                this.ctx.lineTo(p.x + (perp.x * this.PERP_LENGTH), p.y+ (perp.y * this.PERP_LENGTH));
             }
         }
         this.ctx.stroke();

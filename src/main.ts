@@ -154,6 +154,8 @@ function convexMerge() {
 }
 
 function onKeyDown(e : KeyboardEvent):void {
+    e.preventDefault();
+
     if (e.key == " ") Input.viewDragging = true;
 
     if (e.key == "e" && editMode == EditMode.LINE && Input.state == InputState.NONE) {
@@ -202,10 +204,6 @@ function onKeyDown(e : KeyboardEvent):void {
     if (e.key == "v") editMode = EditMode.VERTEX;
     if (e.key == "s" && !e.ctrlKey) editMode = EditMode.SECTOR;
     if (e.key == "s" && e.ctrlKey) saveMap();
-    // if (e.key == "l" && e.ctrlKey) {
-    //     testSave.restore();
-    //     mainCanvas.redraw();
-    // }
     if (e.key == "l" && !e.ctrlKey) editMode = EditMode.LINE;
     if (e.key == "t") editMode = EditMode.THING;
 

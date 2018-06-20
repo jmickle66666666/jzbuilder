@@ -130,6 +130,7 @@ function convexMerge() {
     clearSelection();
 }
 function onKeyDown(e) {
+    e.preventDefault();
     if (e.key == " ")
         Input.viewDragging = true;
     if (e.key == "e" && editMode == EditMode.LINE && Input.state == InputState.NONE) {
@@ -176,10 +177,6 @@ function onKeyDown(e) {
         editMode = EditMode.SECTOR;
     if (e.key == "s" && e.ctrlKey)
         saveMap();
-    // if (e.key == "l" && e.ctrlKey) {
-    //     testSave.restore();
-    //     mainCanvas.redraw();
-    // }
     if (e.key == "l" && !e.ctrlKey)
         editMode = EditMode.LINE;
     if (e.key == "t")

@@ -53,29 +53,6 @@ var Sector = /** @class */ (function () {
         this.floorTexture = floorTexture;
         //document.body.appendChild(this.floorTexture);
     }
-    // public retrace():void {
-    //     let newList:Array<Line> = new Array<Line>();
-    //     let used:Array<number> = new Array<number>();
-    //     // Find first non-zero length line:
-    //     let first:Line = this.lines[0];
-    //     newList.push()
-    //     let i = 0;
-    //     while (first.length() != 0) {
-    //         i += 1;
-    //         first = this.lines[i];
-    //     }
-    //     let last:Line = first;
-    //     let next:Line = null;
-    //     i = 0;
-    //     while (next == null) {
-    //         if (!this.lines[i].equals(last) && this.lines[i].length() != 0) {
-    //             if (this.lines[i].sharePoint(last)) {
-    //                 next = this.lines[i];
-    //             }
-    //         }
-    //         i++;
-    //     }
-    // }
     Sector.prototype.invalidate = function () {
         if (this.lines.length == 0)
             return;
@@ -122,13 +99,21 @@ var Sector = /** @class */ (function () {
 }());
 var Line = /** @class */ (function () {
     function Line(start, end) {
-        //public shapeDefining : boolean = false;
         this.dirty = false;
         this.start = start.clone();
         this.end = end.clone();
     }
     Line.prototype.length = function () {
         return pointDistance(this.start, this.end);
+    };
+    Line.prototype.getPerpendicular = function () {
+        var l = this.length();
+        var x = (this.end.x - this.start.x) / l;
+        var y = (this.end.y - this.start.y) / l;
+        return new Vertex(-y, x);
+    };
+    Line.prototype.getMidpoint = function () {
+        return new Vertex((this.start.x + this.end.x) / 2, (this.start.y + this.end.y) / 2);
     };
     Line.prototype.equals = function (line) {
         if ((line.start.equals(this.start) && line.end.equals(this.end)) ||

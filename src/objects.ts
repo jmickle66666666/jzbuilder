@@ -54,33 +54,6 @@ class Sector {
         //document.body.appendChild(this.floorTexture);
     }
 
-    // public retrace():void {
-    //     let newList:Array<Line> = new Array<Line>();
-
-    //     let used:Array<number> = new Array<number>();
-
-    //     // Find first non-zero length line:
-    //     let first:Line = this.lines[0];
-    //     newList.push()
-    //     let i = 0;
-    //     while (first.length() != 0) {
-    //         i += 1;
-    //         first = this.lines[i];
-    //     }
-    //     let last:Line = first;
-    //     let next:Line = null;
-    //     i = 0;
-    //     while (next == null) {
-    //         if (!this.lines[i].equals(last) && this.lines[i].length() != 0) {
-    //             if (this.lines[i].sharePoint(last)) {
-    //                 next = this.lines[i];
-    //             }
-    //         }
-    //         i++;
-    //     }
-
-    // }
-
     public invalidate():void {
         if (this.lines.length == 0) return;
 
@@ -140,7 +113,6 @@ class Line {
     public end : Vertex;
 
     public sector : Sector;
-    //public shapeDefining : boolean = false;
 
     public dirty : boolean = false;
 
@@ -151,6 +123,17 @@ class Line {
 
     public length():number { 
         return pointDistance(this.start, this.end);
+    }
+
+    public getPerpendicular():Vertex {
+        let l = this.length();
+        let x = (this.end.x - this.start.x) / l;
+        let y = (this.end.y - this.start.y) / l;
+        return new Vertex(-y, x);
+    }
+
+    public getMidpoint():Vertex {
+        return new Vertex((this.start.x + this.end.x)/2, (this.start.y + this.end.y)/2);
     }
 
     public equals(line:Line):boolean {
