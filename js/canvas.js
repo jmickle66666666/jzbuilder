@@ -105,7 +105,7 @@ var BuilderCanvas = /** @class */ (function () {
         this.drawLines(this.mapData.lines, this.MAPLINE_COLOR);
     };
     BuilderCanvas.prototype.drawDrawLines = function () {
-        this.drawLines(this.drawingLines, this.DRAWLINE_COLOR, 2);
+        this.drawLines(this.drawingLines, this.DRAWLINE_COLOR, 2, false);
     };
     BuilderCanvas.prototype.drawVertexes = function () {
         this.ctx.fillStyle = this.VERTEX_COLOR;
@@ -129,8 +129,9 @@ var BuilderCanvas = /** @class */ (function () {
         if (this.highlightLines != null)
             this.drawLines(this.highlightLines, this.HIGHLIGHTLINE_COLOR, 2.0);
     };
-    BuilderCanvas.prototype.drawLines = function (lines, color, width) {
+    BuilderCanvas.prototype.drawLines = function (lines, color, width, drawNodule) {
         if (width === void 0) { width = 1.0; }
+        if (drawNodule === void 0) { drawNodule = true; }
         if (lines == null)
             return;
         if (lines.length == 0)
@@ -144,21 +145,23 @@ var BuilderCanvas = /** @class */ (function () {
                 this.ctx.moveTo(p.x, p.y);
                 p = this.posToView(lines[i].end);
                 this.ctx.lineTo(p.x, p.y);
-                p = this.posToView(lines[i].getMidpoint());
-                this.ctx.moveTo(p.x, p.y);
-                var perp = lines[i].getPerpendicular();
-                this.ctx.lineTo(p.x + (perp.x * this.PERP_LENGTH), p.y + (perp.y * this.PERP_LENGTH));
+                if (drawNodule) {
+                    p = this.posToView(lines[i].getMidpoint());
+                    this.ctx.moveTo(p.x, p.y);
+                    var perp = lines[i].getPerpendicular();
+                    this.ctx.lineTo(p.x + (perp.x * this.PERP_LENGTH), p.y + (perp.y * this.PERP_LENGTH));
+                }
             }
         }
         this.ctx.stroke();
     };
     BuilderCanvas.prototype.drawExtrudeLine = function () {
         this.drawLines([
-            extrudeStart,
-            new Line(extrudeStart.end, extrudeEnd.start),
+            new Line(extrudeEnd.start, extrudeStart.end),
             extrudeEnd,
-            new Line(extrudeEnd.end, extrudeStart.start)
-        ], this.DRAWLINE_COLOR, 2.0);
+            new Line(extrudeStart.start, extrudeEnd.end),
+            extrudeStart
+        ], this.DRAWLINE_COLOR, 2.0, false);
     };
     return BuilderCanvas;
 }());

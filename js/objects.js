@@ -58,6 +58,12 @@ var Sector = /** @class */ (function () {
             return;
         this.dirty = false;
         this.bounds = new Rect();
+        if (insideOut(this.lines)) {
+            this.lines.reverse();
+            for (var i = 0; i < this.lines.length; i++) {
+                this.lines[i] = this.lines[i].reversed();
+            }
+        }
         for (var i = 0; i < this.lines.length; i++) {
             this.lines[i].sector = this;
             //this.lines[i].shapeDefining = true;

@@ -122,7 +122,7 @@ class BuilderCanvas {
     }
 
     drawDrawLines():void {
-        this.drawLines(this.drawingLines, this.DRAWLINE_COLOR, 2);
+        this.drawLines(this.drawingLines, this.DRAWLINE_COLOR, 2, false);
     }
 
     drawVertexes():void {
@@ -151,7 +151,7 @@ class BuilderCanvas {
         if (this.highlightLines != null) this.drawLines(this.highlightLines, this.HIGHLIGHTLINE_COLOR, 2.0);
     }
 
-    drawLines(lines : Array<Line>, color:string, width:number = 1.0):void {
+    drawLines(lines : Array<Line>, color:string, width:number = 1.0, drawNodule:boolean = true):void {
         if (lines == null) return;
         if (lines.length == 0) return;
         this.ctx.lineWidth = width;
@@ -163,10 +163,12 @@ class BuilderCanvas {
                 this.ctx.moveTo(p.x, p.y);
                 p = this.posToView(lines[i].end);
                 this.ctx.lineTo(p.x, p.y);
-                p = this.posToView(lines[i].getMidpoint());
-                this.ctx.moveTo(p.x, p.y);
-                let perp = lines[i].getPerpendicular();
-                this.ctx.lineTo(p.x + (perp.x * this.PERP_LENGTH), p.y+ (perp.y * this.PERP_LENGTH));
+                if (drawNodule) {
+                    p = this.posToView(lines[i].getMidpoint());
+                    this.ctx.moveTo(p.x, p.y);
+                    let perp = lines[i].getPerpendicular();
+                    this.ctx.lineTo(p.x + (perp.x * this.PERP_LENGTH), p.y+ (perp.y * this.PERP_LENGTH));
+                }
             }
         }
         this.ctx.stroke();
@@ -174,10 +176,10 @@ class BuilderCanvas {
 
     drawExtrudeLine():void {
         this.drawLines( [
-            extrudeStart,
-            new Line(extrudeStart.end, extrudeEnd.start),
+            new Line(extrudeEnd.start, extrudeStart.end),
             extrudeEnd,
-            new Line(extrudeEnd.end, extrudeStart.start)
-        ], this.DRAWLINE_COLOR, 2.0);
+            new Line(extrudeStart.start, extrudeEnd.end),
+            extrudeStart
+        ], this.DRAWLINE_COLOR, 2.0, false);
     }
 }

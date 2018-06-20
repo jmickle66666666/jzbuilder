@@ -83,7 +83,7 @@ function beginExtrude() {
     }
     Input.state = InputState.EXTRUDING;
     extrudePointStart = Input.mouseGridPos;
-    extrudeEnd = new Line(extrudeStart.start, extrudeStart.end);
+    extrudeEnd = new Line(extrudeStart.end, extrudeStart.start);
 }
 function updateExtrude() {
     extrudeEnd.start.x = extrudeStart.end.x + (Input.mouseGridPos.x - extrudePointStart.x);
@@ -130,7 +130,6 @@ function convexMerge() {
     clearSelection();
 }
 function onKeyDown(e) {
-    e.preventDefault();
     if (e.key == " ")
         Input.viewDragging = true;
     if (e.key == "e" && editMode == EditMode.LINE && Input.state == InputState.NONE) {
@@ -175,8 +174,10 @@ function onKeyDown(e) {
         editMode = EditMode.VERTEX;
     if (e.key == "s" && !e.ctrlKey)
         editMode = EditMode.SECTOR;
-    if (e.key == "s" && e.ctrlKey)
+    if (e.key == "s" && e.ctrlKey) {
+        e.preventDefault();
         saveMap();
+    }
     if (e.key == "l" && !e.ctrlKey)
         editMode = EditMode.LINE;
     if (e.key == "t")

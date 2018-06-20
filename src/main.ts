@@ -52,6 +52,7 @@ function finishDrawingSector() {
     undoStack.save();
     Input.state = InputState.NONE;
     let newSector = new Sector(tempTexture);
+
     for (let i = 0; i < mainCanvas.drawingLines.length; i++) {
         mainCanvas.drawingLines[i].sector = newSector;
         newSector.lines.push(mainCanvas.drawingLines[i]);
@@ -100,7 +101,7 @@ function beginExtrude() {
 
     Input.state = InputState.EXTRUDING;
     extrudePointStart = Input.mouseGridPos;
-    extrudeEnd = new Line(extrudeStart.start, extrudeStart.end);
+    extrudeEnd = new Line(extrudeStart.end, extrudeStart.start);
 }
 
 function updateExtrude() {
@@ -154,7 +155,6 @@ function convexMerge() {
 }
 
 function onKeyDown(e : KeyboardEvent):void {
-    e.preventDefault();
 
     if (e.key == " ") Input.viewDragging = true;
 
@@ -203,7 +203,10 @@ function onKeyDown(e : KeyboardEvent):void {
     if (e.key == "c") clearSelection();
     if (e.key == "v") editMode = EditMode.VERTEX;
     if (e.key == "s" && !e.ctrlKey) editMode = EditMode.SECTOR;
-    if (e.key == "s" && e.ctrlKey) saveMap();
+    if (e.key == "s" && e.ctrlKey) {
+        e.preventDefault();
+        saveMap();
+    }
     if (e.key == "l" && !e.ctrlKey) editMode = EditMode.LINE;
     if (e.key == "t") editMode = EditMode.THING;
 

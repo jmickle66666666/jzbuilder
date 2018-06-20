@@ -61,6 +61,13 @@ class Sector {
 
         this.bounds = new Rect();
 
+        if (insideOut(this.lines)) {
+            this.lines.reverse();
+            for (let i = 0; i < this.lines.length; i++) {
+                this.lines[i] = this.lines[i].reversed();
+            }
+        }
+
         for (let i = 0; i < this.lines.length; i++) {
 
             this.lines[i].sector = this;

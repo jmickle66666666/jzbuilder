@@ -52,6 +52,16 @@ function convexHull(points) {
     lower.pop();
     return lower.concat(upper);
 }
+function insideOut(lines) {
+    var a = 0;
+    for (var i = 0; i < lines.length; i++) {
+        var p1 = lines[i].start;
+        var p2 = lines[(i + 1) % lines.length].start;
+        var p3 = lines[(i + 2) % lines.length].start;
+        a += ccw(p1, p2, p3) ? 1 : -1;
+    }
+    return a < 0;
+}
 function angleBetweenPoints(p1, p2, p3) {
     var a = pointDistance(p2, p1);
     var b = pointDistance(p2, p3);
