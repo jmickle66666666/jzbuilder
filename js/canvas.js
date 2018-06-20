@@ -6,6 +6,14 @@ var EditMode;
     EditMode[EditMode["THING"] = 3] = "THING";
     EditMode[EditMode["MAKESECTOR"] = 4] = "MAKESECTOR";
 })(EditMode || (EditMode = {}));
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
 var BuilderCanvas = /** @class */ (function () {
     function BuilderCanvas(canvas, mapData) {
         // Constants
@@ -33,6 +41,31 @@ var BuilderCanvas = /** @class */ (function () {
         this.selectedLines = new Array();
         this.ctx = this.canvas.getContext('2d');
     }
+    BuilderCanvas.prototype.resetDefaultColors = function () {
+        this.CANVAS_BG_COLOR = "#434043";
+        this.GRID_COLOR = "#000000";
+        this.GRID_CENTER_COLOR = "#888888";
+        this.DRAWLINE_COLOR = "#998811";
+        this.MAPLINE_COLOR = "#cccccc";
+        this.HIGHLIGHTLINE_COLOR = "#FFFFFF";
+        this.VERTEX_COLOR = "#FF8811";
+        this.DRAWVERTEX_COLOR = "#FFFFFF";
+        this.SECTOR_COLOR = "#22441144";
+        this.SELECTEDLINE_COLOR = "#FFAA11";
+    };
+    BuilderCanvas.prototype.randomColors = function () {
+        this.CANVAS_BG_COLOR = getRandomColor();
+        this.GRID_COLOR = getRandomColor();
+        this.GRID_CENTER_COLOR = getRandomColor();
+        this.DRAWLINE_COLOR = getRandomColor();
+        this.MAPLINE_COLOR = getRandomColor();
+        this.HIGHLIGHTLINE_COLOR = getRandomColor();
+        this.VERTEX_COLOR = getRandomColor();
+        this.DRAWVERTEX_COLOR = getRandomColor();
+        this.SELECTEDLINE_COLOR = getRandomColor();
+        this.SECTOR_COLOR = getRandomColor() + "44";
+        this.redraw();
+    };
     BuilderCanvas.prototype.posToView = function (p) {
         return new Vertex((p.x / this.zoom) - this.viewOffset.x, (p.y / this.zoom) - this.viewOffset.y);
     };

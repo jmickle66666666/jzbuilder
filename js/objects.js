@@ -149,9 +149,9 @@ var Line = /** @class */ (function () {
     };
     Line.prototype.shareAngle = function (l) {
         // check if this angle or opposite angle matches l
-        if (l.angle() == this.angle())
+        if (Math.abs(l.angle() - this.angle()) < 0.02)
             return true;
-        if (l.reversed().angle() == this.angle())
+        if (Math.abs(l.reversed().angle() - this.angle()) < 0.02)
             return true;
         return false;
     };

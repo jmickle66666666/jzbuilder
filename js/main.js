@@ -189,6 +189,10 @@ function onKeyDown(e) {
     if (e.key == "m") {
         editMode = EditMode.MAKESECTOR;
     }
+    if (e.key == "o")
+        mainCanvas.randomColors();
+    if (e.key == "p")
+        mainCanvas.resetDefaultColors();
     if (e.key == "Enter" && editMode == EditMode.MAKESECTOR) {
         makeSector();
     }

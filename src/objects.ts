@@ -176,8 +176,8 @@ class Line {
 
     public shareAngle(l:Line):boolean {
         // check if this angle or opposite angle matches l
-        if (l.angle() == this.angle()) return true;
-        if (l.reversed().angle() == this.angle()) return true;
+        if (Math.abs(l.angle() - this.angle()) < 0.02) return true;
+        if (Math.abs(l.reversed().angle() - this.angle()) < 0.02) return true;
         return false;
     }
 

@@ -6,6 +6,15 @@ enum EditMode {
     MAKESECTOR
 }
 
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
+
 class BuilderCanvas {
     // Constants
     CANVAS_BG_COLOR : string        = "#434043";
@@ -18,6 +27,35 @@ class BuilderCanvas {
     DRAWVERTEX_COLOR : string       = "#FFFFFF";
     SECTOR_COLOR : string           = "#22441144";
     SELECTEDLINE_COLOR : string     = "#FFAA11";
+
+
+    public resetDefaultColors():void {
+        this.CANVAS_BG_COLOR        = "#434043";
+        this.GRID_COLOR             = "#000000";
+        this.GRID_CENTER_COLOR      = "#888888";
+        this.DRAWLINE_COLOR         = "#998811";
+        this.MAPLINE_COLOR          = "#cccccc";
+        this.HIGHLIGHTLINE_COLOR    = "#FFFFFF";
+        this.VERTEX_COLOR           = "#FF8811";
+        this.DRAWVERTEX_COLOR       = "#FFFFFF";
+        this.SECTOR_COLOR           = "#22441144";
+        this.SELECTEDLINE_COLOR     = "#FFAA11";
+    }
+
+    public randomColors():void {
+        this.CANVAS_BG_COLOR        = getRandomColor();
+        this.GRID_COLOR             = getRandomColor();
+        this.GRID_CENTER_COLOR      = getRandomColor();
+        this.DRAWLINE_COLOR         = getRandomColor();
+        this.MAPLINE_COLOR          = getRandomColor();
+        this.HIGHLIGHTLINE_COLOR    = getRandomColor();
+        this.VERTEX_COLOR           = getRandomColor();
+        this.DRAWVERTEX_COLOR       = getRandomColor();
+        this.SELECTEDLINE_COLOR     = getRandomColor();
+        this.SECTOR_COLOR           = getRandomColor()+"44";
+        this.redraw();
+    }
+
     LINE_SELECT_DISTANCE : number   = 5;
     VERTEX_SIZE : number            = 2;
     ZOOM_SPEED : number             = 1.05;
