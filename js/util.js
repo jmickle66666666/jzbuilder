@@ -60,7 +60,7 @@ function insideOut(lines) {
         var p3 = lines[(i + 2) % lines.length].start;
         a += ccw(p1, p2, p3) ? 1 : -1;
     }
-    return a < 0;
+    return a > 0;
 }
 function angleBetweenPoints(p1, p2, p3) {
     var a = pointDistance(p2, p1);

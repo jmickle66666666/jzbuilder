@@ -149,7 +149,7 @@ var BuilderCanvas = /** @class */ (function () {
                     p = this.posToView(lines[i].getMidpoint());
                     this.ctx.moveTo(p.x, p.y);
                     var perp = lines[i].getPerpendicular();
-                    this.ctx.lineTo(p.x + (perp.x * this.PERP_LENGTH), p.y + (perp.y * this.PERP_LENGTH));
+                    this.ctx.lineTo(p.x - (perp.x * this.PERP_LENGTH), p.y - (perp.y * this.PERP_LENGTH));
                 }
             }
         }

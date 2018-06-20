@@ -121,4 +121,12 @@ function onReaderLoad(event) {
     MapState.fromJSON(event.target.result).restore();
     mainCanvas.redraw();
 }
+function exportUDMF() {
+    var a = document.createElement("a");
+    var udmf = new UDMFData(mapData);
+    var file = new Blob([udmf.toString()], { type: "text/plain" });
+    a.href = URL.createObjectURL(file);
+    a.download = "jzmap.udmf.txt";
+    a.click();
+}
 //# sourceMappingURL=mapio.js.map

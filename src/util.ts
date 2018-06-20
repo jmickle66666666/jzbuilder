@@ -70,7 +70,7 @@ function insideOut(lines:Array<Line>) {
         let p3 = lines[(i+2)%lines.length].start;
         a += ccw(p1,p2,p3)?1:-1;
     }
-    return a < 0;
+    return a > 0;
 }
 
 function angleBetweenPoints(p1:Vertex, p2:Vertex, p3:Vertex):number {
