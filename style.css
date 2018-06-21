@@ -38,4 +38,18 @@ img.menuIcon {
 #painTip {
     text-align: center;
     padding: 10px;
+    background-image: url('pain/speech_middle.png');
+    background-size: 100%;
+    border: 0px;
+    margin-top: -3px;
+    margin-bottom: -4px;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+}
+
+img.speech {
+    width: 100%;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+    border: 0px;    
 }
