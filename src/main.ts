@@ -8,6 +8,19 @@ tempTexture.src = "JZCRATE2.png";
 let editMode = EditMode.LINE;
 let vertexDragStart = null;
 
+function newMap() {
+    undoStack.save("delete all");
+    mapData.sectors.length = 0;
+    mapData.lines.length = 0;
+    mainCanvas.redraw();
+}
+
+function undo() {
+    undoStack.restore();
+    clearSelection();
+    mainCanvas.redraw();
+}
+
 function makeSector() {
     undoStack.save("make sector");
     let nearestList = mapData.getNearestLine(Input.mousePos);
@@ -199,9 +212,7 @@ function onKeyDown(e : KeyboardEvent):void {
     }
 
     if (e.key == "z" && e.ctrlKey) {
-        undoStack.restore();
-        clearSelection();
-        mainCanvas.redraw();
+        undo();
     }
 
     if (e.key == "c") clearSelection();

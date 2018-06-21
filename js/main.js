@@ -5,6 +5,17 @@ var tempTexture = document.createElement("img");
 tempTexture.src = "JZCRATE2.png";
 var editMode = EditMode.LINE;
 var vertexDragStart = null;
+function newMap() {
+    undoStack.save("delete all");
+    mapData.sectors.length = 0;
+    mapData.lines.length = 0;
+    mainCanvas.redraw();
+}
+function undo() {
+    undoStack.restore();
+    clearSelection();
+    mainCanvas.redraw();
+}
 function makeSector() {
     undoStack.save("make sector");
     var nearestList = mapData.getNearestLine(Input.mousePos);
@@ -166,9 +177,7 @@ function onKeyDown(e) {
         mainCanvas.redraw();
     }
     if (e.key == "z" && e.ctrlKey) {
-        undoStack.restore();
-        clearSelection();
-        mainCanvas.redraw();
+        undo();
     }
     if (e.key == "c")
         clearSelection();

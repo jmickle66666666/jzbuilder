@@ -12,6 +12,30 @@ body {
 }
 
 #helpArea {
-    padding-left: 30%;
     text-align: left;
+}
+
+#iconMenu {
+    text-align: center;
+}
+
+img.menuIcon {
+    width:64px;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+}
+
+#painArea {
+    text-align: left;
+}
+
+#painImage {
+    width:100%;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+}
+
+#painTip {
+    text-align: center;
+    padding: 10px;
 }

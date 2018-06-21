@@ -7,30 +7,58 @@
 </head>
 
 <body>
-    <img id="logo" src="logo.png" width=800/><br>
-    <canvas id="maincanvas" width=800 height=600 oncontextmenu="return false;"></canvas>
+    
 
-    <div id="helpArea">
-        <input type="file" onchange="loadMap()" id="maploader">
-        <button onclick="exportUDMF();">export udmf</button>
-        <button onclick="exportUndoStack();">export undo stack (to help jazz debug issues!!!)</button>
-        <h1>CONTROLS</h1>
-        <h2>EDIT MODES</h2>
-        <p>
-            L - Lines<br>
-            S - Sectors<br>
-            V - Vertexes<br>
-            T - Things<br>
-        </p>
-        <h2>LINEDEF MODE TOOLS</h2>
-        <p>
-            Right Click - Draw<br>
-            E - Extrude Linedef<br>
-            J - Merge Selected Lines As New Sector<br>
-        </p> 
+    <table>
+
+        <tr>
+
+            <td style="width:33%"></td>
+
+            <td>
+                <img id="logo" src="logo.png" width=800/><br>
+                <canvas id="maincanvas" width=800px height=600px oncontextmenu="return false;"></canvas>
+            </td>
+
+            <td style="width:200px; height:600px">
+                <div id="helpArea">
+                    <h1>CONTROLS</h1>
+                    <h2>EDIT MODES</h2>
+                    <p>
+                        L - Lines<br>
+                        S - Sectors<br>
+                        V - Vertexes<br>
+                        T - Things<br>
+                    </p>
+                    <h2>LINEDEF MODE TOOLS</h2>
+                    <p>
+                        Right Click - Draw<br>
+                        E - Extrude Linedef<br>
+                        J - Convex Merge Selected Lines<br>
+                        CTRL+S - Save Map<br>
+                    </p> 
+                </div>
+                <div id="painArea">
+                    <img src="pain/pain_wave.png" id="painImage" onclick="newTip()">
+                    <div id="painTip">welcome, to jz<img src="https://emojipedia-us.s3.amazonaws.com/thumbs/240/twitter/141/negative-squared-latin-capital-letter-b_1f171.png" height="12px">uilder</div>
+                </div>
+            </td>
+
+        </tr>
+
+    </table>
+
+    <div id="iconMenu">
+            <img src="icons/new.png" onclick="newMap()" class="menuIcon">
+            <img src="icons/download.png" onclick="saveMap()" class="menuIcon">
+            <img src="icons/undo.png" onclick="undo()" class="menuIcon">
+            <img src="icons/help.png" class="menuIcon">
+        </div>
+
     
-    
-    </div>
+    <input type="file" onchange="loadMap()" id="maploader">
+    <button onclick="exportUDMF();">export udmf</button>
+    <button onclick="exportUndoStack();">export undo stack (to help jazz debug issues!!!)</button>
 
     <script type="text/javascript" src="js/anim.js"></script>
     <script type="text/javascript" src="js/canvas.js"></script>
@@ -41,6 +69,7 @@
     <script type="text/javascript" src="js/util.js"></script>
     <script type="text/javascript" src="js/input.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
+    <script type="text/javascript" src="js/tips.js"></script>
 
 </body>
 
