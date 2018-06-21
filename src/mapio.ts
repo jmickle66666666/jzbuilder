@@ -46,10 +46,16 @@ class UndoStack {
 
     public stack : Array<MapState> = new Array<MapState>();
 
-    public save():void {
+    public actionHistory : Array<string> = new Array<string>();
+
+    public save(action:string = ""):void {
         this.stack.push(MapState.create());
         if (this.stack.length > this.LIMIT) {
             this.stack.shift();
+        }
+
+        if (action != "") {
+            this.actionHistory.push(action);
         }
     }
 
@@ -57,6 +63,10 @@ class UndoStack {
         if (this.stack.length > 0) {
             this.stack.pop().restore();
         }
+    }
+
+    public export():string {
+        return JSON.stringify({"undostack":this.stack,"actions":this.actionHistory});
     }
 }
 
@@ -118,11 +128,7 @@ class MapState {
 }
 
 function saveMap() {
-    var a = document.createElement("a");
-    var file = new Blob([MapState.create().toJSON()], {type: "text/plain"});
-    a.href = URL.createObjectURL(file);
-    a.download = "jzmap.json";
-    a.click();
+    saveString(MapState.create().toJSON(), "jzmap.json");
 }
 
 function loadMap(event) {
@@ -138,10 +144,19 @@ function onReaderLoad(event) {
 }
 
 function exportUDMF() {
+    let udmf = new UDMFData(mapData);
+    saveString(udmf.toString(), "jzmap.udmf.txt");
+}
+
+function exportUndoStack() {
+    saveString(undoStack.export(), "jzundo.log");
+}
+
+function saveString(data:string, filename:string) {
     var a = document.createElement("a");
     let udmf = new UDMFData(mapData);
-    var file = new Blob([udmf.toString()], {type: "text/plain"});
+    var file = new Blob([data], {type: "text/plain"});
     a.href = URL.createObjectURL(file);
-    a.download = "jzmap.udmf.txt";
+    a.download = filename;
     a.click();
 }

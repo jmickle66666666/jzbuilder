@@ -54,12 +54,39 @@ class Sector {
         //document.body.appendChild(this.floorTexture);
     }
 
+    public verifyLines():boolean {
+        if (this.lines.length == 0) return false;
+
+        let linesToRemove:Array<number> = new Array<number>();
+
+        for (let i = 0; i < this.lines.length; i++) {
+            let line1:Line = this.lines[i];
+            let line2:Line = this.lines[(i+1)%this.lines.length];
+
+            if (!line1.end.equals(line2.start)) {
+                return false;
+            }
+
+            if (line1.length() == 0) {
+                linesToRemove.push(i);
+            }
+        }
+
+        for (let i = 0; i < linesToRemove.length; i++) {
+            this.lines.splice(linesToRemove[i]-i, 1);
+        }
+    }
+
     public invalidate():void {
         if (this.lines.length == 0) return;
 
         this.dirty = false;
 
         this.bounds = new Rect();
+
+        if (this.verifyLines() == false) {
+            console.error("sector verification failed!");
+        }
 
         if (insideOut(this.lines)) {
             this.lines.reverse();

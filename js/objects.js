@@ -53,11 +53,32 @@ var Sector = /** @class */ (function () {
         this.floorTexture = floorTexture;
         //document.body.appendChild(this.floorTexture);
     }
+    Sector.prototype.verifyLines = function () {
+        if (this.lines.length == 0)
+            return false;
+        var linesToRemove = new Array();
+        for (var i = 0; i < this.lines.length; i++) {
+            var line1 = this.lines[i];
+            var line2 = this.lines[(i + 1) % this.lines.length];
+            if (!line1.end.equals(line2.start)) {
+                return false;
+            }
+            if (line1.length() == 0) {
+                linesToRemove.push(i);
+            }
+        }
+        for (var i = 0; i < linesToRemove.length; i++) {
+            this.lines.splice(linesToRemove[i] - i, 1);
+        }
+    };
     Sector.prototype.invalidate = function () {
         if (this.lines.length == 0)
             return;
         this.dirty = false;
         this.bounds = new Rect();
+        if (this.verifyLines() == false) {
+            console.error("sector verification failed!");
+        }
         if (insideOut(this.lines)) {
             this.lines.reverse();
             for (var i = 0; i < this.lines.length; i++) {

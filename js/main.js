@@ -6,7 +6,7 @@ tempTexture.src = "JZCRATE2.png";
 var editMode = EditMode.LINE;
 var vertexDragStart = null;
 function makeSector() {
-    undoStack.save();
+    undoStack.save("make sector");
     var nearestList = mapData.getNearestLine(Input.mousePos);
     console.log(nearestList);
     var points = traceShallowSector(nearestList);
@@ -39,13 +39,15 @@ function makeSectorHighlightLines() {
     }
 }
 function finishDrawingSector() {
-    undoStack.save();
+    undoStack.save("finish drawing sector");
     Input.state = InputState.NONE;
     var newSector = new Sector(tempTexture);
     for (var i = 0; i < mainCanvas.drawingLines.length; i++) {
         mainCanvas.drawingLines[i].sector = newSector;
         newSector.lines.push(mainCanvas.drawingLines[i]);
-        mapData.addLine(mainCanvas.drawingLines[i]);
+    }
+    for (var i = 0; i < newSector.lines.length; i++) {
+        mapData.addLine(newSector.lines[i]);
     }
     newSector.invalidate();
     mapData.sectors.push(newSector);
@@ -53,7 +55,7 @@ function finishDrawingSector() {
     mainCanvas.redraw();
 }
 function finishDrawingLines() {
-    undoStack.save();
+    undoStack.save("finish drawing lines");
     Input.state = InputState.NONE;
     for (var i = 0; i < mainCanvas.drawingLines.length - 1; i++) {
         mapData.addLine(mainCanvas.drawingLines[i]);
@@ -99,7 +101,7 @@ function cancelExtrude() {
     }
 }
 function finishExtrude() {
-    undoStack.save();
+    undoStack.save("finishextrude");
     Input.state = InputState.NONE;
     var l1 = extrudeStart;
     var l2 = new Line(extrudeStart.end, extrudeEnd.start);
@@ -111,15 +113,15 @@ function finishExtrude() {
     newSector.lines.push(l3);
     newSector.lines.push(l4);
     newSector.invalidate();
-    mapData.checkOverlaps(l1);
-    mapData.checkOverlaps(l2);
-    mapData.checkOverlaps(l3);
-    mapData.checkOverlaps(l4);
+    mapData.addLine(l1);
+    mapData.addLine(l2);
+    mapData.addLine(l3);
+    mapData.addLine(l4);
     mapData.sectors.push(newSector);
     mainCanvas.redraw();
 }
 function convexMerge() {
-    undoStack.save();
+    undoStack.save("convex merge");
     var pts = [];
     for (var i = 0; i < mainCanvas.selectedLines.length; i++) {
         pts.push(mainCanvas.selectedLines[i].start);
@@ -140,7 +142,7 @@ function onKeyDown(e) {
     }
     if (e.key == "Backspace" && e.ctrlKey) {
         if (editMode == EditMode.LINE) {
-            undoStack.save();
+            undoStack.save("delete line");
             if (mainCanvas.selectedLines.length == 0) {
                 for (var i = 0; i < mainCanvas.highlightLines.length; i++) {
                     mapData.deleteLine(mainCanvas.highlightLines[i]);
@@ -153,11 +155,11 @@ function onKeyDown(e) {
             }
         }
         if (editMode == EditMode.VERTEX) {
-            undoStack.save();
+            undoStack.save("delete vertex");
             mapData.deleteVertex(Input.mouseGridPos);
         }
         if (editMode == EditMode.SECTOR) {
-            undoStack.save();
+            undoStack.save("delete sector");
             mapData.deleteSectorAt(Input.mousePos);
         }
         clearSelection();
@@ -282,7 +284,7 @@ function onMouseDown(e) {
             }
         }
         if (editMode == EditMode.VERTEX) {
-            undoStack.save();
+            undoStack.save("start vertex drag");
             vertexDragStart = Input.mouseGridPos;
             Input.state = InputState.DRAGGING;
         }
