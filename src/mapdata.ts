@@ -235,6 +235,9 @@ class MapData {
     }
 
     addLine(l:Line) {
+
+        Anim.addLine(l);
+
         // First check if it completely overlaps an existing line
         for (let i = 0 ; i < this.sectors.length; i++) {
             for (let j = 0; j < this.sectors[i].lines.length; j++) {

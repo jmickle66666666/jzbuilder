@@ -62,6 +62,10 @@ function convexHull(points:Array<Vertex>):Array<Vertex> {
     return lower.concat(upper);
 }
 
+function lerp(a:number, b:number, amt:number):number {
+    return (a * amt) + (b * (1.0-amt));
+}
+
 function insideOut(lines:Array<Line>) {
     let a = 0;
     for (let i = 0; i < lines.length; i++) {

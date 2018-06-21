@@ -88,6 +88,7 @@ var BuilderCanvas = /** @class */ (function () {
         this.drawVertexes();
         this.drawSelectedLines();
         this.drawHighlightedLines();
+        this.drawAnimLines();
         //this.drawDebug();
     };
     BuilderCanvas.prototype.drawDebug = function () {
@@ -195,6 +196,20 @@ var BuilderCanvas = /** @class */ (function () {
             new Line(extrudeStart.start, extrudeEnd.end),
             extrudeStart
         ], this.DRAWLINE_COLOR, 2.0, false);
+    };
+    BuilderCanvas.prototype.drawAnimLines = function () {
+        if (Anim.animLines.length == 0)
+            return;
+        for (var i = 0; i < Anim.animLines.length; i++) {
+            this.ctx.beginPath();
+            this.ctx.strokeStyle = Anim.animLines[i].getColorString();
+            this.ctx.lineWidth = Anim.animLines[i].width;
+            var p = this.posToView(Anim.animLines[i].line.start);
+            this.ctx.moveTo(p.x, p.y);
+            p = this.posToView(Anim.animLines[i].line.end);
+            this.ctx.lineTo(p.x, p.y);
+            this.ctx.stroke();
+        }
     };
     return BuilderCanvas;
 }());

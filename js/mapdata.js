@@ -207,6 +207,7 @@ var MapData = /** @class */ (function () {
         }
     };
     MapData.prototype.addLine = function (l) {
+        Anim.addLine(l);
         // First check if it completely overlaps an existing line
         for (var i = 0; i < this.sectors.length; i++) {
             for (var j = 0; j < this.sectors[i].lines.length; j++) {

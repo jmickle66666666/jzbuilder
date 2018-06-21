@@ -52,6 +52,9 @@ function convexHull(points) {
     lower.pop();
     return lower.concat(upper);
 }
+function lerp(a, b, amt) {
+    return (a * amt) + (b * (1.0 - amt));
+}
 function insideOut(lines) {
     var a = 0;
     for (var i = 0; i < lines.length; i++) {
