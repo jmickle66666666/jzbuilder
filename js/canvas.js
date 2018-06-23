@@ -129,7 +129,7 @@ var BuilderCanvas = /** @class */ (function () {
     };
     BuilderCanvas.prototype.drawSectors = function () {
         if (this.mapData.sectors.length != 0) {
-            //console.log("hello");
+            this.ctx.imageSmoothingEnabled = false;
             for (var i = 0; i < mapData.sectors.length; i++) {
                 var p = this.posToView(this.mapData.sectors[i].bounds.topLeft);
                 this.ctx.drawImage(this.mapData.sectors[i].preview, p.x, p.y, this.mapData.sectors[i].bounds.width / this.zoom, this.mapData.sectors[i].bounds.height / this.zoom);

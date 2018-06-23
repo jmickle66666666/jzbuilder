@@ -8,6 +8,7 @@ body {
 
 #navbar {
     height: 5%;
+    width:100%;
     display: flex;
 }
 
@@ -30,16 +31,18 @@ img.menuIcon {
 #mainbody {
     display:flex;
     flex-direction: row;
+    height:95%;
+    width:100%;
 }
 
 #maincanvas {
-    height:95%;
+    width:80%;
 }
 
 #sidebar {
     display: flex;
     flex-direction: column;
-    width: 300px;
+    width: 20%;
 }
 
 #infopanel {
