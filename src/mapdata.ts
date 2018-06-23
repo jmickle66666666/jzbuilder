@@ -241,24 +241,37 @@ class MapData {
         // First check if it completely overlaps an existing line
         for (let i = 0 ; i < this.sectors.length; i++) {
             for (let j = 0; j < this.sectors[i].lines.length; j++) {
-                if (l.shareAngle(this.sectors[i].lines[j])) {
-                    if (this.sectors[i].lines[j].pointOnLine(l.start) && 
-                    this.sectors[i].lines[j].pointOnLine(l.end)) {
 
-                        if (l.angle() != this.sectors[i].lines[j].angle()) l = l.reversed();
+                let ml:Line = this.sectors[i].lines[j];
+
+                if (l.shareAngle(ml)) {
+                    if (ml.pointOnLine(l.start) && ml.pointOnLine(l.end)) {
+
+                        if (l.angle() != ml.angle()) l = l.reversed();
 
 
-                        this.sectors[i].lines[j].split(l.start);
+                        ml.split(l.start);
                         this.sectors[i].lines[j+1].split(l.end);
                         console.log("ya");
                         return;
-                    } else if (this.sectors[i].lines[j].pointOnLine(l.start)) {
+                    } else if (ml.pointOnLine(l.start)) {
                         // Then check if it partially overlaps an existing line
-                        this.sectors[i].lines[j].split(l.start);
+                        ml.split(l.start);
                         return;
                         
-                    } else if (this.sectors[i].lines[j].pointOnLine(l.end)) {
-                        this.sectors[i].lines[j].split(l.end);
+                    } else if (ml.pointOnLine(l.end)) {
+                        ml.split(l.end);
+                        return;
+                    } else if (l.pointOnLine(ml.start) &&
+                    l.pointOnLine(ml.end)) {
+                        if (l.angle() != ml.angle()) l = l.reversed();
+                        l.split(ml.start);
+                        return;
+                    } else if (l.pointOnLine(ml.start)) {
+                        l.split(ml.start);
+                        return;
+                    } else if (l.pointOnLine(ml.end)) {
+                        l.split(ml.end);
                         return;
                     }
                 }
