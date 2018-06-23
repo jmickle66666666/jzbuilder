@@ -13,6 +13,7 @@ body {
 
 #helpArea {
     text-align: left;
+    visibility: hidden;
 }
 
 #iconMenu {
@@ -26,7 +27,7 @@ img.menuIcon {
 }
 
 #painArea {
-    text-align: left;
+    text-align: center;
 }
 
 #painImage {
@@ -37,10 +38,9 @@ img.menuIcon {
 
 #painTip {
     text-align: center;
-    padding: 10px;
+    padding: 5px;
     background-image: url('pain/speech_middle.png');
     background-size: 100%;
-    border: 0px;
     margin-top: -3px;
     margin-bottom: -4px;
     image-rendering: crisp-edges;
