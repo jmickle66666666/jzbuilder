@@ -44,13 +44,7 @@ class CreateLineAnim {
     }
 
     public getColorString():string {
-
         return "rgb(255,255,255,"+this.alpha.toString()+")";
-
-        let a:string = (this.alpha * 256).toString(16);
-        if (a.length == 1) a = "0"+a;
-        return this.color + a;
-
     }
 
     public tick():void {

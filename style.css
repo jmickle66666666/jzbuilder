@@ -21,7 +21,7 @@ button {
 }
 
 img.menuIcon {
-    image-rendering: crisp-edges;
+    image-rendering: -moz-crisp-edges;
     image-rendering: pixelated;
     height:80%;
     padding-top:0.5%;
@@ -59,13 +59,13 @@ img.menuIcon {
 
 #peimage {
     width:80%;
-    image-rendering: crisp-edges;
+    image-rendering: -moz-crisp-edges;
     image-rendering: pixelated;
 }
 
 #petextwrapper {
     background-image: url("pain/speech_middle.png");
-    image-rendering: crisp-edges;
+    image-rendering: -moz-crisp-edges;
     image-rendering: pixelated;
 
     /* align the speech bubble background */
@@ -85,7 +85,7 @@ img.menuIcon {
 
 img.speech {
     width:70%;
-    image-rendering: crisp-edges;
+    image-rendering: -moz-crisp-edges;
     image-rendering: pixelated;
     transform: scaleY(-1);
 }
