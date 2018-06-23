@@ -328,7 +328,9 @@ function onMouseUp(e) {
 window.addEventListener("keydown", onKeyDown);
 window.addEventListener("keyup", onKeyUp);
 mainCanvas.canvas.addEventListener("mousemove", onMouseMove);
+// I love standards
 mainCanvas.canvas.addEventListener("mousewheel", onMouseWheel);
+mainCanvas.canvas.addEventListener("wheel", onMouseWheel);
 mainCanvas.canvas.addEventListener("mousedown", onMouseDown);
 mainCanvas.canvas.addEventListener("mouseup", onMouseUp);
 var undoStack = new UndoStack();
