@@ -9,10 +9,10 @@
     <body>
         <div id="navbar">
             <img src="logo.png" id="logoimg">
-            <img src="icons/new.png" onclick="newMap()" class="menuIcon">
-            <img src="icons/download.png" onclick="saveMap()" class="menuIcon">
-            <img src="icons/undo.png" onclick="undo()" class="menuIcon">
-            <img src="icons/help.png" class="menuIcon">
+            <img src="icons/new.png" onclick="newMap()" class="menuIcon" title="new map">
+            <img src="icons/download.png" onclick="saveMap()" class="menuIcon" title="download map [ctrl-s]">
+            <img src="icons/undo.png" onclick="undo()" class="menuIcon" title="undo [ctrl-z]">
+            <img src="icons/help.png" class="menuIcon" title="help">
             <button onclick="exportUDMF();">export udmf</button>
             <button onclick="exportUndoStack();">export undo stack (to help jazz debug issues!!!)</button>
             <input type="file" onchange="loadMap()" id="maploader">
