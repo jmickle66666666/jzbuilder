@@ -5,7 +5,6 @@ var Anim = /** @class */ (function () {
         if (Anim.animLines.length == 0) {
             return;
         }
-        console.log("h");
         for (var i = 0; i < Anim.animLines.length; i++) {
             Anim.animLines[i].tick();
         }
@@ -36,10 +35,6 @@ var CreateLineAnim = /** @class */ (function () {
     }
     CreateLineAnim.prototype.getColorString = function () {
         return "rgb(255,255,255," + this.alpha.toString() + ")";
-        var a = (this.alpha * 256).toString(16);
-        if (a.length == 1)
-            a = "0" + a;
-        return this.color + a;
     };
     CreateLineAnim.prototype.tick = function () {
         this.alpha = lerp(this.alpha, 0, 0.8);
@@ -51,5 +46,4 @@ var CreateLineAnim = /** @class */ (function () {
 }());
 Anim.animLines = new Array();
 window.setInterval(Anim.update, 1000 / 60);
-console.log("is here?");
 //# sourceMappingURL=anim.js.map

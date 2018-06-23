@@ -6,8 +6,6 @@ class Anim {
             return;
         }
 
-        console.log("h");
-
         for (let i = 0; i < Anim.animLines.length; i++) {
             Anim.animLines[i].tick();
         }
@@ -57,4 +55,3 @@ class CreateLineAnim {
 Anim.animLines = new Array<CreateLineAnim>();
 
 window.setInterval(Anim.update, 1000/60);
-console.log("is here?");

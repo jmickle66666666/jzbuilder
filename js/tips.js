@@ -1,5 +1,5 @@
 var tips = [
-    'welcome, to jz<img src="https://emojipedia-us.s3.amazonaws.com/thumbs/240/twitter/141/negative-squared-latin-capital-letter-b_1f171.png" height="12px">uilder',
+    'welcome, to jz🅱️uilder',
     'extruding is fun! try it out with the E key!',
     'you can delete stuff with ctrl-backspace! mac CMD key isn\'t supported yet, for silly reasons',
     'wow! this tool is a lot of fun, huh?',
