@@ -11,7 +11,7 @@ var tips = [
     'i hope you\'re having fun!'
 ];
 function newTip() {
-    var el = document.getElementById("painTip");
+    var el = document.getElementById("petext");
     el.innerHTML = tips[Math.floor(Math.random() * tips.length)];
 }
 //# sourceMappingURL=tips.js.map

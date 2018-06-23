@@ -12,6 +12,6 @@ var tips:Array<string> = [
 ]
 
 function newTip() {
-    let el = document.getElementById("painTip");
+    let el = document.getElementById("petext");
     el.innerHTML = tips[Math.floor(Math.random()*tips.length)];
 }

@@ -32,14 +32,16 @@ var BuilderCanvas = /** @class */ (function () {
         this.ZOOM_SPEED = 1.05;
         this.GRIDLINE_WIDTH = 0.5;
         this.PERP_LENGTH = 5.0;
-        this.viewOffset = new Vertex(-400, -300);
         this.zoom = 1.0;
         this.gridSize = 32;
         this.mapData = mapData;
         this.canvas = canvas;
         this.drawingLines = new Array();
         this.selectedLines = new Array();
+        this.viewOffset = new Vertex(-Math.round(canvas.clientWidth * 0.5), -Math.round(canvas.clientHeight * 0.5));
         this.ctx = this.canvas.getContext('2d');
+        this.ctx.canvas.width = canvas.clientWidth;
+        this.ctx.canvas.height = canvas.clientHeight;
     }
     BuilderCanvas.prototype.resetDefaultColors = function () {
         this.CANVAS_BG_COLOR = "#434043";

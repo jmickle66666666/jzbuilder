@@ -1,55 +1,91 @@
 body {
     background: #dddada;
-    text-align: center;
-    width: 100%;
     font-family: 'Archivo Narrow', sans-serif;
+    width:100%;
+    height:100%;
+    margin: 0%;
 }
 
-#maincanvas {
-    border: 4px;
-    border-style: dashed;
-    border-color: #000;
+#navbar {
+    height: 5%;
+    display: flex;
 }
 
-#helpArea {
-    text-align: left;
-    visibility: hidden;
+#logoimg {
+    height:80%;
+    padding: 0.5%;
 }
 
-#iconMenu {
-    text-align: center;
+button {
+    height:100%;
 }
 
 img.menuIcon {
-    width:64px;
     image-rendering: crisp-edges;
     image-rendering: pixelated;
+    height:80%;
+    padding-top:0.5%;
 }
 
-#painArea {
+#mainbody {
+    display:flex;
+    flex-direction: row;
+}
+
+#maincanvas {
+    height:95%;
+}
+
+#sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+}
+
+#infopanel {
+    flex: 3;
+    padding-left: 5%;
+    padding-right: 5%;
+}
+
+
+
+#pepanel {
     text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    vertical-align: text-bottom;
 }
 
-#painImage {
-    width:100%;
+#peimage {
+    width:80%;
     image-rendering: crisp-edges;
     image-rendering: pixelated;
 }
 
-#painTip {
-    text-align: center;
-    padding: 5px;
-    background-image: url('pain/speech_middle.png');
-    background-size: 100%;
-    margin-top: -3px;
-    margin-bottom: -4px;
+#petextwrapper {
+    background-image: url("pain/speech_middle.png");
     image-rendering: crisp-edges;
     image-rendering: pixelated;
+
+    /* align the speech bubble background */
+    background-size: 70%;
+    background-repeat: repeat-y;
+    background-position: center;
+
+    /* overlap the speech bubble background with the top and bottom parts of the image, removes gaps */
+    margin-top: -1px;
+    margin-bottom: -1px;
+}
+
+#petext {
+    width:60%;
+    margin-left:20%;
 }
 
 img.speech {
-    width: 100%;
+    width:70%;
     image-rendering: crisp-edges;
     image-rendering: pixelated;
-    border: 0px;    
+    transform: scaleY(-1);
 }

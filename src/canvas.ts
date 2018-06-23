@@ -62,7 +62,7 @@ class BuilderCanvas {
     GRIDLINE_WIDTH : number         = 0.5;
     PERP_LENGTH : number            = 5.0;
 
-    viewOffset : Vertex = new Vertex(-400, -300);
+    viewOffset : Vertex;
     zoom : number = 1.0;
     gridSize : number = 32;
 
@@ -81,7 +81,13 @@ class BuilderCanvas {
         this.canvas = canvas;
         this.drawingLines = new Array<Line>();
         this.selectedLines = new Array<Line>();
+
+        this.viewOffset = new Vertex(-Math.round(canvas.clientWidth * 0.5), -Math.round(canvas.clientHeight * 0.5));
+
         this.ctx = <CanvasRenderingContext2D> this.canvas.getContext('2d');
+
+        this.ctx.canvas.width = canvas.clientWidth;
+        this.ctx.canvas.height = canvas.clientHeight;
     }
 
     public posToView(p:Vertex): Vertex {
