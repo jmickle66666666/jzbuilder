@@ -151,7 +151,7 @@ function onKeyDown(e) {
     if (e.key == "j") {
         convexMerge();
     }
-    if (e.key == "Backspace" && e.ctrlKey) {
+    if ((e.key == "Backspace" && e.ctrlKey) || e.key == "Delete") {
         if (editMode == EditMode.LINE) {
             undoStack.save("delete line");
             if (mainCanvas.selectedLines.length == 0) {
