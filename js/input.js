@@ -1,17 +1,19 @@
-var InputState;
-(function (InputState) {
-    InputState["NONE"] = "none";
-    InputState["DRAWING"] = "drawing";
-    InputState["EXTRUDING"] = "extruding";
-    InputState["DRAGGING"] = "dragging";
-})(InputState || (InputState = {}));
+var InputMode;
+(function (InputMode) {
+    InputMode["VERTEX"] = "vertex";
+    InputMode["EDGE"] = "edge";
+    InputMode["SECTOR"] = "sector";
+})(InputMode || (InputMode = {}));
 var Input = /** @class */ (function () {
     function Input() {
     }
+    Input.switchMode = function (mode) {
+        Input.mode = mode;
+    };
     Input.mousePos = new Vertex(0, 0);
     Input.mouseGridPos = new Vertex(0, 0);
     Input.viewDragging = false;
-    Input.state = InputState.NONE;
+    Input.mode = InputMode.EDGE;
     return Input;
 }());
 //# sourceMappingURL=input.js.map

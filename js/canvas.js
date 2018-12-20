@@ -1,73 +1,80 @@
-var EditMode;
-(function (EditMode) {
-    EditMode[EditMode["VERTEX"] = 0] = "VERTEX";
-    EditMode[EditMode["LINE"] = 1] = "LINE";
-    EditMode[EditMode["SECTOR"] = 2] = "SECTOR";
-    EditMode[EditMode["THING"] = 3] = "THING";
-    EditMode[EditMode["MAKESECTOR"] = 4] = "MAKESECTOR";
-})(EditMode || (EditMode = {}));
-function getRandomColor() {
-    var letters = '0123456789ABCDEF';
-    var color = '#';
-    for (var i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-}
+// Probably defunct
+// enum EditMode {
+//     VERTEX,
+//     LINE,
+//     SECTOR,
+//     THING,
+//     MAKESECTOR
+// }
+// function getRandomColor() {
+//     var letters = '0123456789ABCDEF';
+//     var color = '#';
+//     for (var i = 0; i < 6; i++) {
+//       color += letters[Math.floor(Math.random() * 16)];
+//     }
+//     return color;
+//   }
 var BuilderCanvas = /** @class */ (function () {
-    function BuilderCanvas(canvas, mapData) {
-        // Constants
+    //     mapData : MapData;
+    //     drawingLines : Array<Line>;
+    //     selectedLines : Array<Line>;
+    //     highlightSector : number;
+    //     highlightLines : Array<Line>;
+    function BuilderCanvas(canvas) {
+        //     // Constants
         this.CANVAS_BG_COLOR = "#434043";
         this.GRID_COLOR = "#000000";
         this.GRID_CENTER_COLOR = "#888888";
-        this.DRAWLINE_COLOR = "#998811";
-        this.MAPLINE_COLOR = "#cccccc";
-        this.HIGHLIGHTLINE_COLOR = "#FFFFFF";
-        this.VERTEX_COLOR = "#FF8811";
-        this.DRAWVERTEX_COLOR = "#FFFFFF";
-        this.SECTOR_COLOR = "#22441144";
-        this.SELECTEDLINE_COLOR = "#FFAA11";
-        this.LINE_SELECT_DISTANCE = 5;
+        //     DRAWLINE_COLOR : string         = "#998811";
+        this.MAPLINE_2S_COLOR = "#884422";
+        this.MAPLINE_COLOR = "#888888";
+        this.MAPPROCLINE_COLOR = "#ffcc88";
+        //     HIGHLIGHTLINE_COLOR : string    = "#FFFFFF";
+        this.VERTEX_COLOR = "#FF9944";
+        this.HIGHLIGHT_COLOR = "#FFFFFF55";
+        //     SECTOR_COLOR : string           = "#22441144";
+        //     SELECTEDLINE_COLOR : string     = "#FFAA11";
+        //     public resetDefaultColors():void {
+        //         this.CANVAS_BG_COLOR        = "#434043";
+        //         this.GRID_COLOR             = "#000000";
+        //         this.GRID_CENTER_COLOR      = "#888888";
+        //         this.DRAWLINE_COLOR         = "#998811";
+        //         this.MAPLINE_COLOR          = "#cccccc";
+        //         this.HIGHLIGHTLINE_COLOR    = "#FFFFFF";
+        //         this.VERTEX_COLOR           = "#FF8811";
+        //         this.DRAWVERTEX_COLOR       = "#FFFFFF";
+        //         this.SECTOR_COLOR           = "#22441144";
+        //         this.SELECTEDLINE_COLOR     = "#FFAA11";
+        //     }
+        //     public randomColors():void {
+        //         this.CANVAS_BG_COLOR        = getRandomColor();
+        //         this.GRID_COLOR             = getRandomColor();
+        //         this.GRID_CENTER_COLOR      = getRandomColor();
+        //         this.DRAWLINE_COLOR         = getRandomColor();
+        //         this.MAPLINE_COLOR          = getRandomColor();
+        //         this.HIGHLIGHTLINE_COLOR    = getRandomColor();
+        //         this.VERTEX_COLOR           = getRandomColor();
+        //         this.DRAWVERTEX_COLOR       = getRandomColor();
+        //         this.SELECTEDLINE_COLOR     = getRandomColor();
+        //         this.SECTOR_COLOR           = getRandomColor()+"44";
+        //         this.redraw();
+        //     }
+        //     LINE_SELECT_DISTANCE : number   = 5;
         this.VERTEX_SIZE = 2;
         this.ZOOM_SPEED = 1.05;
         this.GRIDLINE_WIDTH = 0.5;
         this.PERP_LENGTH = 5.0;
         this.zoom = 1.0;
         this.gridSize = 32;
-        this.mapData = mapData;
         this.canvas = canvas;
-        this.drawingLines = new Array();
-        this.selectedLines = new Array();
         this.viewOffset = new Vertex(-Math.round(canvas.clientWidth * 0.5), -Math.round(canvas.clientHeight * 0.5));
         this.ctx = this.canvas.getContext('2d');
         this.ctx.canvas.width = canvas.clientWidth;
         this.ctx.canvas.height = canvas.clientHeight;
+        this.ICON_VERTEX_MODE = document.getElementById('vertexmode');
+        this.ICON_EDGE_MODE = document.getElementById('edgemode');
+        this.ICON_SECTOR_MODE = document.getElementById('sectormode');
     }
-    BuilderCanvas.prototype.resetDefaultColors = function () {
-        this.CANVAS_BG_COLOR = "#434043";
-        this.GRID_COLOR = "#000000";
-        this.GRID_CENTER_COLOR = "#888888";
-        this.DRAWLINE_COLOR = "#998811";
-        this.MAPLINE_COLOR = "#cccccc";
-        this.HIGHLIGHTLINE_COLOR = "#FFFFFF";
-        this.VERTEX_COLOR = "#FF8811";
-        this.DRAWVERTEX_COLOR = "#FFFFFF";
-        this.SECTOR_COLOR = "#22441144";
-        this.SELECTEDLINE_COLOR = "#FFAA11";
-    };
-    BuilderCanvas.prototype.randomColors = function () {
-        this.CANVAS_BG_COLOR = getRandomColor();
-        this.GRID_COLOR = getRandomColor();
-        this.GRID_CENTER_COLOR = getRandomColor();
-        this.DRAWLINE_COLOR = getRandomColor();
-        this.MAPLINE_COLOR = getRandomColor();
-        this.HIGHLIGHTLINE_COLOR = getRandomColor();
-        this.VERTEX_COLOR = getRandomColor();
-        this.DRAWVERTEX_COLOR = getRandomColor();
-        this.SELECTEDLINE_COLOR = getRandomColor();
-        this.SECTOR_COLOR = getRandomColor() + "44";
-        this.redraw();
-    };
     BuilderCanvas.prototype.posToView = function (p) {
         return new Vertex((p.x / this.zoom) - this.viewOffset.x, (p.y / this.zoom) - this.viewOffset.y);
     };
@@ -82,20 +89,30 @@ var BuilderCanvas = /** @class */ (function () {
     };
     BuilderCanvas.prototype.redraw = function () {
         this.drawGrid();
-        this.drawSectors();
-        this.drawMapLines();
-        this.drawDrawLines();
-        if (Input.state == InputState.EXTRUDING)
-            this.drawExtrudeLine();
-        this.drawVertexes();
-        this.drawSelectedLines();
-        this.drawHighlightedLines();
-        this.drawAnimLines();
+        this.drawSectors(mapData.sectors);
+        this.drawIcons();
+        // this.drawMapLines();
+        // this.drawDrawLines();
+        // if (Input.state == InputState.EXTRUDING) this.drawExtrudeLine();
+        // this.drawVertexes();
+        // this.drawSelectedLines();
+        // this.drawHighlightedLines();
+        // this.drawAnimLines();
         //this.drawDebug();
     };
-    BuilderCanvas.prototype.drawDebug = function () {
-        this.ctx.strokeText(Input.state.toString(), 10, 10);
+    BuilderCanvas.prototype.drawIcons = function () {
+        var drawIcon;
+        if (Input.mode == InputMode.VERTEX)
+            drawIcon = this.ICON_VERTEX_MODE;
+        if (Input.mode == InputMode.EDGE)
+            drawIcon = this.ICON_EDGE_MODE;
+        if (Input.mode == InputMode.SECTOR)
+            drawIcon = this.ICON_SECTOR_MODE;
+        this.ctx.drawImage(drawIcon, 10, 10, 64, 64);
     };
+    //     drawDebug() {
+    //         this.ctx.strokeText(Input.state.toString(), 10, 10);
+    //     }
     BuilderCanvas.prototype.drawGrid = function () {
         this.ctx.fillStyle = this.CANVAS_BG_COLOR;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -127,91 +144,134 @@ var BuilderCanvas = /** @class */ (function () {
             }
         }
     };
-    BuilderCanvas.prototype.drawSectors = function () {
-        if (this.mapData.sectors.length != 0) {
+    BuilderCanvas.prototype.drawSectors = function (sectors) {
+        if (sectors.length != 0) {
             this.ctx.imageSmoothingEnabled = false;
-            for (var i = 0; i < mapData.sectors.length; i++) {
-                var p = this.posToView(this.mapData.sectors[i].bounds.topLeft);
-                this.ctx.drawImage(this.mapData.sectors[i].preview, p.x, p.y, this.mapData.sectors[i].bounds.width / this.zoom, this.mapData.sectors[i].bounds.height / this.zoom);
-                this.drawLines(this.mapData.sectors[i].lines, (i == this.highlightSector) ? this.HIGHLIGHTLINE_COLOR : this.MAPLINE_COLOR, (i == this.highlightSector) ? 2.0 : 1.0);
+            for (var i = 0; i < sectors.length; i++) {
+                // let p = this.posToView(sectors[i].bounds.topLeft);
+                // this.ctx.drawImage(this.mapData.sectors[i].preview, p.x, p.y, this.mapData.sectors[i].bounds.width / this.zoom, this.mapData.sectors[i].bounds.height / this.zoom);
+                this.drawEdges(sectors[i].edges, this.MAPLINE_COLOR, 1.0);
             }
         }
     };
-    BuilderCanvas.prototype.drawMapLines = function () {
-        this.drawLines(this.mapData.lines, this.MAPLINE_COLOR);
-    };
-    BuilderCanvas.prototype.drawDrawLines = function () {
-        this.drawLines(this.drawingLines, this.DRAWLINE_COLOR, 2, false);
-    };
-    BuilderCanvas.prototype.drawVertexes = function () {
+    //     drawMapLines():void {
+    //         this.drawLines(this.mapData.lines, this.MAPLINE_COLOR);
+    //     }
+    //     drawDrawLines():void {
+    //         this.drawLines(this.drawingLines, this.DRAWLINE_COLOR, 2, false);
+    //     }
+    BuilderCanvas.prototype.drawVertex = function (vertex) {
         this.ctx.fillStyle = this.VERTEX_COLOR;
-        var allLines = mapData.getAllLines();
-        for (var i = 0; i < allLines.length; i++) {
-            var p = this.posToView(allLines[i].start);
-            this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
-            p = this.posToView(allLines[i].end);
-            this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
-        }
-        if (editMode == EditMode.VERTEX) {
-            this.ctx.fillStyle = this.DRAWVERTEX_COLOR;
-            var p = this.posToView(Input.mouseGridPos);
-            this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
-        }
+        // let allLines:Array<Line> = mapData.getAllLines();
+        // for (let i = 0; i < allLines.length; i++) {
+        var p = this.posToView(vertex);
+        this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
+        // }
+        // if (editMode == EditMode.VERTEX) {
+        //     this.ctx.fillStyle = this.DRAWVERTEX_COLOR;
+        //     let p = this.posToView(Input.mouseGridPos);
+        //     this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
+        // }
     };
-    BuilderCanvas.prototype.drawSelectedLines = function () {
-        this.drawLines(this.selectedLines, this.SELECTEDLINE_COLOR, 2.0);
-    };
-    BuilderCanvas.prototype.drawHighlightedLines = function () {
-        if (this.highlightLines != null)
-            this.drawLines(this.highlightLines, this.HIGHLIGHTLINE_COLOR, 2.0);
-    };
-    BuilderCanvas.prototype.drawLines = function (lines, color, width, drawNodule) {
+    //     drawSelectedLines():void {
+    //         this.drawLines(this.selectedLines, this.SELECTEDLINE_COLOR, 2.0);
+    //     }
+    //     drawHighlightedLines():void {
+    //         if (this.highlightLines != null) this.drawLines(this.highlightLines, this.HIGHLIGHTLINE_COLOR, 2.0);
+    //     }
+    BuilderCanvas.prototype.drawBasicEdges = function (edges, color, width, drawNodule) {
         if (width === void 0) { width = 1.0; }
         if (drawNodule === void 0) { drawNodule = true; }
-        if (lines == null)
+        if (edges == null)
             return;
-        if (lines.length == 0)
+        if (edges.length == 0)
             return;
         this.ctx.lineWidth = width;
         this.ctx.strokeStyle = color;
         this.ctx.beginPath();
-        for (var i = 0; i < lines.length; i++) {
-            if (lines[i] != null) {
-                var p = this.posToView(lines[i].start);
+        for (var i = 0; i < edges.length; i++) {
+            if (edges[i] != null) {
+                var p = this.posToView(edges[i].start);
                 this.ctx.moveTo(p.x, p.y);
-                p = this.posToView(lines[i].end);
+                p = this.posToView(edges[i].end);
                 this.ctx.lineTo(p.x, p.y);
                 if (drawNodule) {
-                    p = this.posToView(lines[i].getMidpoint());
+                    p = this.posToView(edges[i].getMidpoint());
                     this.ctx.moveTo(p.x, p.y);
-                    var perp = lines[i].getPerpendicular();
+                    var perp = edges[i].getPerpendicular();
                     this.ctx.lineTo(p.x - (perp.x * this.PERP_LENGTH), p.y - (perp.y * this.PERP_LENGTH));
                 }
             }
         }
         this.ctx.stroke();
-    };
-    BuilderCanvas.prototype.drawExtrudeLine = function () {
-        this.drawLines([
-            new Line(extrudeEnd.start, extrudeStart.end),
-            extrudeEnd,
-            new Line(extrudeStart.start, extrudeEnd.end),
-            extrudeStart
-        ], this.DRAWLINE_COLOR, 2.0, false);
-    };
-    BuilderCanvas.prototype.drawAnimLines = function () {
-        if (Anim.animLines.length == 0)
-            return;
-        for (var i = 0; i < Anim.animLines.length; i++) {
-            this.ctx.beginPath();
-            this.ctx.strokeStyle = Anim.animLines[i].getColorString();
-            this.ctx.lineWidth = Anim.animLines[i].width;
-            var p = this.posToView(Anim.animLines[i].line.start);
-            this.ctx.moveTo(p.x, p.y);
-            p = this.posToView(Anim.animLines[i].line.end);
-            this.ctx.lineTo(p.x, p.y);
-            this.ctx.stroke();
+        for (var i = 0; i < edges.length; i++) {
+            this.drawVertex(edges[i].start);
+            this.drawVertex(edges[i].end);
         }
+    };
+    BuilderCanvas.prototype.drawEdges = function (edges, color, width, drawNodule) {
+        if (width === void 0) { width = 1.0; }
+        if (drawNodule === void 0) { drawNodule = true; }
+        if (edges == null)
+            return;
+        if (edges.length == 0)
+            return;
+        this.ctx.lineWidth = width;
+        this.ctx.strokeStyle = color;
+        this.ctx.beginPath();
+        for (var i = 0; i < edges.length; i++) {
+            if (edges[i] != null && edges[i].edgeLink == null) {
+                var p = this.posToView(edges[i].start);
+                this.ctx.moveTo(p.x, p.y);
+                p = this.posToView(edges[i].end);
+                this.ctx.lineTo(p.x, p.y);
+                if (drawNodule) {
+                    p = this.posToView(edges[i].getMidpoint());
+                    this.ctx.moveTo(p.x, p.y);
+                    var perp = edges[i].getPerpendicular();
+                    this.ctx.lineTo(p.x - (perp.x * this.PERP_LENGTH), p.y - (perp.y * this.PERP_LENGTH));
+                }
+            }
+        }
+        this.ctx.stroke();
+        this.drawBasicEdges(edges.filter(function (e) { return e.edgeLink != null; }), this.MAPLINE_2S_COLOR);
+        this.ctx.lineWidth = width;
+        this.ctx.strokeStyle = this.MAPPROCLINE_COLOR;
+        this.ctx.beginPath();
+        for (var i = 0; i < edges.length; i++) {
+            if (edges[i].edgeLink == null) {
+                var e = edges[i].process();
+                var p = this.posToView(e.vertices[0]);
+                this.ctx.moveTo(p.x, p.y);
+                for (var i_1 = 1; i_1 < e.vertices.length; i_1++) {
+                    p = this.posToView(e.vertices[i_1]);
+                    this.drawVertex(e.vertices[i_1]);
+                    this.ctx.lineTo(p.x, p.y);
+                }
+            }
+        }
+        this.ctx.stroke();
+        for (var i = 0; i < edges.length; i++) {
+            this.drawVertex(edges[i].start);
+            this.drawVertex(edges[i].end);
+        }
+    };
+    BuilderCanvas.prototype.highlightVertex = function (v) {
+        var p = this.posToView(v);
+        this.ctx.fillStyle = this.HIGHLIGHT_COLOR;
+        this.ctx.beginPath();
+        this.ctx.ellipse(p.x, p.y, 5, 5, 0, 0, Math.PI * 2);
+        this.ctx.fill();
+    };
+    BuilderCanvas.prototype.highlightEdge = function (e) {
+        var p = this.posToView(e.start);
+        this.ctx.strokeStyle = this.HIGHLIGHT_COLOR;
+        this.ctx.lineWidth = 5;
+        this.ctx.beginPath();
+        this.ctx.moveTo(p.x, p.y);
+        p = this.posToView(e.end);
+        this.ctx.lineTo(p.x, p.y);
+        this.ctx.stroke();
     };
     return BuilderCanvas;
 }());

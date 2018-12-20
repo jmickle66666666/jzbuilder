@@ -1,6 +1,0 @@
-* move multiple vertexes
-* - select vertexes
-* - - check if they exist
-* move lines
-* move sectors
-* split line at vertex
