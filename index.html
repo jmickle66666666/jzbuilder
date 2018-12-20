@@ -10,13 +10,13 @@
     <body>
         <div id="navbar">
             <img src="logo.png" id="logoimg">
-            <img src="icons/new.png" onclick="newMap()" class="menuIcon" title="new map">
+            <!-- <img src="icons/new.png" onclick="newMap()" class="menuIcon" title="new map">
             <img src="icons/download.png" onclick="saveMap()" class="menuIcon" title="download map [ctrl-s]">
             <img src="icons/undo.png" onclick="undo()" class="menuIcon" title="undo [ctrl-z]">
-            <img src="icons/help.png" class="menuIcon" title="help">
-            <button onclick="exportUDMF();">export udmf</button>
-            <button onclick="exportUndoStack();">export undo stack (to help jazz debug issues!!!)</button>
-            <input type="file" onchange="loadMap()" id="maploader">
+            <img src="icons/help.png" class="menuIcon" title="help"> -->
+            <!-- <button onclick="exportUDMF();">export udmf</button>
+            <button onclick="exportUndoStack();">export undo stack (to help jazz debug issues!!!)</button> -->
+            <!-- <input type="file" onchange="loadMap()" id="maploader"> -->
         </div>
 
         <div id="mainbody">
@@ -28,23 +28,13 @@
             <div id="sidebar">
 
                 <div id="infopanel">
-                    <h1>HELP</h1>
-                    <h2>CONTROLS</h2>
-                    <h3>EDIT MODES</h3>
-                    <p>
-                        L - Lines<br>
-                        S - Sectors<br>
-                        V - Vertexes<br>
-                        T - Things<br>
-                    </p>
-                    <h3>LINEDEF MODE TOOLS</h3>
-                    <p>
-                        Right Click - Draw<br>
-                        E - Extrude Linedef<br>
-                        J - Convex Merge Selected Lines<br>
-                        CTRL+S - Save Map<br>
-                    </p> 
                     
+                    <h1>welcome,, to <img src="logo.png" width="100%"></h1>
+                    
+
+                    <img src="icons/vertexmode.png" class="hidden" id="vertexmode">
+                    <img src="icons/edgemode.png" class="hidden" id="edgemode">
+                    <img src="icons/sectormode.png" class="hidden" id="sectormode">
                 </div>
 
                 <div id="pepanel">
@@ -72,5 +62,6 @@
         <script type="text/javascript" src="js/input.js"></script>
         <script type="text/javascript" src="js/main.js"></script>
         <script type="text/javascript" src="js/tips.js"></script>
+        <script type="text/javascript" src="js/tools.js"></script>
     </body>
 </html>

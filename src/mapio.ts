@@ -1,162 +1,164 @@
-class SectorState {
-    public points:Array<number>;
+// Probably defunct?
 
-    public toSector() : Sector {
-        let output : Sector = new Sector(tempTexture);
-        for (let i = 0; i < this.points.length - 2; i+=2) {
-            output.lines.push(new Line(new Vertex(this.points[i], this.points[i+1]), new Vertex(this.points[i+2], this.points[i+3])));
-        }
-        output.invalidate();
-        return output;
-    }
+// class SectorState {
+//     public points:Array<number>;
 
-    public static fromSector(s:Sector):SectorState {
-        let output:SectorState = new SectorState();
-        output.points = new Array<number>();
-        output.points.push(s.lines[0].start.x);
-        output.points.push(s.lines[0].start.y);
-        for (let i = 0; i < s.lines.length; i++) {
-            output.points.push(s.lines[i].end.x);
-            output.points.push(s.lines[i].end.y);
-        }
-        return output;
-    }
-}
+//     public toSector() : Sector {
+//         let output : Sector = new Sector(tempTexture);
+//         for (let i = 0; i < this.points.length - 2; i+=2) {
+//             output.lines.push(new Line(new Vertex(this.points[i], this.points[i+1]), new Vertex(this.points[i+2], this.points[i+3])));
+//         }
+//         output.invalidate();
+//         return output;
+//     }
 
-class LineState {
-    public points:Array<number>;
+//     public static fromSector(s:Sector):SectorState {
+//         let output:SectorState = new SectorState();
+//         output.points = new Array<number>();
+//         output.points.push(s.lines[0].start.x);
+//         output.points.push(s.lines[0].start.y);
+//         for (let i = 0; i < s.lines.length; i++) {
+//             output.points.push(s.lines[i].end.x);
+//             output.points.push(s.lines[i].end.y);
+//         }
+//         return output;
+//     }
+// }
 
-    public toLine():Line {
-        return new Line(new Vertex(this.points[0], this.points[1]), new Vertex(this.points[2], this.points[3]));
-    }
+// class LineState {
+//     public points:Array<number>;
 
-    public static fromLine(l:Line):LineState {
-        let output:LineState = new LineState();
-        output.points = new Array<number>();
-        output.points.push(l.start.x);
-        output.points.push(l.start.y);
-        output.points.push(l.end.x);
-        output.points.push(l.end.y);
-        return output;
-    }
-}
+//     public toLine():Line {
+//         return new Line(new Vertex(this.points[0], this.points[1]), new Vertex(this.points[2], this.points[3]));
+//     }
 
-class UndoStack {
-    public LIMIT : number = 10;
+//     public static fromLine(l:Line):LineState {
+//         let output:LineState = new LineState();
+//         output.points = new Array<number>();
+//         output.points.push(l.start.x);
+//         output.points.push(l.start.y);
+//         output.points.push(l.end.x);
+//         output.points.push(l.end.y);
+//         return output;
+//     }
+// }
 
-    public stack : Array<MapState> = new Array<MapState>();
+// class UndoStack {
+//     public LIMIT : number = 10;
 
-    public actionHistory : Array<string> = new Array<string>();
+//     public stack : Array<MapState> = new Array<MapState>();
 
-    public save(action:string = ""):void {
-        this.stack.push(MapState.create());
-        if (this.stack.length > this.LIMIT) {
-            this.stack.shift();
-        }
+//     public actionHistory : Array<string> = new Array<string>();
 
-        if (action != "") {
-            this.actionHistory.push(action);
-        }
-    }
+//     public save(action:string = ""):void {
+//         this.stack.push(MapState.create());
+//         if (this.stack.length > this.LIMIT) {
+//             this.stack.shift();
+//         }
 
-    public restore():void {
-        if (this.stack.length > 0) {
-            this.stack.pop().restore();
-        }
-    }
+//         if (action != "") {
+//             this.actionHistory.push(action);
+//         }
+//     }
 
-    public export():string {
-        return JSON.stringify({"undostack":this.stack,"actions":this.actionHistory});
-    }
-}
+//     public restore():void {
+//         if (this.stack.length > 0) {
+//             this.stack.pop().restore();
+//         }
+//     }
 
-class MapState {
-    public lines : Array<LineState>;
-    public sectors : Array<SectorState>;
+//     public export():string {
+//         return JSON.stringify({"undostack":this.stack,"actions":this.actionHistory});
+//     }
+// }
 
-    public static create():MapState {
-        let output:MapState = new MapState();
+// class MapState {
+//     public lines : Array<LineState>;
+//     public sectors : Array<SectorState>;
 
-        output.lines = new Array<LineState>();
-        for (let i = 0; i < mapData.lines.length; i++) {
-            output.lines.push(LineState.fromLine(mapData.lines[i]));
-        }
+//     public static create():MapState {
+//         let output:MapState = new MapState();
 
-        output.sectors = new Array<SectorState>();
-        for (let i = 0; i < mapData.sectors.length; i++) {
-            output.sectors.push(SectorState.fromSector(mapData.sectors[i]));
-        }
+//         output.lines = new Array<LineState>();
+//         for (let i = 0; i < mapData.lines.length; i++) {
+//             output.lines.push(LineState.fromLine(mapData.lines[i]));
+//         }
 
-        return output;
-    }
+//         output.sectors = new Array<SectorState>();
+//         for (let i = 0; i < mapData.sectors.length; i++) {
+//             output.sectors.push(SectorState.fromSector(mapData.sectors[i]));
+//         }
 
-    public restore():void {
-        mapData.lines.length = 0;
-        for (let i = 0; i < this.lines.length; i++) {
-            mapData.lines.push(this.lines[i].toLine());
-        }
+//         return output;
+//     }
 
-        mapData.sectors.length = 0;
-        for (let i = 0; i < this.sectors.length; i++) {
-            mapData.sectors.push(this.sectors[i].toSector());
-        }
-    }
+//     public restore():void {
+//         mapData.lines.length = 0;
+//         for (let i = 0; i < this.lines.length; i++) {
+//             mapData.lines.push(this.lines[i].toLine());
+//         }
 
-    public toJSON():string {
-        return JSON.stringify({"lines":this.lines, "sectors":this.sectors});
-    }
+//         mapData.sectors.length = 0;
+//         for (let i = 0; i < this.sectors.length; i++) {
+//             mapData.sectors.push(this.sectors[i].toSector());
+//         }
+//     }
 
-    public static fromJSON(json:string):MapState {
-        let obj = JSON.parse(json);
-        let output:MapState = new MapState();
-        output.lines = new Array<LineState>();
-        output.sectors = new Array<SectorState>();
+//     public toJSON():string {
+//         return JSON.stringify({"lines":this.lines, "sectors":this.sectors});
+//     }
 
-        for (let i = 0; i < obj.lines.length; i++) {
-            let nls = new LineState();
-            nls.points = obj.lines[i].points;
-            output.lines.push(nls)
-        }
+//     public static fromJSON(json:string):MapState {
+//         let obj = JSON.parse(json);
+//         let output:MapState = new MapState();
+//         output.lines = new Array<LineState>();
+//         output.sectors = new Array<SectorState>();
 
-        for (let i = 0; i < obj.sectors.length; i++) {
-            let nls = new SectorState();
-            nls.points = obj.sectors[i].points;
-            output.sectors.push(nls)
-        }
-        return output;
-    }
-}
+//         for (let i = 0; i < obj.lines.length; i++) {
+//             let nls = new LineState();
+//             nls.points = obj.lines[i].points;
+//             output.lines.push(nls)
+//         }
 
-function saveMap() {
-    saveString(MapState.create().toJSON(), "jzmap.json");
-}
+//         for (let i = 0; i < obj.sectors.length; i++) {
+//             let nls = new SectorState();
+//             nls.points = obj.sectors[i].points;
+//             output.sectors.push(nls)
+//         }
+//         return output;
+//     }
+// }
 
-function loadMap(event) {
-    let fileInput = document.getElementById('maploader') as HTMLInputElement;
-    var reader = new FileReader();
-    reader.onload = onReaderLoad;
-    reader.readAsText(fileInput.files[0]);
-}
+// function saveMap() {
+//     saveString(MapState.create().toJSON(), "jzmap.json");
+// }
 
-function onReaderLoad(event) {
-    MapState.fromJSON(event.target.result).restore();
-    mainCanvas.redraw();
-}
+// function loadMap(event) {
+//     let fileInput = document.getElementById('maploader') as HTMLInputElement;
+//     var reader = new FileReader();
+//     reader.onload = onReaderLoad;
+//     reader.readAsText(fileInput.files[0]);
+// }
 
-function exportUDMF() {
-    let udmf = new UDMFData(mapData);
-    saveString(udmf.toString(), "jzmap.udmf.txt");
-}
+// function onReaderLoad(event) {
+//     MapState.fromJSON(event.target.result).restore();
+//     mainCanvas.redraw();
+// }
 
-function exportUndoStack() {
-    saveString(undoStack.export(), "jzundo.log");
-}
+// function exportUDMF() {
+//     let udmf = new UDMFData(mapData);
+//     saveString(udmf.toString(), "jzmap.udmf.txt");
+// }
 
-function saveString(data:string, filename:string) {
-    var a = document.createElement("a");
-    let udmf = new UDMFData(mapData);
-    var file = new Blob([data], {type: "text/plain"});
-    a.href = URL.createObjectURL(file);
-    a.download = filename;
-    a.click();
-}
+// function exportUndoStack() {
+//     saveString(undoStack.export(), "jzundo.log");
+// }
+
+// function saveString(data:string, filename:string) {
+//     var a = document.createElement("a");
+//     let udmf = new UDMFData(mapData);
+//     var file = new Blob([data], {type: "text/plain"});
+//     a.href = URL.createObjectURL(file);
+//     a.download = filename;
+//     a.click();
+// }

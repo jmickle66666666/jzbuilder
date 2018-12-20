@@ -1,8 +1,9 @@
-enum InputState {
-    NONE = "none",
-    DRAWING = "drawing",
-    EXTRUDING = "extruding",
-    DRAGGING = "dragging"
+// Probably defunct
+
+enum InputMode {
+    VERTEX = "vertex",
+    EDGE = "edge",
+    SECTOR = "sector"
 }
 
 class Input {
@@ -10,5 +11,10 @@ class Input {
     static mouseGridPos:Vertex = new Vertex(0, 0);
 
     static viewDragging:boolean = false;
-    static state:InputState = InputState.NONE;
+    static mode:InputMode = InputMode.EDGE;
+
+    static switchMode(mode:InputMode) {
+        Input.mode = mode;
+        
+    }
 }

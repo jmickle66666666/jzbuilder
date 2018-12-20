@@ -1,255 +1,80 @@
 var MapData = /** @class */ (function () {
     function MapData() {
-        this.lines = new Array();
+        //         this.lines = new Array<Line>();
         this.sectors = new Array();
+        this.defaultMap();
     }
-    MapData.prototype.getAllLines = function () {
+    MapData.prototype.defaultMap = function () {
+        var v = new Array();
+        v.push(new Vertex(-32, -32));
+        v.push(new Vertex(32, -32));
+        v.push(new Vertex(32, 32));
+        v.push(new Vertex(-32, 32));
+        var s = new Sector();
+        s.edges.push(new Edge(v[3], v[2]));
+        s.edges.push(new Edge(v[2], v[1]));
+        s.edges.push(new Edge(v[1], v[0]));
+        s.edges.push(new Edge(v[0], v[3]));
+        s.edges[1].modifiers.push(new EdgeSubdivider(3));
+        s.edges[1].modifiers.push(new EdgeInset(8, 0));
+        this.sectors.push(s);
+    };
+    MapData.prototype.getAllEdges = function () {
         var output = new Array();
-        output = output.concat(this.lines);
         for (var i = 0; i < this.sectors.length; i++) {
-            output = output.concat(this.sectors[i].lines);
+            output = output.concat(this.sectors[i].edges);
         }
         return output;
     };
-    MapData.prototype.getSectorIndexAt = function (p) {
-        if (this.sectors.length == 0)
-            return -1;
-        var nIndex = -1;
-        var nDist = Number.MAX_VALUE;
-        for (var i = 0; i < this.sectors.length; i++) {
-            if (this.sectors[i].bounds.pointInBounds(p)) {
-                var d = sqrDist(p, this.sectors[i].bounds.midPoint);
-                if (d < nDist) {
-                    nDist = d;
-                    nIndex = i;
-                }
-            }
-        }
-        return nIndex;
-    };
-    MapData.prototype.getNearestLine = function (p) {
-        var allLines = this.getAllLines();
-        if (allLines.length == 0)
+    //     getSectorIndexAt(p:Vertex):number {
+    //         if (this.sectors.length == 0) return -1;
+    //         var nIndex = -1;
+    //         var nDist = Number.MAX_VALUE;
+    //         for (let i = 0; i < this.sectors.length; i++) {
+    //             if (this.sectors[i].bounds.pointInBounds(p)) {
+    //                 let d = sqrDist(p, this.sectors[i].bounds.midPoint);
+    //                 if (d < nDist) {
+    //                     nDist = d;
+    //                     nIndex = i;
+    //                 }
+    //             }
+    //         }
+    //         return nIndex;
+    //     }
+    MapData.prototype.getNearestEdge = function (p) {
+        var allEdges = this.getAllEdges();
+        if (allEdges.length == 0)
             return null;
-        if (allLines.length == 1)
-            return allLines[0];
-        var nDist = distToSegmentMidpoint(p, allLines[0]);
-        var nLine = allLines[0];
-        for (var i = 1; i < allLines.length; i++) {
-            var d = distToSegmentMidpoint(p, allLines[i]);
+        if (allEdges.length == 1)
+            return allEdges[0];
+        var nDist = distToSegmentMidpoint(p, allEdges[0]);
+        var nEdge = allEdges[0];
+        for (var i = 1; i < allEdges.length; i++) {
+            var d = distToSegmentMidpoint(p, allEdges[i]);
             if (d < nDist) {
                 nDist = d;
-                nLine = new Line(allLines[i].start, allLines[i].end);
+                nEdge = new Edge(allEdges[i].start, allEdges[i].end);
             }
         }
-        return nLine;
+        return nEdge;
     };
     MapData.prototype.moveVertex = function (from, to) {
         // This gets slower the more lines there are. If this gets bad, sort the lines and do a binary search
         // Also, this invalidates sectors a lot. I should really have a system for marking sectors as dirty and invalidate later.
-        var allLines = this.getAllLines();
-        if (allLines.length == 0)
-            return null;
-        for (var i = 0; i < allLines.length; i++) {
-            if (allLines[i].start.equals(from)) {
-                allLines[i].start.x = to.x;
-                allLines[i].start.y = to.y;
-                allLines[i].dirty = true;
-            }
-            if (allLines[i].end.equals(from)) {
-                allLines[i].end.x = to.x;
-                allLines[i].end.y = to.y;
-                allLines[i].dirty = true;
-            }
-        }
-        this.revalidateDirty();
-        mainCanvas.redraw();
-    };
-    MapData.prototype.getLinesWithVertex = function (p) {
-        var allLines = this.getAllLines();
-        if (allLines.length == 0)
-            return null;
-        var output = [];
-        for (var i = 0; i < allLines.length; i++) {
-            if (allLines[i].start.equals(p)) {
-                output.push({ line: allLines[i], position: "start" });
-            }
-            else if (allLines[i].end.equals(p)) {
-                output.push({ line: allLines[i], position: "end" });
-            }
-        }
-        return output;
-    };
-    MapData.prototype.getNextConnectedVertexes = function (p) {
-        var allLines = this.getAllLines();
-        if (allLines.length == 0)
-            return null;
-        var output = new Array();
-        for (var i = 0; i < allLines.length; i++) {
-            if (allLines[i].start.equals(p)) {
-                output.push(allLines[i].end);
-            }
-            else if (allLines[i].end.equals(p)) {
-                output.push(allLines[i].start);
-            }
-        }
-        return output;
-    };
-    MapData.prototype.deleteLine = function (l) {
-        for (var i = 0; i < this.lines.length; i++) {
-            if (this.lines[i].equals(l)) {
-                this.lines.splice(i, 1);
-                i -= 1;
-            }
-        }
         for (var i = 0; i < this.sectors.length; i++) {
-            for (var j = 0; j < this.sectors[i].lines.length; j++) {
-                if (this.sectors[i].lines[j].equals(l)) {
-                    this.sectors[i].lines.splice(j, 1);
-                    this.lines = this.lines.concat(this.sectors[i].lines);
-                    this.sectors.splice(i, 1);
-                    break;
+            for (var j = 0; j < this.sectors[i].edges.length; j++) {
+                if (this.sectors[i].edges[j].start.equals(from)) {
+                    this.sectors[i].edges[j].start.x = to.x;
+                    this.sectors[i].edges[j].start.y = to.y;
+                    this.sectors[i].edges[j].dirty = true;
+                }
+                if (this.sectors[i].edges[j].end.equals(from)) {
+                    this.sectors[i].edges[j].end.x = to.x;
+                    this.sectors[i].edges[j].end.y = to.y;
+                    this.sectors[i].edges[j].dirty = true;
                 }
             }
         }
-        for (var i = 0; i < this.lines.length; i++) {
-            this.lines[i].sector = null;
-        }
-    };
-    MapData.prototype.deleteVertex = function (p) {
-        for (var i = 0; i < this.sectors.length; i++) {
-            for (var j = 0; j < this.sectors[i].lines.length; j++) {
-                if (this.sectors[i].lines[j].containsVertex(p)) {
-                    this.sectors[i].lines.splice(j, 1);
-                    this.lines = this.lines.concat(this.sectors[i].lines);
-                    this.sectors.splice(i, 1);
-                    break;
-                }
-            }
-        }
-        for (var i = 0; i < this.lines.length; i++) {
-            if (this.lines[i].containsVertex(p)) {
-                this.lines.splice(i, 1);
-                i -= 1;
-            }
-        }
-        for (var i = 0; i < this.lines.length; i++) {
-            this.lines[i].sector = null;
-        }
-    };
-    MapData.prototype.deleteSectorAt = function (p) {
-        if (this.sectors.length == 0)
-            return;
-        var nIndex = -1;
-        var nDist = Number.MAX_VALUE;
-        for (var i = 0; i < this.sectors.length; i++) {
-            if (this.sectors[i].bounds.pointInBounds(p)) {
-                var d = sqrDist(p, this.sectors[i].bounds.midPoint);
-                if (d < nDist) {
-                    nDist = d;
-                    nIndex = i;
-                }
-            }
-        }
-        this.sectors.splice(nIndex, 1);
-    };
-    MapData.prototype.vertexExists = function (p) {
-        var allLines = this.getAllLines();
-        if (allLines.length == 0)
-            return null;
-        for (var i = 0; i < allLines.length; i++) {
-            if (allLines[i].start.equals(p)) {
-                return true;
-            }
-            else if (allLines[i].end.equals(p)) {
-                return true;
-            }
-        }
-        return false;
-    };
-    MapData.prototype.createSplits = function (v) {
-        var allLines = this.getAllLines();
-        if (allLines.length == 0)
-            return;
-        for (var i = 0; i < allLines.length; i++) {
-            if (allLines[i].pointOnLine(v)) {
-                allLines[i].split(v);
-                this.createSplits(v);
-                return;
-            }
-        }
-    };
-    MapData.prototype.checkOverlaps = function (newLine) {
-        var allLines = this.getAllLines();
-        if (allLines.length == 0)
-            return;
-        for (var i = 0; i < allLines.length; i++) {
-            if (linesIntersect(newLine, allLines[i])) {
-                var inter = lineIntersection(newLine, allLines[i]);
-                allLines[i].split(inter);
-                newLine.split(inter);
-            }
-        }
-        this.createSplits(newLine.start);
-        this.createSplits(newLine.end);
-    };
-    MapData.prototype.revalidateDirty = function () {
-        var allLines = this.getAllLines();
-        for (var i = 0; i < allLines.length; i++) {
-            if (allLines[i].dirty) {
-                allLines[i].invalidate();
-            }
-        }
-        for (var i = 0; i < this.sectors.length; i++) {
-            if (this.sectors[i].dirty) {
-                this.sectors[i].invalidate();
-            }
-        }
-    };
-    MapData.prototype.addLine = function (l) {
-        Anim.addLine(l);
-        // First check if it completely overlaps an existing line
-        for (var i = 0; i < this.sectors.length; i++) {
-            for (var j = 0; j < this.sectors[i].lines.length; j++) {
-                var ml = this.sectors[i].lines[j];
-                if (l.shareAngle(ml)) {
-                    if (ml.pointOnLine(l.start) && ml.pointOnLine(l.end)) {
-                        if (l.angle() != ml.angle())
-                            l = l.reversed();
-                        ml.split(l.start);
-                        this.sectors[i].lines[j + 1].split(l.end);
-                        console.log("ya");
-                        return;
-                    }
-                    else if (ml.pointOnLine(l.start)) {
-                        // Then check if it partially overlaps an existing line
-                        ml.split(l.start);
-                        return;
-                    }
-                    else if (ml.pointOnLine(l.end)) {
-                        ml.split(l.end);
-                        return;
-                    }
-                    else if (l.pointOnLine(ml.start) &&
-                        l.pointOnLine(ml.end)) {
-                        if (l.angle() != ml.angle())
-                            l = l.reversed();
-                        l.split(ml.start);
-                        return;
-                    }
-                    else if (l.pointOnLine(ml.start)) {
-                        l.split(ml.start);
-                        return;
-                    }
-                    else if (l.pointOnLine(ml.end)) {
-                        l.split(ml.end);
-                        return;
-                    }
-                }
-            }
-        }
-        // Then check if it crosses an existing line
-        // Then check if one of the vertexes touches an existing line
     };
     return MapData;
 }());

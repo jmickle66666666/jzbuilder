@@ -51,7 +51,10 @@ img.menuIcon {
     padding-right: 5%;
 }
 
-
+img.hidden {
+    visibility: hidden;
+    height:0%;
+}
 
 #pepanel {
     text-align: center;
