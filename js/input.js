@@ -1,4 +1,3 @@
-// Probably defunct
 var InputMode;
 (function (InputMode) {
     InputMode["VERTEX"] = "vertex";

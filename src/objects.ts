@@ -17,11 +17,8 @@ class Edge {
 
     public start:Vertex;
     public end:Vertex;
-
     public dirty:Boolean = true;
-
     public edgeLink:Edge;
-
     public modifiers : Array<EdgeModifier>;
 
     private processCache:ProcessedEdge;
@@ -67,19 +64,23 @@ class Edge {
 
     public copy():Edge {
         let output:Edge = new Edge(this.start, this.end);
-        output.modifiers = this.modifiers;
         return output;
     }
 
     public reversedCopy():Edge {
         let output:Edge = new Edge(this.end, this.start);
-        output.modifiers = this.modifiers;
         return output;
     }
 
     public translate(offset:Vertex) {
         this.start = Vertex.Add(this.start, offset);
         this.end = Vertex.Add(this.end, offset);
+        this.dirty = true;
+    }
+
+    public clearModifiers() {
+        this.modifiers = new Array<EdgeModifier>();
+        this.processCache = null;
         this.dirty = true;
     }
 }

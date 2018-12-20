@@ -53,7 +53,7 @@ var MapData = /** @class */ (function () {
             var d = distToSegmentMidpoint(p, allEdges[i]);
             if (d < nDist) {
                 nDist = d;
-                nEdge = new Edge(allEdges[i].start, allEdges[i].end);
+                nEdge = allEdges[i];
             }
         }
         return nEdge;

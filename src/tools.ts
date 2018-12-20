@@ -87,7 +87,7 @@ class Extrude implements Tool {
     applyExtrude():void {
         let newSector:Sector = new Sector();
         let edge1:Edge = this.targetEdge.reversedCopy();
-        let edge3:Edge = this.targetEdge.copy();
+        let edge3:Edge = new Edge(this.targetEdge.start, this.targetEdge.end);
         edge3.translate(this.translation);
         let edge2:Edge = new Edge(edge3.end, edge1.start);
         let edge4:Edge = new Edge(edge1.end, edge3.start);
@@ -97,6 +97,8 @@ class Extrude implements Tool {
         newSector.edges.push(edge4);
         mapData.sectors.push(newSector);
 
+        this.targetEdge.clearModifiers();
+        this.targetEdge.dirty = true;
         this.targetEdge.edgeLink = edge1;
         edge1.edgeLink = this.targetEdge;
     }

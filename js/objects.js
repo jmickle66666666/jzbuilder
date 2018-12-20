@@ -43,17 +43,20 @@ var Edge = /** @class */ (function () {
     };
     Edge.prototype.copy = function () {
         var output = new Edge(this.start, this.end);
-        output.modifiers = this.modifiers;
         return output;
     };
     Edge.prototype.reversedCopy = function () {
         var output = new Edge(this.end, this.start);
-        output.modifiers = this.modifiers;
         return output;
     };
     Edge.prototype.translate = function (offset) {
         this.start = Vertex.Add(this.start, offset);
         this.end = Vertex.Add(this.end, offset);
+        this.dirty = true;
+    };
+    Edge.prototype.clearModifiers = function () {
+        this.modifiers = new Array();
+        this.processCache = null;
         this.dirty = true;
     };
     return Edge;

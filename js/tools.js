@@ -62,7 +62,7 @@ var Extrude = /** @class */ (function () {
     Extrude.prototype.applyExtrude = function () {
         var newSector = new Sector();
         var edge1 = this.targetEdge.reversedCopy();
-        var edge3 = this.targetEdge.copy();
+        var edge3 = new Edge(this.targetEdge.start, this.targetEdge.end);
         edge3.translate(this.translation);
         var edge2 = new Edge(edge3.end, edge1.start);
         var edge4 = new Edge(edge1.end, edge3.start);
@@ -71,6 +71,8 @@ var Extrude = /** @class */ (function () {
         newSector.edges.push(edge3);
         newSector.edges.push(edge4);
         mapData.sectors.push(newSector);
+        this.targetEdge.clearModifiers();
+        this.targetEdge.dirty = true;
         this.targetEdge.edgeLink = edge1;
         edge1.edgeLink = this.targetEdge;
     };

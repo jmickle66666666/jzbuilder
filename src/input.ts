@@ -1,5 +1,3 @@
-// Probably defunct
-
 enum InputMode {
     VERTEX = "vertex",
     EDGE = "edge",
@@ -15,6 +13,6 @@ class Input {
 
     static switchMode(mode:InputMode) {
         Input.mode = mode;
-        
+
     }
 }
