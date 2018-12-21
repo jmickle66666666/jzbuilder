@@ -78,6 +78,12 @@ var Edge = /** @class */ (function () {
             var p = this.sector.previousEdge(this);
             n.start.translate(offset);
             p.end.translate(offset);
+            if (n.edgeLink) {
+                n.edgeLink.end.translate(offset);
+            }
+            if (p.edgeLink) {
+                p.edgeLink.start.translate(offset);
+            }
             n.dirty = true;
             p.dirty = true;
         }

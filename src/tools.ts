@@ -37,12 +37,33 @@ class Translate implements Tool {
                 if (this.activeVertices.length > 0) {
                     this.dragging = true;
                     Input.lockModes = true;
+                    this.lastPos = Input.mouseGridPos;
                 }
             }
         }
 
         if (Input.mode == InputMode.EDGE) {
             this.activeEdge = mapData.getNearestEdge(Input.mouseGridPos);
+            this.activeVertices = new Array<Vertex>();
+            this.activeVertices = this.activeVertices.concat(mapData.getVerticesAt(this.activeEdge.start));
+            this.activeVertices = this.activeVertices.concat(mapData.getVerticesAt(this.activeEdge.end));
+            this.dragging = true;
+            Input.lockModes = true;
+            this.lastPos = Input.mouseGridPos;
+        }
+
+        if (Input.mode == InputMode.SECTOR) {
+            this.activeSector = mapData.getNearestSector(Input.mouseGridPos);
+            let verts = new Array<Vertex>();
+            this.activeSector.edges.forEach(e => {
+                verts = verts.concat(mapData.getVerticesAt(e.start));
+                verts = verts.concat(mapData.getVerticesAt(e.end));
+            });
+
+            this.activeVertices = verts.filter(function(item, pos) {
+                return verts.indexOf(item) == pos;
+            })
+
             this.dragging = true;
             Input.lockModes = true;
             this.lastPos = Input.mouseGridPos;
@@ -55,16 +76,17 @@ class Translate implements Tool {
     }
 
     public onMouseMove():void {
-        if (Input.mode == InputMode.VERTEX && this.dragging) {
-            this.activeVertices.forEach(v => {
-                v.setTo(Input.mouseGridPos);
-                mapData.getEdgesWithVertex(v).forEach(e => e.dirty = true);
-            });
-        }
 
-        if (Input.mode == InputMode.EDGE && this.dragging) {
+        if (this.dragging) {
             if (!this.lastPos.equals(Input.mouseGridPos)) {
-                this.activeEdge.translate(Vertex.Subtract(Input.mouseGridPos, this.lastPos));
+
+                let diff:Vertex = Vertex.Subtract(Input.mouseGridPos, this.lastPos);
+
+                this.activeVertices.forEach(v => {
+                    v.translate(diff);
+                    mapData.getEdgesWithVertex(v).forEach(e => e.dirty = true);
+                });
+
                 this.lastPos.setTo(Input.mouseGridPos);
             }
         }
@@ -140,6 +162,9 @@ class Extrude implements Tool {
     }
 
     startExtrude(edge:Edge):void {
+
+        if (edge.edgeLink != null) return;
+
         this.extruding = true;
         this.targetEdge = edge;
         this.translation = new Vertex(0,0);
@@ -154,9 +179,9 @@ class Extrude implements Tool {
         let edge2:Edge = new Edge(edge3.end, edge1.start);
         let edge4:Edge = new Edge(edge1.end, edge3.start);
         newSector.edges.push(edge1);
-        newSector.edges.push(edge2);
-        newSector.edges.push(edge3);
         newSector.edges.push(edge4);
+        newSector.edges.push(edge3);
+        newSector.edges.push(edge2);
         newSector.update();
         mapData.sectors.push(newSector);
 

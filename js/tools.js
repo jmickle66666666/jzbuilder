@@ -15,11 +15,29 @@ var Translate = /** @class */ (function () {
                 if (this.activeVertices.length > 0) {
                     this.dragging = true;
                     Input.lockModes = true;
+                    this.lastPos = Input.mouseGridPos;
                 }
             }
         }
         if (Input.mode == InputMode.EDGE) {
             this.activeEdge = mapData.getNearestEdge(Input.mouseGridPos);
+            this.activeVertices = new Array();
+            this.activeVertices = this.activeVertices.concat(mapData.getVerticesAt(this.activeEdge.start));
+            this.activeVertices = this.activeVertices.concat(mapData.getVerticesAt(this.activeEdge.end));
+            this.dragging = true;
+            Input.lockModes = true;
+            this.lastPos = Input.mouseGridPos;
+        }
+        if (Input.mode == InputMode.SECTOR) {
+            this.activeSector = mapData.getNearestSector(Input.mouseGridPos);
+            var verts_1 = new Array();
+            this.activeSector.edges.forEach(function (e) {
+                verts_1 = verts_1.concat(mapData.getVerticesAt(e.start));
+                verts_1 = verts_1.concat(mapData.getVerticesAt(e.end));
+            });
+            this.activeVertices = verts_1.filter(function (item, pos) {
+                return verts_1.indexOf(item) == pos;
+            });
             this.dragging = true;
             Input.lockModes = true;
             this.lastPos = Input.mouseGridPos;
@@ -30,15 +48,13 @@ var Translate = /** @class */ (function () {
         Input.lockModes = false;
     };
     Translate.prototype.onMouseMove = function () {
-        if (Input.mode == InputMode.VERTEX && this.dragging) {
-            this.activeVertices.forEach(function (v) {
-                v.setTo(Input.mouseGridPos);
-                mapData.getEdgesWithVertex(v).forEach(function (e) { return e.dirty = true; });
-            });
-        }
-        if (Input.mode == InputMode.EDGE && this.dragging) {
+        if (this.dragging) {
             if (!this.lastPos.equals(Input.mouseGridPos)) {
-                this.activeEdge.translate(Vertex.Subtract(Input.mouseGridPos, this.lastPos));
+                var diff_1 = Vertex.Subtract(Input.mouseGridPos, this.lastPos);
+                this.activeVertices.forEach(function (v) {
+                    v.translate(diff_1);
+                    mapData.getEdgesWithVertex(v).forEach(function (e) { return e.dirty = true; });
+                });
                 this.lastPos.setTo(Input.mouseGridPos);
             }
         }
@@ -101,6 +117,8 @@ var Extrude = /** @class */ (function () {
         }
     };
     Extrude.prototype.startExtrude = function (edge) {
+        if (edge.edgeLink != null)
+            return;
         this.extruding = true;
         this.targetEdge = edge;
         this.translation = new Vertex(0, 0);
@@ -114,9 +132,9 @@ var Extrude = /** @class */ (function () {
         var edge2 = new Edge(edge3.end, edge1.start);
         var edge4 = new Edge(edge1.end, edge3.start);
         newSector.edges.push(edge1);
-        newSector.edges.push(edge2);
-        newSector.edges.push(edge3);
         newSector.edges.push(edge4);
+        newSector.edges.push(edge3);
+        newSector.edges.push(edge2);
         newSector.update();
         mapData.sectors.push(newSector);
         this.targetEdge.clearModifiers();
