@@ -8,7 +8,8 @@ var tips:Array<string> = [
     ':)',
     'your map is looking great so far! keep it up!',
     'you\'re super great, i\'m so glad you\'re hanging out with me :)',
-    'i hope you\'re having fun!'
+    'i hope you\'re having fun!',
+    'you can use the space key to pan around the map!'
 ]
 
 function newTip() {

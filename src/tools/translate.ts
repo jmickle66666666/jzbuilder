@@ -1,6 +1,6 @@
 class Translate implements Tool {
-    name:string = "Translate";
-    selectKey:string = "t";
+    name:string = "Move/Edit/Select";
+    selectKey:string = "q";
     lastPos:Vertex;
     dragging:Boolean = false;
 

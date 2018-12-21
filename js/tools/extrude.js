@@ -1,7 +1,7 @@
 var Extrude = /** @class */ (function () {
     function Extrude() {
         this.name = "Extrude";
-        this.selectKey = "e";
+        this.selectKey = "w";
         this.extruding = false;
     }
     Extrude.prototype.onSwitch = function () {

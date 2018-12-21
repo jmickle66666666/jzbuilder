@@ -1,6 +1,6 @@
 class Extrude implements Tool {
     name:string = "Extrude";
-    selectKey:string = "e";
+    selectKey:string = "w";
 
     extruding:Boolean = false;
     targetEdge:Edge;

@@ -57,6 +57,10 @@ var BuilderCanvas = /** @class */ (function () {
         this.ctx.lineTo(this.modeSelectionOffset.x + 64, this.modeSelectionOffset.y);
         this.ctx.stroke();
         this.ctx.textBaseline = "middle";
+        this.ctx.textAlign = "left";
+        this.ctx.fillStyle = this.INACTIVE_FONT_COLOR;
+        this.ctx.font = "18px Ubuntu Mono";
+        this.ctx.fillText("Tools", 20, 110);
         for (var i = 0; i < tools.length; i++) {
             if (tools[i] == activeTool) {
                 this.ctx.fillStyle = this.ACTIVE_FONT_COLOR;
@@ -66,16 +70,16 @@ var BuilderCanvas = /** @class */ (function () {
             }
             this.ctx.textAlign = "left";
             this.ctx.font = "18px Ubuntu Mono";
-            this.ctx.fillText(tools[i].name, 40, 100 + (i * this.toolSpacing));
+            this.ctx.fillText(tools[i].name, 40, 140 + (i * this.toolSpacing));
             this.ctx.textAlign = "center";
             this.ctx.fillStyle = this.ACTIVE_FONT_COLOR;
             this.ctx.font = "12px Open Sans";
-            this.ctx.fillText(tools[i].selectKey.toLocaleUpperCase(), 20, 100 + (i * this.toolSpacing));
+            this.ctx.fillText(tools[i].selectKey.toLocaleUpperCase(), 20, 140 + (i * this.toolSpacing));
             this.ctx.strokeStyle = this.ACTIVE_FONT_COLOR;
             this.ctx.beginPath;
             this.ctx.lineWidth = 1;
             this.ctx.beginPath();
-            this.ctx.ellipse(20, 98.5 + (i * this.toolSpacing), 9, 9, 0, 0, Math.PI * 2);
+            this.ctx.ellipse(20, 138.5 + (i * this.toolSpacing), 9, 9, 0, 0, Math.PI * 2);
             this.ctx.stroke();
         }
     };

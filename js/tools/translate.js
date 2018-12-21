@@ -1,7 +1,7 @@
 var Translate = /** @class */ (function () {
     function Translate() {
-        this.name = "Translate";
-        this.selectKey = "t";
+        this.name = "Move/Edit/Select";
+        this.selectKey = "q";
         this.dragging = false;
         this.lastPos = Input.mouseGridPos;
     }
