@@ -30,11 +30,14 @@ class Translate implements Tool {
     public onMouseDown():void {
         if (Input.mode == InputMode.VERTEX) {
             let v = mapData.getNearestVertex(Input.mousePos);
-            this.activeVertices = mapData.getVerticesAt(v);
 
-            if (this.activeVertices.length > 0) {
-                this.dragging = true;
-                Input.lockModes = true;
+            if (pointDistance(v, Input.mousePos) < 64) {
+                this.activeVertices = mapData.getVerticesAt(v);
+
+                if (this.activeVertices.length > 0) {
+                    this.dragging = true;
+                    Input.lockModes = true;
+                }
             }
         }
 
@@ -83,7 +86,10 @@ class Translate implements Tool {
             }
         } else {
             if (Input.mode == InputMode.VERTEX) {
-                mainCanvas.highlightVertex(mapData.getNearestVertex(Input.mousePos));
+                let v = mapData.getNearestVertex(Input.mousePos);
+                if (pointDistance(v, Input.mousePos) < 64) {
+                    mainCanvas.highlightVertex(v);
+                }
             }
 
             if (Input.mode == InputMode.EDGE) {

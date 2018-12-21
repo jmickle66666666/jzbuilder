@@ -10,10 +10,12 @@ var Translate = /** @class */ (function () {
     Translate.prototype.onMouseDown = function () {
         if (Input.mode == InputMode.VERTEX) {
             var v = mapData.getNearestVertex(Input.mousePos);
-            this.activeVertices = mapData.getVerticesAt(v);
-            if (this.activeVertices.length > 0) {
-                this.dragging = true;
-                Input.lockModes = true;
+            if (pointDistance(v, Input.mousePos) < 64) {
+                this.activeVertices = mapData.getVerticesAt(v);
+                if (this.activeVertices.length > 0) {
+                    this.dragging = true;
+                    Input.lockModes = true;
+                }
             }
         }
         if (Input.mode == InputMode.EDGE) {
@@ -55,7 +57,10 @@ var Translate = /** @class */ (function () {
         }
         else {
             if (Input.mode == InputMode.VERTEX) {
-                mainCanvas.highlightVertex(mapData.getNearestVertex(Input.mousePos));
+                var v = mapData.getNearestVertex(Input.mousePos);
+                if (pointDistance(v, Input.mousePos) < 64) {
+                    mainCanvas.highlightVertex(v);
+                }
             }
             if (Input.mode == InputMode.EDGE) {
                 mainCanvas.highlightEdge(mapData.getNearestEdge(Input.mousePos));
