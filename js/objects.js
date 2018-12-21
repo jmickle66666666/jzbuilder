@@ -7,13 +7,25 @@ var Sector = /** @class */ (function () {
             this.edges[i].sector = this;
         }
     };
+    Sector.prototype.nextEdge = function (edge) {
+        var index = this.edges.indexOf(edge) + 1;
+        if (index == this.edges.length)
+            index = 0;
+        return this.edges[index];
+    };
+    Sector.prototype.previousEdge = function (edge) {
+        var index = this.edges.indexOf(edge) - 1;
+        if (index == -1)
+            index = this.edges.length - 1;
+        return this.edges[index];
+    };
     return Sector;
 }());
 var Edge = /** @class */ (function () {
     function Edge(start, end) {
         this.dirty = true;
-        this.start = start;
-        this.end = end;
+        this.start = start.clone();
+        this.end = end.clone();
         this.modifiers = new Array();
         this.dirty = true;
     }
@@ -54,9 +66,19 @@ var Edge = /** @class */ (function () {
         var output = new Edge(this.end, this.start);
         return output;
     };
-    Edge.prototype.translate = function (offset) {
-        this.start = Vertex.Add(this.start, offset);
-        this.end = Vertex.Add(this.end, offset);
+    Edge.prototype.translate = function (offset, moveLink) {
+        if (moveLink === void 0) { moveLink = true; }
+        this.start.translate(offset);
+        this.end.translate(offset);
+        if (this.edgeLink && moveLink) {
+            this.edgeLink.translate(offset, false);
+        }
+        var n = this.sector.nextEdge(this);
+        var p = this.sector.previousEdge(this);
+        n.start.translate(offset);
+        p.end.translate(offset);
+        n.dirty = true;
+        p.dirty = true;
         this.dirty = true;
     };
     Edge.prototype.clearModifiers = function () {
@@ -130,6 +152,10 @@ var Vertex = /** @class */ (function () {
     Vertex.prototype.setTo = function (v) {
         this.x = v.x;
         this.y = v.y;
+    };
+    Vertex.prototype.translate = function (offset) {
+        this.x += offset.x;
+        this.y += offset.y;
     };
     return Vertex;
 }());

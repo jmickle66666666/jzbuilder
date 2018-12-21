@@ -15,6 +15,12 @@ var Translate = /** @class */ (function () {
                 Input.lockModes = true;
             }
         }
+        if (Input.mode == InputMode.EDGE) {
+            this.activeEdge = mapData.getNearestEdge(Input.mouseGridPos);
+            this.dragging = true;
+            Input.lockModes = true;
+            this.lastPos = Input.mouseGridPos;
+        }
     };
     Translate.prototype.onMouseUp = function () {
         this.dragging = false;
@@ -22,24 +28,40 @@ var Translate = /** @class */ (function () {
     };
     Translate.prototype.onMouseMove = function () {
         if (Input.mode == InputMode.VERTEX && this.dragging) {
-            this.activeVertices.forEach(function (v) { return v.setTo(Input.mouseGridPos); });
+            this.activeVertices.forEach(function (v) {
+                v.setTo(Input.mouseGridPos);
+                mapData.getEdgesWithVertex(v).forEach(function (e) { return e.dirty = true; });
+            });
         }
-        // if (this.lastPos != Input.mouseGridPos) {
-        //     if (this.dragging && Input.mode == InputMode.VERTEX) {
-        //         mapData.moveVertex(this.lastPos, Input.mouseGridPos);
-        //     }
-        //     this.lastPos = Input.mouseGridPos;
-        // }
+        if (Input.mode == InputMode.EDGE && this.dragging) {
+            if (!this.lastPos.equals(Input.mouseGridPos)) {
+                this.activeEdge.translate(Vertex.Subtract(Input.mouseGridPos, this.lastPos));
+                this.lastPos.setTo(Input.mouseGridPos);
+            }
+        }
     };
     Translate.prototype.onRender = function () {
-        if (Input.mode == InputMode.VERTEX) {
-            mainCanvas.highlightVertex(Input.mouseGridPos);
+        if (this.dragging) {
+            if (Input.mode == InputMode.VERTEX) {
+                mainCanvas.highlightVertex(this.activeVertices[0]);
+            }
+            if (Input.mode == InputMode.EDGE) {
+                mainCanvas.highlightEdge(this.activeEdge);
+            }
+            if (Input.mode == InputMode.SECTOR) {
+                mainCanvas.highlightSector(this.activeSector);
+            }
         }
-        if (Input.mode == InputMode.EDGE) {
-            mainCanvas.highlightEdge(mapData.getNearestEdge(Input.mousePos));
-        }
-        if (Input.mode == InputMode.SECTOR) {
-            mainCanvas.highlightSector(mapData.getNearestSector(Input.mousePos));
+        else {
+            if (Input.mode == InputMode.VERTEX) {
+                mainCanvas.highlightVertex(Input.mouseGridPos);
+            }
+            if (Input.mode == InputMode.EDGE) {
+                mainCanvas.highlightEdge(mapData.getNearestEdge(Input.mousePos));
+            }
+            if (Input.mode == InputMode.SECTOR) {
+                mainCanvas.highlightSector(mapData.getNearestSector(Input.mousePos));
+            }
         }
     };
     Translate.prototype.onUnswitch = function () {

@@ -13,8 +13,17 @@ class Sector {
         }
     }
 
-    // private bounds:Rect;
+    public nextEdge(edge:Edge):Edge {
+        let index = this.edges.indexOf(edge) + 1
+        if (index == this.edges.length) index = 0;
+        return this.edges[index];
+    }
 
+    public previousEdge(edge:Edge):Edge {
+        let index = this.edges.indexOf(edge) - 1;
+        if (index == -1) index = this.edges.length - 1;
+        return this.edges[index];
+    }
 
 }
 
@@ -67,8 +76,8 @@ class Edge {
     }
 
     public constructor (start:Vertex, end:Vertex) {
-        this.start = start;
-        this.end = end;
+        this.start = start.clone();
+        this.end = end.clone();
         this.modifiers = new Array<EdgeModifier>();
         this.dirty = true;
     }
@@ -83,9 +92,22 @@ class Edge {
         return output;
     }
 
-    public translate(offset:Vertex) {
-        this.start = Vertex.Add(this.start, offset);
-        this.end = Vertex.Add(this.end, offset);
+    public translate(offset:Vertex, moveLink:Boolean = true) {
+        this.start.translate(offset);
+        this.end.translate(offset);
+
+        if (this.edgeLink && moveLink) {
+            this.edgeLink.translate(offset, false);
+        }
+
+        let n = this.sector.nextEdge(this);
+        let p = this.sector.previousEdge(this);
+        n.start.translate(offset);
+        p.end.translate(offset);
+
+        n.dirty = true;
+        p.dirty = true;
+        
         this.dirty = true;
     }
 
@@ -183,6 +205,10 @@ class Vertex {
     public setTo(v:Vertex):void {
         this.x = v.x;
         this.y = v.y;
+    }
+    public translate(offset:Vertex) {
+        this.x += offset.x;
+        this.y += offset.y;
     }
 }
 

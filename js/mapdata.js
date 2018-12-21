@@ -92,6 +92,18 @@ var MapData = /** @class */ (function () {
             }
         }
     };
+    MapData.prototype.getEdgesWithVertex = function (v) {
+        var output = new Array();
+        this.sectors.forEach(function (s) { return s.edges.forEach(function (e) {
+            if (e.start.equals(v)) {
+                output.push(e);
+            }
+            else if (e.end.equals(v)) {
+                output.push(e);
+            }
+        }); });
+        return output;
+    };
     return MapData;
 }());
 //# sourceMappingURL=mapdata.js.map

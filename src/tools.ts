@@ -20,6 +20,8 @@ class Translate implements Tool {
     dragging:Boolean = false;
 
     activeVertices:Array<Vertex>;
+    activeEdge:Edge;
+    activeSector:Sector;
 
     public constructor () {
         this.lastPos = Input.mouseGridPos;
@@ -34,6 +36,13 @@ class Translate implements Tool {
                 Input.lockModes = true;
             }
         }
+
+        if (Input.mode == InputMode.EDGE) {
+            this.activeEdge = mapData.getNearestEdge(Input.mouseGridPos);
+            this.dragging = true;
+            Input.lockModes = true;
+            this.lastPos = Input.mouseGridPos;
+        }
     }
 
     public onMouseUp():void {
@@ -43,21 +52,46 @@ class Translate implements Tool {
 
     public onMouseMove():void {
         if (Input.mode == InputMode.VERTEX && this.dragging) {
-            this.activeVertices.forEach(v => v.setTo(Input.mouseGridPos));
+            this.activeVertices.forEach(v => {
+                v.setTo(Input.mouseGridPos);
+                mapData.getEdgesWithVertex(v).forEach(e => e.dirty = true);
+            });
+        }
+
+        if (Input.mode == InputMode.EDGE && this.dragging) {
+            if (!this.lastPos.equals(Input.mouseGridPos)) {
+                this.activeEdge.translate(Vertex.Subtract(Input.mouseGridPos, this.lastPos));
+                this.lastPos.setTo(Input.mouseGridPos);
+            }
         }
     }
 
     public onRender():void {
-        if (Input.mode == InputMode.VERTEX) {
-            mainCanvas.highlightVertex(Input.mouseGridPos);
-        }
 
-        if (Input.mode == InputMode.EDGE) {
-            mainCanvas.highlightEdge(mapData.getNearestEdge(Input.mousePos));
-        }
+        if (this.dragging) {
+            if (Input.mode == InputMode.VERTEX) {
+                mainCanvas.highlightVertex(this.activeVertices[0]);
+            }
+    
+            if (Input.mode == InputMode.EDGE) {
+                mainCanvas.highlightEdge(this.activeEdge);
+            }
+    
+            if (Input.mode == InputMode.SECTOR) {
+                mainCanvas.highlightSector(this.activeSector);
+            }
+        } else {
+            if (Input.mode == InputMode.VERTEX) {
+                mainCanvas.highlightVertex(Input.mouseGridPos);
+            }
 
-        if (Input.mode == InputMode.SECTOR) {
-            mainCanvas.highlightSector(mapData.getNearestSector(Input.mousePos));
+            if (Input.mode == InputMode.EDGE) {
+                mainCanvas.highlightEdge(mapData.getNearestEdge(Input.mousePos));
+            }
+
+            if (Input.mode == InputMode.SECTOR) {
+                mainCanvas.highlightSector(mapData.getNearestSector(Input.mousePos));
+            }
         }
     }
 

@@ -108,6 +108,22 @@ class MapData {
         }
     }
 
+    getEdgesWithVertex(v:Vertex):Array<Edge> {
+        let output = new Array<Edge>();
+        this.sectors.forEach(
+            s => s.edges.forEach(
+                e => {
+                    if (e.start.equals(v)) {
+                        output.push(e);
+                    } else if (e.end.equals(v)) {
+                        output.push(e);
+                    }
+                }
+            )
+        );
+        return output;
+    }
+
 //     getLinesWithVertex(p:Vertex):Array<any> {
 //         let allLines:Array<Line> = this.getAllLines();
 //         if (allLines.length == 0) return null;
