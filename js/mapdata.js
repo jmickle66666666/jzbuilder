@@ -1,6 +1,5 @@
 var MapData = /** @class */ (function () {
     function MapData() {
-        //         this.lines = new Array<Line>();
         this.sectors = new Array();
         this.defaultMap();
     }
@@ -30,19 +29,6 @@ var MapData = /** @class */ (function () {
     MapData.prototype.getNearestSector = function (p) {
         var e = this.getNearestEdge(p);
         return e.sector; // lol
-        // if (this.sectors.length == 0) return null;
-        // var nSector = null;
-        // var nDist = Number.MAX_VALUE;
-        // for (let i = 0; i < this.sectors.length; i++) {
-        //     if (this.sectors[i].bounds.pointInBounds(p)) {
-        //         let d = sqrDist(p, this.sectors[i].bounds.midPoint);
-        //         if (d < nDist) {
-        //             nDist = d;
-        //             nIndex = i;
-        //         }
-        //     }
-        // }
-        // return nIndex;
     };
     MapData.prototype.getNearestEdge = function (p) {
         var allEdges = this.getAllEdges();
@@ -75,8 +61,7 @@ var MapData = /** @class */ (function () {
         return outputVertices;
     };
     MapData.prototype.moveVertex = function (from, to) {
-        // This gets slower the more lines there are. If this gets bad, sort the lines and do a binary search
-        // Also, this invalidates sectors a lot. I should really have a system for marking sectors as dirty and invalidate later.
+        // This gets slower the more edges there are. If this gets bad, sort the lines and do a binary search
         for (var i = 0; i < this.sectors.length; i++) {
             for (var j = 0; j < this.sectors[i].edges.length; j++) {
                 if (this.sectors[i].edges[j].start.equals(from)) {

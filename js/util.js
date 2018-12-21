@@ -1,4 +1,5 @@
-// NEEDS UPDATING
+// lots commented out until i need it
+// this is because it might need updating and i'd rather fix that as i use them
 function sqrDist(p1, p2) {
     var a = p2.x - p1.x;
     var b = p2.y - p1.y;
@@ -20,6 +21,9 @@ var Color = /** @class */ (function () {
     };
     Color.rgbaToHex = function (r, g, b, a) {
         return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b) + this.componentToHex(a);
+    };
+    Color.random = function () {
+        return Color.rgbToHex(Math.random(), Math.random(), Math.random());
     };
     return Color;
 }());

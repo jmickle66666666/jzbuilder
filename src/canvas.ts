@@ -1,73 +1,21 @@
-// Probably defunct
-
-// enum EditMode {
-//     VERTEX,
-//     LINE,
-//     SECTOR,
-//     THING,
-//     MAKESECTOR
-// }
-
-// function getRandomColor() {
-//     var letters = '0123456789ABCDEF';
-//     var color = '#';
-//     for (var i = 0; i < 6; i++) {
-//       color += letters[Math.floor(Math.random() * 16)];
-//     }
-//     return color;
-//   }
-
 class BuilderCanvas {
 
     ICON_VERTEX_MODE : HTMLImageElement;
     ICON_EDGE_MODE : HTMLImageElement;
     ICON_SECTOR_MODE : HTMLImageElement;
 
-//     // Constants
+    // Constants
     CANVAS_BG_COLOR : string        = "#434043";
     GRID_COLOR : string             = "#000000";
     GRID_CENTER_COLOR : string      = "#888888";
-//     DRAWLINE_COLOR : string         = "#998811";
     MAPLINE_2S_COLOR : string          = "#884422";
     MAPLINE_COLOR : string          = "#888888";
     MAPPROCLINE_COLOR : string          = "#ffcc88";
-//     HIGHLIGHTLINE_COLOR : string    = "#FFFFFF";
     VERTEX_COLOR : string           = "#FF9944";
     HIGHLIGHT_COLOR : string       = "#FFFFFF55";
     ACTIVE_FONT_COLOR : string       = "#FFFFFFFF";
     INACTIVE_FONT_COLOR : string       = "#FFFFFF77";
-//     SECTOR_COLOR : string           = "#22441144";
-//     SELECTEDLINE_COLOR : string     = "#FFAA11";
 
-
-//     public resetDefaultColors():void {
-//         this.CANVAS_BG_COLOR        = "#434043";
-//         this.GRID_COLOR             = "#000000";
-//         this.GRID_CENTER_COLOR      = "#888888";
-//         this.DRAWLINE_COLOR         = "#998811";
-//         this.MAPLINE_COLOR          = "#cccccc";
-//         this.HIGHLIGHTLINE_COLOR    = "#FFFFFF";
-//         this.VERTEX_COLOR           = "#FF8811";
-//         this.DRAWVERTEX_COLOR       = "#FFFFFF";
-//         this.SECTOR_COLOR           = "#22441144";
-//         this.SELECTEDLINE_COLOR     = "#FFAA11";
-//     }
-
-//     public randomColors():void {
-//         this.CANVAS_BG_COLOR        = getRandomColor();
-//         this.GRID_COLOR             = getRandomColor();
-//         this.GRID_CENTER_COLOR      = getRandomColor();
-//         this.DRAWLINE_COLOR         = getRandomColor();
-//         this.MAPLINE_COLOR          = getRandomColor();
-//         this.HIGHLIGHTLINE_COLOR    = getRandomColor();
-//         this.VERTEX_COLOR           = getRandomColor();
-//         this.DRAWVERTEX_COLOR       = getRandomColor();
-//         this.SELECTEDLINE_COLOR     = getRandomColor();
-//         this.SECTOR_COLOR           = getRandomColor()+"44";
-//         this.redraw();
-//     }
-
-//     LINE_SELECT_DISTANCE : number   = 5;
     VERTEX_SIZE : number            = 2;
     ZOOM_SPEED : number             = 1.05;
     GRIDLINE_WIDTH : number         = 0.5;
@@ -79,13 +27,6 @@ class BuilderCanvas {
 
     canvas : HTMLCanvasElement;
     ctx : CanvasRenderingContext2D;
-
-//     mapData : MapData;
-
-//     drawingLines : Array<Line>;
-//     selectedLines : Array<Line>;
-//     highlightSector : number;
-//     highlightLines : Array<Line>;
 
     public constructor (canvas: HTMLCanvasElement) {
         this.canvas = canvas;
@@ -167,11 +108,6 @@ class BuilderCanvas {
         }
     }
 
-
-//     drawDebug() {
-//         this.ctx.strokeText(Input.state.toString(), 10, 10);
-//     }
-
     drawGrid():void {
         this.ctx.fillStyle = this.CANVAS_BG_COLOR;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -210,43 +146,16 @@ class BuilderCanvas {
         if (sectors.length != 0) {
             this.ctx.imageSmoothingEnabled = false;
             for (let i = 0; i < sectors.length; i++) {
-                // let p = this.posToView(sectors[i].bounds.topLeft);
-                // this.ctx.drawImage(this.mapData.sectors[i].preview, p.x, p.y, this.mapData.sectors[i].bounds.width / this.zoom, this.mapData.sectors[i].bounds.height / this.zoom);
                 this.drawEdges(sectors[i].edges, this.MAPLINE_COLOR, 1.0);
             }
         }
     }
 
-//     drawMapLines():void {
-//         this.drawLines(this.mapData.lines, this.MAPLINE_COLOR);
-//     }
-
-//     drawDrawLines():void {
-//         this.drawLines(this.drawingLines, this.DRAWLINE_COLOR, 2, false);
-//     }
-
     drawVertex(vertex:Vertex):void {
         this.ctx.fillStyle = this.VERTEX_COLOR;
-        // let allLines:Array<Line> = mapData.getAllLines();
-        // for (let i = 0; i < allLines.length; i++) {
         let p = this.posToView(vertex);
         this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
-        // }
-
-        // if (editMode == EditMode.VERTEX) {
-        //     this.ctx.fillStyle = this.DRAWVERTEX_COLOR;
-        //     let p = this.posToView(Input.mouseGridPos);
-        //     this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
-        // }
     }
-
-//     drawSelectedLines():void {
-//         this.drawLines(this.selectedLines, this.SELECTEDLINE_COLOR, 2.0);
-//     }
-
-//     drawHighlightedLines():void {
-//         if (this.highlightLines != null) this.drawLines(this.highlightLines, this.HIGHLIGHTLINE_COLOR, 2.0);
-//     }
 
     drawBasicEdges(edges : Array<Edge>, color:string, width:number = 1.0, drawNodule:boolean = true):void {
         if (edges == null) return;
@@ -346,27 +255,4 @@ class BuilderCanvas {
     public highlightSector(s:Sector) {
         this.drawBasicEdges(s.edges, this.HIGHLIGHT_COLOR, 5, false);
     }
-
-//     drawExtrudeLine():void {
-//         this.drawLines( [
-//             new Line(extrudeEnd.start, extrudeStart.end),
-//             extrudeEnd,
-//             new Line(extrudeStart.start, extrudeEnd.end),
-//             extrudeStart
-//         ], this.DRAWLINE_COLOR, 2.0, false);
-//     }
-
-//     drawAnimLines():void {
-//         if (Anim.animLines.length == 0) return;
-//         for (let i = 0; i < Anim.animLines.length; i++) {
-//             this.ctx.beginPath();
-//             this.ctx.strokeStyle = Anim.animLines[i].getColorString();
-//             this.ctx.lineWidth = Anim.animLines[i].width;
-//             let p:Vertex = this.posToView(Anim.animLines[i].line.start);
-//             this.ctx.moveTo(p.x, p.y);
-//             p = this.posToView(Anim.animLines[i].line.end);
-//             this.ctx.lineTo(p.x, p.y);
-//             this.ctx.stroke();
-//         }
-//     }
 }

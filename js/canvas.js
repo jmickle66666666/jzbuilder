@@ -1,67 +1,16 @@
-// Probably defunct
-// enum EditMode {
-//     VERTEX,
-//     LINE,
-//     SECTOR,
-//     THING,
-//     MAKESECTOR
-// }
-// function getRandomColor() {
-//     var letters = '0123456789ABCDEF';
-//     var color = '#';
-//     for (var i = 0; i < 6; i++) {
-//       color += letters[Math.floor(Math.random() * 16)];
-//     }
-//     return color;
-//   }
 var BuilderCanvas = /** @class */ (function () {
-    //     mapData : MapData;
-    //     drawingLines : Array<Line>;
-    //     selectedLines : Array<Line>;
-    //     highlightSector : number;
-    //     highlightLines : Array<Line>;
     function BuilderCanvas(canvas) {
-        //     // Constants
+        // Constants
         this.CANVAS_BG_COLOR = "#434043";
         this.GRID_COLOR = "#000000";
         this.GRID_CENTER_COLOR = "#888888";
-        //     DRAWLINE_COLOR : string         = "#998811";
         this.MAPLINE_2S_COLOR = "#884422";
         this.MAPLINE_COLOR = "#888888";
         this.MAPPROCLINE_COLOR = "#ffcc88";
-        //     HIGHLIGHTLINE_COLOR : string    = "#FFFFFF";
         this.VERTEX_COLOR = "#FF9944";
         this.HIGHLIGHT_COLOR = "#FFFFFF55";
         this.ACTIVE_FONT_COLOR = "#FFFFFFFF";
         this.INACTIVE_FONT_COLOR = "#FFFFFF77";
-        //     SECTOR_COLOR : string           = "#22441144";
-        //     SELECTEDLINE_COLOR : string     = "#FFAA11";
-        //     public resetDefaultColors():void {
-        //         this.CANVAS_BG_COLOR        = "#434043";
-        //         this.GRID_COLOR             = "#000000";
-        //         this.GRID_CENTER_COLOR      = "#888888";
-        //         this.DRAWLINE_COLOR         = "#998811";
-        //         this.MAPLINE_COLOR          = "#cccccc";
-        //         this.HIGHLIGHTLINE_COLOR    = "#FFFFFF";
-        //         this.VERTEX_COLOR           = "#FF8811";
-        //         this.DRAWVERTEX_COLOR       = "#FFFFFF";
-        //         this.SECTOR_COLOR           = "#22441144";
-        //         this.SELECTEDLINE_COLOR     = "#FFAA11";
-        //     }
-        //     public randomColors():void {
-        //         this.CANVAS_BG_COLOR        = getRandomColor();
-        //         this.GRID_COLOR             = getRandomColor();
-        //         this.GRID_CENTER_COLOR      = getRandomColor();
-        //         this.DRAWLINE_COLOR         = getRandomColor();
-        //         this.MAPLINE_COLOR          = getRandomColor();
-        //         this.HIGHLIGHTLINE_COLOR    = getRandomColor();
-        //         this.VERTEX_COLOR           = getRandomColor();
-        //         this.DRAWVERTEX_COLOR       = getRandomColor();
-        //         this.SELECTEDLINE_COLOR     = getRandomColor();
-        //         this.SECTOR_COLOR           = getRandomColor()+"44";
-        //         this.redraw();
-        //     }
-        //     LINE_SELECT_DISTANCE : number   = 5;
         this.VERTEX_SIZE = 2;
         this.ZOOM_SPEED = 1.05;
         this.GRIDLINE_WIDTH = 0.5;
@@ -130,9 +79,6 @@ var BuilderCanvas = /** @class */ (function () {
             this.ctx.stroke();
         }
     };
-    //     drawDebug() {
-    //         this.ctx.strokeText(Input.state.toString(), 10, 10);
-    //     }
     BuilderCanvas.prototype.drawGrid = function () {
         this.ctx.fillStyle = this.CANVAS_BG_COLOR;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -171,37 +117,15 @@ var BuilderCanvas = /** @class */ (function () {
         if (sectors.length != 0) {
             this.ctx.imageSmoothingEnabled = false;
             for (var i = 0; i < sectors.length; i++) {
-                // let p = this.posToView(sectors[i].bounds.topLeft);
-                // this.ctx.drawImage(this.mapData.sectors[i].preview, p.x, p.y, this.mapData.sectors[i].bounds.width / this.zoom, this.mapData.sectors[i].bounds.height / this.zoom);
                 this.drawEdges(sectors[i].edges, this.MAPLINE_COLOR, 1.0);
             }
         }
     };
-    //     drawMapLines():void {
-    //         this.drawLines(this.mapData.lines, this.MAPLINE_COLOR);
-    //     }
-    //     drawDrawLines():void {
-    //         this.drawLines(this.drawingLines, this.DRAWLINE_COLOR, 2, false);
-    //     }
     BuilderCanvas.prototype.drawVertex = function (vertex) {
         this.ctx.fillStyle = this.VERTEX_COLOR;
-        // let allLines:Array<Line> = mapData.getAllLines();
-        // for (let i = 0; i < allLines.length; i++) {
         var p = this.posToView(vertex);
         this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
-        // }
-        // if (editMode == EditMode.VERTEX) {
-        //     this.ctx.fillStyle = this.DRAWVERTEX_COLOR;
-        //     let p = this.posToView(Input.mouseGridPos);
-        //     this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
-        // }
     };
-    //     drawSelectedLines():void {
-    //         this.drawLines(this.selectedLines, this.SELECTEDLINE_COLOR, 2.0);
-    //     }
-    //     drawHighlightedLines():void {
-    //         if (this.highlightLines != null) this.drawLines(this.highlightLines, this.HIGHLIGHTLINE_COLOR, 2.0);
-    //     }
     BuilderCanvas.prototype.drawBasicEdges = function (edges, color, width, drawNodule) {
         if (width === void 0) { width = 1.0; }
         if (drawNodule === void 0) { drawNodule = true; }

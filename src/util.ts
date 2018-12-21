@@ -1,4 +1,5 @@
-// NEEDS UPDATING
+// lots commented out until i need it
+// this is because it might need updating and i'd rather fix that as i use them
 
 function sqrDist(p1:Vertex, p2:Vertex):number {
     var a = p2.x - p1.x;
@@ -23,6 +24,10 @@ class Color {
 
     public static rgbaToHex(r:number, g:number, b:number, a:number):string {
         return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b) + this.componentToHex(a);
+    }
+
+    public static random():string {
+        return Color.rgbToHex(Math.random(), Math.random(), Math.random());
     }
 }
 

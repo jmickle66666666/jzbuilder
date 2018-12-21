@@ -1,11 +1,9 @@
 
 class MapData {
 
-//     public lines : Array<Line>;
     public sectors : Array<Sector>;
 
     constructor () {
-//         this.lines = new Array<Line>();
         this.sectors = new Array<Sector>();
         this.defaultMap();
     }
@@ -35,25 +33,9 @@ class MapData {
         return output;
     }
 
-    getNearestSector(p:Vertex):Sector {
-
+    getNearestSector(p:Vertex):Sector { // this sucks
         let e:Edge = this.getNearestEdge(p);
         return e.sector; // lol
-
-        // if (this.sectors.length == 0) return null;
-        // var nSector = null;
-        // var nDist = Number.MAX_VALUE;
-        // for (let i = 0; i < this.sectors.length; i++) {
-        //     if (this.sectors[i].bounds.pointInBounds(p)) {
-        //         let d = sqrDist(p, this.sectors[i].bounds.midPoint);
-        //         if (d < nDist) {
-        //             nDist = d;
-        //             nIndex = i;
-        //         }
-        //     }
-        // }
-
-        // return nIndex;
     }
 
     getNearestEdge(p:Vertex):Edge {
@@ -88,10 +70,8 @@ class MapData {
 
     moveVertex(from:Vertex, to:Vertex) {
 
-        // This gets slower the more lines there are. If this gets bad, sort the lines and do a binary search
-        // Also, this invalidates sectors a lot. I should really have a system for marking sectors as dirty and invalidate later.
+        // This gets slower the more edges there are. If this gets bad, sort the lines and do a binary search
 
-        
         for (let i = 0; i < this.sectors.length; i++) {
             for (let j = 0; j < this.sectors[i].edges.length; j++) {
                 if (this.sectors[i].edges[j].start.equals(from)) {
@@ -145,118 +125,8 @@ class MapData {
         return nVert;
     }
 
-//     getLinesWithVertex(p:Vertex):Array<any> {
-//         let allLines:Array<Line> = this.getAllLines();
-//         if (allLines.length == 0) return null;
-
-//         let output = [];
-
-//         for (let i = 0; i < allLines.length; i++) {
-//             if (allLines[i].start.equals(p)) {
-//                 output.push({line:allLines[i],position:"start"});
-//             } else if (allLines[i].end.equals(p)) {
-//                 output.push({line:allLines[i],position:"end"});
-//             }
-//         }
-//         return output;
-//     }
-
-//     getNextConnectedVertexes(p:Vertex):Array<Vertex> {
-//         let allLines:Array<Line> = this.getAllLines();
-//         if (allLines.length == 0) return null;
-
-//         let output:Array<Vertex> = new Array<Vertex>();
-
-//         for (let i = 0; i < allLines.length; i++) {
-//             if (allLines[i].start.equals(p)) {
-//                 output.push(allLines[i].end);
-//             } else if (allLines[i].end.equals(p)) {
-//                 output.push(allLines[i].start);
-//             }
-//         }
-//         return output;
-//     }
-
-//     deleteLine(l:Line):void {
-//         for (let i = 0; i < this.lines.length; i++) {
-//             if (this.lines[i].equals(l)) {
-//                 this.lines.splice(i, 1);
-//                 i -= 1;
-//             }
-//         }
-
-//         for (let i = 0; i < this.sectors.length; i++) {
-//             for (let j = 0; j < this.sectors[i].lines.length; j++) {
-//                 if (this.sectors[i].lines[j].equals(l)) {
-//                     this.sectors[i].lines.splice(j, 1);
-//                     this.lines = this.lines.concat(this.sectors[i].lines);
-//                     this.sectors.splice(i, 1);
-//                     break;
-//                 }
-//             }
-//         }
-
-//         for (let i = 0; i < this.lines.length; i++) {
-//             this.lines[i].sector = null;
-//         }
-//     }
-
-//     deleteVertex(p:Vertex):void {
-//         for (let i = 0; i < this.sectors.length; i++) {
-//             for (let j = 0; j < this.sectors[i].lines.length; j++) {
-//                 if (this.sectors[i].lines[j].containsVertex(p)) {
-//                     this.sectors[i].lines.splice(j, 1);
-//                     this.lines = this.lines.concat(this.sectors[i].lines);
-//                     this.sectors.splice(i, 1);
-//                     break;
-//                 }
-//             }
-//         }
-
-//         for (let i = 0; i < this.lines.length; i++) {
-//             if (this.lines[i].containsVertex(p)) {
-//                 this.lines.splice(i, 1);
-//                 i -= 1;
-//             }
-//         }
-
-//         for (let i = 0; i < this.lines.length; i++) {
-//             this.lines[i].sector = null;
-//         }
-//     }
-
-//     deleteSectorAt(p:Vertex):void {
-//         if (this.sectors.length == 0) return;
-//         var nIndex = -1;
-//         var nDist = Number.MAX_VALUE;
-//         for (let i = 0; i < this.sectors.length; i++) {
-//             if (this.sectors[i].bounds.pointInBounds(p)) {
-//                 let d = sqrDist(p, this.sectors[i].bounds.midPoint);
-//                 if (d < nDist) {
-//                     nDist = d;
-//                     nIndex = i;
-//                 }
-//             }
-//         }
-
-//         this.sectors.splice(nIndex, 1);
-//     }
-
-//     vertexExists(p:Vertex) {
-//         let allLines:Array<Line> = this.getAllLines();
-//         if (allLines.length == 0) return null;
-
-//         for (let i = 0; i < allLines.length; i++) {
-//             if (allLines[i].start.equals(p)) {
-//                 return true;
-//             } else if (allLines[i].end.equals(p)) {
-//                 return true;
-//             }
-//         }
-
-//         return false;
-//     }
-
+    // Keeping this in case there's something i can take from it
+    
 //     createSplits(v:Vertex) {
 //         let allLines:Array<Line> = this.getAllLines();
 //         if (allLines.length == 0) return;
