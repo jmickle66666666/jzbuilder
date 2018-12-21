@@ -100,13 +100,17 @@ class Edge {
             this.edgeLink.translate(offset, false);
         }
 
-        let n = this.sector.nextEdge(this);
-        let p = this.sector.previousEdge(this);
-        n.start.translate(offset);
-        p.end.translate(offset);
+        if (this.sector) {
 
-        n.dirty = true;
-        p.dirty = true;
+            let n = this.sector.nextEdge(this);
+            let p = this.sector.previousEdge(this);
+            n.start.translate(offset);
+            p.end.translate(offset);
+
+            n.dirty = true;
+            p.dirty = true;
+
+        }
         
         this.dirty = true;
     }

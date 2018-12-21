@@ -73,12 +73,14 @@ var Edge = /** @class */ (function () {
         if (this.edgeLink && moveLink) {
             this.edgeLink.translate(offset, false);
         }
-        var n = this.sector.nextEdge(this);
-        var p = this.sector.previousEdge(this);
-        n.start.translate(offset);
-        p.end.translate(offset);
-        n.dirty = true;
-        p.dirty = true;
+        if (this.sector) {
+            var n = this.sector.nextEdge(this);
+            var p = this.sector.previousEdge(this);
+            n.start.translate(offset);
+            p.end.translate(offset);
+            n.dirty = true;
+            p.dirty = true;
+        }
         this.dirty = true;
     };
     Edge.prototype.clearModifiers = function () {
