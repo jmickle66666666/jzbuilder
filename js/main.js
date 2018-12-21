@@ -16,6 +16,7 @@ function update() {
 }
 function render() {
     mainCanvas.redraw();
+    Anim.render();
     if (activeTool.onRender) {
         activeTool.onRender();
     }

@@ -95,6 +95,8 @@ class BuilderCanvas {
         this.ctx.canvas.width = canvas.clientWidth;
         this.ctx.canvas.height = canvas.clientHeight;
 
+        this.ctx.lineCap = "round";
+
         this.ICON_VERTEX_MODE = document.getElementById('vertexmode') as HTMLImageElement;
         this.ICON_EDGE_MODE = document.getElementById('edgemode') as HTMLImageElement;
         this.ICON_SECTOR_MODE = document.getElementById('sectormode') as HTMLImageElement;
@@ -130,7 +132,7 @@ class BuilderCanvas {
     }
 
 
-    public modeSelectionOffset:Vertex = new Vertex(0,74);
+    public modeSelectionOffset:Vertex = new Vertex(10,74);
     drawIcons() {
 
         this.ctx.drawImage(this.ICON_VERTEX_MODE, 10, 10, 64, 64);

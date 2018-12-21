@@ -111,6 +111,14 @@ class Extrude implements Tool {
         this.targetEdge.dirty = true;
         this.targetEdge.edgeLink = edge1;
         edge1.edgeLink = this.targetEdge;
+
+        let animEdge = {
+            edges : [edge1, edge2, edge3, edge4],
+            alpha : 1
+        }
+        new Anim(animEdge, "alpha", 0, 0.2, null, function () {
+            mainCanvas.drawBasicEdges(animEdge.edges, Color.rgbaToHex(1,1,1,animEdge.alpha), (1.0 - animEdge.alpha) * 30, false);
+        });
     }
 
     onRender():void {

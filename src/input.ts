@@ -18,6 +18,6 @@ class Input {
         if (mode != InputMode.VERTEX) off += 74;
         if (mode == InputMode.SECTOR) off += 74;
 
-        Anim.create(mainCanvas.modeSelectionOffset, "x", off, 0.3);
+        new Anim(mainCanvas.modeSelectionOffset, "x", off, 0.3);
     }
 }

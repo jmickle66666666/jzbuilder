@@ -14,7 +14,7 @@ var Input = /** @class */ (function () {
             off += 74;
         if (mode == InputMode.SECTOR)
             off += 74;
-        Anim.create(mainCanvas.modeSelectionOffset, "x", off, 0.3);
+        new Anim(mainCanvas.modeSelectionOffset, "x", off, 0.3);
     };
     Input.mousePos = new Vertex(0, 0);
     Input.mouseGridPos = new Vertex(0, 0);

@@ -7,6 +7,22 @@ function sqrDist(p1, p2) {
 function distToSegmentMidpoint(p, l) {
     return sqrDist(p, new Vertex((l.start.x + l.end.x) / 2, (l.start.y + l.end.y) / 2));
 }
+var Color = /** @class */ (function () {
+    function Color() {
+    }
+    Color.componentToHex = function (c) {
+        c *= 255;
+        var hex = Math.round(c).toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+    };
+    Color.rgbToHex = function (r, g, b) {
+        return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
+    };
+    Color.rgbaToHex = function (r, g, b, a) {
+        return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b) + this.componentToHex(a);
+    };
+    return Color;
+}());
 // function crossProduct(a:Vertex, b:Vertex, o:Vertex):number {
 //     return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
 // }

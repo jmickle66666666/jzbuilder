@@ -10,6 +10,22 @@ function distToSegmentMidpoint(p:Vertex, l:Edge):number {
     return sqrDist(p, new Vertex((l.start.x + l.end.x)/2, (l.start.y + l.end.y)/2));
 }
 
+class Color {
+    public static componentToHex(c:number):string {
+        c *= 255;
+        var hex = Math.round(c).toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+    }
+    
+    public static rgbToHex(r:number, g:number, b:number):string {
+        return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
+    }
+
+    public static rgbaToHex(r:number, g:number, b:number, a:number):string {
+        return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b) + this.componentToHex(a);
+    }
+}
+
 // function crossProduct(a:Vertex, b:Vertex, o:Vertex):number {
 //     return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
 // }
