@@ -1,47 +1,42 @@
-// Probably defunct
-// class Anim {
-//     public static animLines:Array<CreateLineAnim>;
-//     public static update():void {
-//         if (Anim.animLines.length == 0) {
-//             return;
-//         }
-//         for (let i = 0; i < Anim.animLines.length; i++) {
-//             Anim.animLines[i].tick();
-//         }
-//         Anim.clearDeadAnims();
-//         mainCanvas.redraw();
-//     }
-//     public static clearDeadAnims():void {
-//         for (let i = 0; i < Anim.animLines.length; i++) {
-//             if (Anim.animLines[i].dead) {
-//                 Anim.animLines.splice(i, 1);
-//                 Anim.clearDeadAnims();
-//                 break;
-//             }
-//         }
-//     }
-//     public static addLine(l:Line) {
-//         Anim.animLines.push(new CreateLineAnim(l));
-//     }
-// }
-// class CreateLineAnim {
-//     public width:number = 1.0;
-//     public line:Line;
-//     public color:string = "FFFFFF";
-//     public alpha:number = 1.0;
-//     public dead:boolean = false;
-//     public constructor(line:Line) {
-//         this.line = line;
-//     }
-//     public getColorString():string {
-//         return "rgb(255,255,255,"+this.alpha.toString()+")";
-//     }
-//     public tick():void {
-//         this.alpha = lerp(this.alpha, 0, 0.8);
-//         this.width = lerp(this.width, 20.0, 0.5);
-//         if (this.alpha < 0.01) this.dead = true;
-//     }
-// }
-// Anim.animLines = new Array<CreateLineAnim>();
-// window.setInterval(Anim.update, 1000/60);
+var Anim = /** @class */ (function () {
+    function Anim(obj, valueName, targetValue, lerpSpeed) {
+        this.lerpSpeed = lerpSpeed;
+        this.obj = obj;
+        this.valueName = valueName;
+        this.targetValue = targetValue;
+        this.timer = 1.0;
+        if (Anim.animators == null) {
+            Anim.animators = new Array();
+        }
+        Anim.animators.push(this);
+    }
+    Anim.prototype.update = function () {
+        this.obj[this.valueName] = this.lerp(this.obj[this.valueName], this.targetValue, this.lerpSpeed);
+        this.timer = this.lerp(this.timer, 0, this.lerpSpeed);
+        if (this.timer < 0.01) {
+            Anim.remove(this);
+        }
+    };
+    Anim.prototype.lerp = function (a, b, amt) {
+        return (b * amt) + (a * (1 - amt));
+    };
+    Anim.update = function () {
+        if (this.animators == null)
+            return;
+        if (this.animators.length == 0)
+            return;
+        dirty = true;
+        this.animators.forEach(function (a) { return a.update(); });
+    };
+    Anim.remove = function (anim) {
+        var index = this.animators.indexOf(anim);
+        if (index > -1) {
+            this.animators.splice(index, 1);
+        }
+    };
+    Anim.create = function (obj, valueName, targetValue, lerpSpeed) {
+        new Anim(obj, valueName, targetValue, lerpSpeed);
+    };
+    return Anim;
+}());
 //# sourceMappingURL=anim.js.map

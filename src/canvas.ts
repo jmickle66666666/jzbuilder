@@ -129,12 +129,21 @@ class BuilderCanvas {
         //this.drawDebug();
     }
 
+
+    public modeSelectionOffset:Vertex = new Vertex(0,74);
     drawIcons() {
-        var drawIcon;
-        if (Input.mode == InputMode.VERTEX) drawIcon = this.ICON_VERTEX_MODE;
-        if (Input.mode == InputMode.EDGE) drawIcon = this.ICON_EDGE_MODE;
-        if (Input.mode == InputMode.SECTOR) drawIcon = this.ICON_SECTOR_MODE;
-        this.ctx.drawImage(drawIcon, 10, 10, 64, 64);
+
+        this.ctx.drawImage(this.ICON_VERTEX_MODE, 10, 10, 64, 64);
+        this.ctx.drawImage(this.ICON_EDGE_MODE, 84, 10, 64, 64);
+        this.ctx.drawImage(this.ICON_SECTOR_MODE, 158, 10, 64, 64);
+
+        this.ctx.strokeStyle = this.HIGHLIGHT_COLOR;
+        this.ctx.lineWidth = 5;
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.modeSelectionOffset.x, this.modeSelectionOffset.y);
+        this.ctx.lineTo(this.modeSelectionOffset.x + 64, this.modeSelectionOffset.y);
+        this.ctx.stroke();
+
     }
 
 
@@ -147,26 +156,31 @@ class BuilderCanvas {
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.lineWidth = this.GRIDLINE_WIDTH;
         this.ctx.strokeStyle = this.GRID_COLOR;
+
+        let vo:Vertex = this.viewOffset.clone();
+        vo.x = Math.round(vo.x);
+        vo.y = Math.round(vo.y);
+
         let i;
         for (i = 0; i < this.canvas.width; i++) {
-            if ( (i + this.viewOffset.x) % Math.round(this.gridSize/this.zoom) == 0 ) {
-                if (i + this.viewOffset.x == 0) this.ctx.strokeStyle = this.GRID_CENTER_COLOR;
+            if ( (i + vo.x) % Math.round(this.gridSize/this.zoom) == 0 ) {
+                if (i + vo.x == 0) this.ctx.strokeStyle = this.GRID_CENTER_COLOR;
                 this.ctx.beginPath();
                 this.ctx.moveTo(i, 0);
                 this.ctx.lineTo(i, this.canvas.height);
                 this.ctx.stroke();
-                if (i + this.viewOffset.x == 0) this.ctx.strokeStyle = this.GRID_COLOR;
+                if (i + vo.x == 0) this.ctx.strokeStyle = this.GRID_COLOR;
             }
         }
 
         for (i = 0; i < this.canvas.height; i++) {
-            if ( (i + this.viewOffset.y) % Math.round(this.gridSize/this.zoom) == 0 ) {
-                if (i + this.viewOffset.y == 0) this.ctx.strokeStyle = this.GRID_CENTER_COLOR;
+            if ( (i + vo.y) % Math.round(this.gridSize/this.zoom) == 0 ) {
+                if (i + vo.y == 0) this.ctx.strokeStyle = this.GRID_CENTER_COLOR;
                 this.ctx.beginPath();
                 this.ctx.moveTo(0, i);
                 this.ctx.lineTo(this.canvas.width, i);
                 this.ctx.stroke();
-                if (i + this.viewOffset.y == 0) this.ctx.strokeStyle = this.GRID_COLOR;
+                if (i + vo.y == 0) this.ctx.strokeStyle = this.GRID_COLOR;
             }
         }
     }
@@ -306,6 +320,10 @@ class BuilderCanvas {
         p = this.posToView(e.end);
         this.ctx.lineTo(p.x, p.y);
         this.ctx.stroke();
+    }
+
+    public highlightSector(s:Sector) {
+        this.drawBasicEdges(s.edges, this.HIGHLIGHT_COLOR, 5, false);
     }
 
 //     drawExtrudeLine():void {

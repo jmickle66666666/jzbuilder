@@ -9,6 +9,7 @@ interface Tool {
     onMouseUp?();
     onMouseMove?();
     onRender?();
+    onSwitch?();
 }
 
 class Translate implements Tool {
@@ -46,6 +47,10 @@ class Translate implements Tool {
         if (Input.mode == InputMode.EDGE) {
             mainCanvas.highlightEdge(mapData.getNearestEdge(Input.mousePos));
         }
+
+        if (Input.mode == InputMode.SECTOR) {
+            mainCanvas.highlightSector(mapData.getNearestSector(Input.mousePos));
+        }
     }
 }
 
@@ -57,6 +62,10 @@ class Extrude implements Tool {
     targetEdge:Edge;
     translation:Vertex;
     initialPosition:Vertex;
+
+    public onSwitch():void {
+        Input.switchMode(InputMode.EDGE);
+    }
 
     public onMouseMove():void {
         if (this.extruding) {
@@ -95,6 +104,7 @@ class Extrude implements Tool {
         newSector.edges.push(edge2);
         newSector.edges.push(edge3);
         newSector.edges.push(edge4);
+        newSector.update();
         mapData.sectors.push(newSector);
 
         this.targetEdge.clearModifiers();
@@ -123,6 +133,10 @@ function changeTool(tool:Tool) {
     
     let el = document.getElementById("infopanel");
     el.innerHTML = tool.name;
+
+    if (activeTool.onSwitch) {
+        activeTool.onSwitch();
+    }
 }
 
 tools.push(new Translate());

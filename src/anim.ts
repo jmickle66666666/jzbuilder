@@ -1,59 +1,60 @@
-// Probably defunct
+class Anim {
 
-// class Anim {
-//     public static animLines:Array<CreateLineAnim>;
+    public lerpSpeed:number;
+    public obj:Object;
+    public valueName:string;
 
-//     public static update():void {
-//         if (Anim.animLines.length == 0) {
-//             return;
-//         }
+    public targetValue:number;
+    public timer:number;
 
-//         for (let i = 0; i < Anim.animLines.length; i++) {
-//             Anim.animLines[i].tick();
-//         }
+    public constructor (obj:Object, valueName:string, targetValue:number, lerpSpeed:number) {
+        this.lerpSpeed = lerpSpeed;
+        this.obj = obj;
+        this.valueName = valueName;
+        this.targetValue = targetValue;
+        this.timer = 1.0;
 
-//         Anim.clearDeadAnims();
+        if (Anim.animators == null) {
+            Anim.animators = new Array<Anim>();
+        }
 
-//         mainCanvas.redraw();
-//     }
+        Anim.animators.push(this);
+    }
 
-//     public static clearDeadAnims():void {
-//         for (let i = 0; i < Anim.animLines.length; i++) {
-//             if (Anim.animLines[i].dead) {
-//                 Anim.animLines.splice(i, 1);
-//                 Anim.clearDeadAnims();
-//                 break;
-//             }
-//         }
-//     }
+    public update():void {
+        this.obj[this.valueName] = this.lerp(this.obj[this.valueName], this.targetValue, this.lerpSpeed);
+        this.timer = this.lerp(this.timer, 0, this.lerpSpeed);
+        if (this.timer < 0.01) {
+            Anim.remove(this);
+        }
+    }
 
-//     public static addLine(l:Line) {
-//         Anim.animLines.push(new CreateLineAnim(l));
-//     }
-// }
+    private lerp(a:number, b:number, amt:number) {
+        return (b * amt) + (a * (1-amt));
+    }
 
-// class CreateLineAnim {
-//     public width:number = 1.0;
-//     public line:Line;
-//     public color:string = "FFFFFF";
-//     public alpha:number = 1.0;
-//     public dead:boolean = false;
+    // STATIC
 
-//     public constructor(line:Line) {
-//         this.line = line;
-//     }
+    public static animators:Array<Anim>;
 
-//     public getColorString():string {
-//         return "rgb(255,255,255,"+this.alpha.toString()+")";
-//     }
+    public static update() {
 
-//     public tick():void {
-//         this.alpha = lerp(this.alpha, 0, 0.8);
-//         this.width = lerp(this.width, 20.0, 0.5);
-//         if (this.alpha < 0.01) this.dead = true;
-//     }
-// }
+        if (this.animators == null) return;
+        if (this.animators.length == 0) return;
 
-// Anim.animLines = new Array<CreateLineAnim>();
+        dirty = true;
 
-// window.setInterval(Anim.update, 1000/60);
+        this.animators.forEach(a => a.update());
+    }
+
+    public static remove(anim:Anim) {
+        let index = this.animators.indexOf(anim);
+        if (index > -1) {
+            this.animators.splice(index, 1);
+        }
+    }
+
+    public static create(obj:Object, valueName:string, targetValue:number, lerpSpeed:number) {
+        new Anim(obj, valueName, targetValue, lerpSpeed);
+    }
+}

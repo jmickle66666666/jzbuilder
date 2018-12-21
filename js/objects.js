@@ -2,6 +2,11 @@ var Sector = /** @class */ (function () {
     function Sector() {
         this.edges = new Array();
     }
+    Sector.prototype.update = function () {
+        for (var i = 0; i < this.edges.length; i++) {
+            this.edges[i].sector = this;
+        }
+    };
     return Sector;
 }());
 var Edge = /** @class */ (function () {
@@ -121,26 +126,41 @@ var Vertex = /** @class */ (function () {
     return Vertex;
 }());
 // Probably defunct?
-// class Rect {
-//     public topLeft : Vertex;
-//     public bottomRight : Vertex;
-//     public constructor (x:number = 0, y:number = 0, width:number = 0, height:number = 0) {
-//         this.topLeft = new Vertex(x, y);
-//         this.bottomRight = new Vertex(x + width, y + height);
-//     }
-//     public get midPoint():Vertex {
-//         return new Vertex((this.topLeft.x + this.bottomRight.x) / 2, (this.topLeft.y + this.bottomRight.y) / 2);
-//     }
-//     public get width():number {
-//         return this.bottomRight.x - this.topLeft.x;
-//     }
-//     public get height():number {
-//         return this.bottomRight.y - this.topLeft.y;
-//     }
-//     public pointInBounds(p:Vertex):boolean {
-//         return p.x >= this.topLeft.x && p.y >= this.topLeft.y && p.x < this.bottomRight.x && p.y < this.bottomRight.y;
-//     }
-// }
+var Rect = /** @class */ (function () {
+    function Rect(x, y, width, height) {
+        if (x === void 0) { x = 0; }
+        if (y === void 0) { y = 0; }
+        if (width === void 0) { width = 0; }
+        if (height === void 0) { height = 0; }
+        this.topLeft = new Vertex(x, y);
+        this.bottomRight = new Vertex(x + width, y + height);
+    }
+    Object.defineProperty(Rect.prototype, "midPoint", {
+        get: function () {
+            return new Vertex((this.topLeft.x + this.bottomRight.x) / 2, (this.topLeft.y + this.bottomRight.y) / 2);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Rect.prototype, "width", {
+        get: function () {
+            return this.bottomRight.x - this.topLeft.x;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Rect.prototype, "height", {
+        get: function () {
+            return this.bottomRight.y - this.topLeft.y;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Rect.prototype.pointInBounds = function (p) {
+        return p.x >= this.topLeft.x && p.y >= this.topLeft.y && p.x < this.bottomRight.x && p.y < this.bottomRight.y;
+    };
+    return Rect;
+}());
 // class Sector {
 //     public bounds : Rect;
 //     public lines : Array<Line>;

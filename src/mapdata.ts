@@ -23,6 +23,7 @@ class MapData {
         s.edges.push(new Edge(v[0], v[3]));
         s.edges[1].modifiers.push(new EdgeSubdivider(3));
         s.edges[1].modifiers.push(new EdgeInset(8, 0));
+        s.update();
         this.sectors.push(s);
     }
 
@@ -34,22 +35,26 @@ class MapData {
         return output;
     }
 
-//     getSectorIndexAt(p:Vertex):number {
-//         if (this.sectors.length == 0) return -1;
-//         var nIndex = -1;
-//         var nDist = Number.MAX_VALUE;
-//         for (let i = 0; i < this.sectors.length; i++) {
-//             if (this.sectors[i].bounds.pointInBounds(p)) {
-//                 let d = sqrDist(p, this.sectors[i].bounds.midPoint);
-//                 if (d < nDist) {
-//                     nDist = d;
-//                     nIndex = i;
-//                 }
-//             }
-//         }
+    getNearestSector(p:Vertex):Sector {
 
-//         return nIndex;
-//     }
+        let e:Edge = this.getNearestEdge(p);
+        return e.sector; // lol
+
+        // if (this.sectors.length == 0) return null;
+        // var nSector = null;
+        // var nDist = Number.MAX_VALUE;
+        // for (let i = 0; i < this.sectors.length; i++) {
+        //     if (this.sectors[i].bounds.pointInBounds(p)) {
+        //         let d = sqrDist(p, this.sectors[i].bounds.midPoint);
+        //         if (d < nDist) {
+        //             nDist = d;
+        //             nIndex = i;
+        //         }
+        //     }
+        // }
+
+        // return nIndex;
+    }
 
     getNearestEdge(p:Vertex):Edge {
         let allEdges:Array<Edge> = this.getAllEdges();

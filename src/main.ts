@@ -11,6 +11,7 @@ function init() {
 }
 
 function update() {
+    Anim.update();
     if (dirty) {
         render();
         dirty = false;
@@ -22,7 +23,6 @@ function render() {
     if (activeTool.onRender) {
         activeTool.onRender();
     }
-    // mainCanvas.drawSectors(mapData.sectors);
 }
 
 init();
@@ -367,9 +367,13 @@ function onMouseWheel(e:MouseWheelEvent) {
 
     if (e.deltaY > 0) {
         mainCanvas.zoom *= mainCanvas.ZOOM_SPEED;
+        mainCanvas.viewOffset.x -= (Input.mousePos.x) * ((mainCanvas.ZOOM_SPEED - 1.0) / mainCanvas.zoom);
+        mainCanvas.viewOffset.y -= (Input.mousePos.y) * ((mainCanvas.ZOOM_SPEED - 1.0) / mainCanvas.zoom);
     }
     if (e.deltaY < 0) {
         mainCanvas.zoom /= mainCanvas.ZOOM_SPEED;
+        mainCanvas.viewOffset.x += (Input.mousePos.x) * ((mainCanvas.ZOOM_SPEED - 1.0) / mainCanvas.zoom);
+        mainCanvas.viewOffset.y += (Input.mousePos.y) * ((mainCanvas.ZOOM_SPEED - 1.0) / mainCanvas.zoom);
     }
     // if (e.deltaY != 0) mainCanvas.redraw();
 }

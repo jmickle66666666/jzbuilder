@@ -28,6 +28,9 @@ var Translate = /** @class */ (function () {
         if (Input.mode == InputMode.EDGE) {
             mainCanvas.highlightEdge(mapData.getNearestEdge(Input.mousePos));
         }
+        if (Input.mode == InputMode.SECTOR) {
+            mainCanvas.highlightSector(mapData.getNearestSector(Input.mousePos));
+        }
     };
     return Translate;
 }());
@@ -37,6 +40,9 @@ var Extrude = /** @class */ (function () {
         this.selectKey = "e";
         this.extruding = false;
     }
+    Extrude.prototype.onSwitch = function () {
+        Input.switchMode(InputMode.EDGE);
+    };
     Extrude.prototype.onMouseMove = function () {
         if (this.extruding) {
             this.translation = Vertex.Subtract(Input.mouseGridPos, this.initialPosition);
@@ -70,6 +76,7 @@ var Extrude = /** @class */ (function () {
         newSector.edges.push(edge2);
         newSector.edges.push(edge3);
         newSector.edges.push(edge4);
+        newSector.update();
         mapData.sectors.push(newSector);
         this.targetEdge.clearModifiers();
         this.targetEdge.dirty = true;
@@ -96,6 +103,9 @@ function changeTool(tool) {
     activeTool = tool;
     var el = document.getElementById("infopanel");
     el.innerHTML = tool.name;
+    if (activeTool.onSwitch) {
+        activeTool.onSwitch();
+    }
 }
 tools.push(new Translate());
 tools.push(new Extrude());
