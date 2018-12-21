@@ -85,6 +85,10 @@ function onMouseUp(e) {
 }
 window.addEventListener("keydown", onKeyDown);
 window.addEventListener("keyup", onKeyUp);
+window.addEventListener("resize", function () {
+    mainCanvas = new BuilderCanvas(document.getElementById("maincanvas"));
+    render();
+});
 mainCanvas.canvas.addEventListener("mousemove", onMouseMove);
 // I love standards
 mainCanvas.canvas.addEventListener("mousewheel", onMouseWheel);

@@ -101,6 +101,12 @@ function onMouseUp(e:MouseEvent) {
 
 window.addEventListener("keydown", onKeyDown);
 window.addEventListener("keyup", onKeyUp);
+
+window.addEventListener("resize", function() {
+    mainCanvas = new BuilderCanvas(document.getElementById("maincanvas") as HTMLCanvasElement);
+    render();
+});
+
 mainCanvas.canvas.addEventListener("mousemove", onMouseMove);
 
 // I love standards
