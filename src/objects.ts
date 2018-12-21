@@ -176,6 +176,14 @@ class Vertex {
     public static Subtract(a:Vertex, b:Vertex) {
         return new Vertex(a.x - b.x, a.y - b.y);
     }
+    public setCoords(x:number, y:number):void {
+        this.x = x;
+        this.y = y;
+    }
+    public setTo(v:Vertex):void {
+        this.x = v.x;
+        this.y = v.y;
+    }
 }
 
 // Probably defunct?

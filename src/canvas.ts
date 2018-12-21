@@ -34,6 +34,8 @@ class BuilderCanvas {
 //     HIGHLIGHTLINE_COLOR : string    = "#FFFFFF";
     VERTEX_COLOR : string           = "#FF9944";
     HIGHLIGHT_COLOR : string       = "#FFFFFF55";
+    ACTIVE_FONT_COLOR : string       = "#FFFFFFFF";
+    INACTIVE_FONT_COLOR : string       = "#FFFFFF77";
 //     SECTOR_COLOR : string           = "#22441144";
 //     SELECTEDLINE_COLOR : string     = "#FFAA11";
 
@@ -145,6 +147,16 @@ class BuilderCanvas {
         this.ctx.moveTo(this.modeSelectionOffset.x, this.modeSelectionOffset.y);
         this.ctx.lineTo(this.modeSelectionOffset.x + 64, this.modeSelectionOffset.y);
         this.ctx.stroke();
+
+        this.ctx.font = "18px Ubuntu Mono";
+        for (let i = 0; i < tools.length; i++) {
+            if (tools[i] == activeTool) {
+                this.ctx.fillStyle = this.ACTIVE_FONT_COLOR;
+            } else {
+                this.ctx.fillStyle = this.INACTIVE_FONT_COLOR;
+            }
+            this.ctx.fillText('[' + tools[i].selectKey + '] ' +tools[i].name, 10, 120 + (i*20));
+        }
 
     }
 

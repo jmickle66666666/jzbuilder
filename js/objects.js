@@ -123,6 +123,14 @@ var Vertex = /** @class */ (function () {
     Vertex.Subtract = function (a, b) {
         return new Vertex(a.x - b.x, a.y - b.y);
     };
+    Vertex.prototype.setCoords = function (x, y) {
+        this.x = x;
+        this.y = y;
+    };
+    Vertex.prototype.setTo = function (v) {
+        this.x = v.x;
+        this.y = v.y;
+    };
     return Vertex;
 }());
 // Probably defunct?

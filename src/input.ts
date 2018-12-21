@@ -11,13 +11,17 @@ class Input {
     static viewDragging:boolean = false;
     static mode:InputMode = InputMode.EDGE;
 
+    static lockModes:Boolean = false;
+
     static switchMode(mode:InputMode) {
-        Input.mode = mode;
+        if (Input.lockModes == false) {
+            Input.mode = mode;
 
-        let off = 10;
-        if (mode != InputMode.VERTEX) off += 74;
-        if (mode == InputMode.SECTOR) off += 74;
+            let off = 10;
+            if (mode != InputMode.VERTEX) off += 74;
+            if (mode == InputMode.SECTOR) off += 74;
 
-        new Anim(mainCanvas.modeSelectionOffset, "x", off, 0.3);
+            new Anim(mainCanvas.modeSelectionOffset, "x", off, 0.3);
+        }
     }
 }

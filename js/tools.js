@@ -8,18 +8,28 @@ var Translate = /** @class */ (function () {
         this.lastPos = Input.mouseGridPos;
     }
     Translate.prototype.onMouseDown = function () {
-        this.dragging = true;
+        if (Input.mode == InputMode.VERTEX) {
+            this.activeVertices = mapData.getVerticesAt(Input.mouseGridPos);
+            if (this.activeVertices.length > 0) {
+                this.dragging = true;
+                Input.lockModes = true;
+            }
+        }
     };
     Translate.prototype.onMouseUp = function () {
         this.dragging = false;
+        Input.lockModes = false;
     };
     Translate.prototype.onMouseMove = function () {
-        if (this.lastPos != Input.mouseGridPos) {
-            if (this.dragging && Input.mode == InputMode.VERTEX) {
-                mapData.moveVertex(this.lastPos, Input.mouseGridPos);
-            }
-            this.lastPos = Input.mouseGridPos;
+        if (Input.mode == InputMode.VERTEX && this.dragging) {
+            this.activeVertices.forEach(function (v) { return v.setTo(Input.mouseGridPos); });
         }
+        // if (this.lastPos != Input.mouseGridPos) {
+        //     if (this.dragging && Input.mode == InputMode.VERTEX) {
+        //         mapData.moveVertex(this.lastPos, Input.mouseGridPos);
+        //     }
+        //     this.lastPos = Input.mouseGridPos;
+        // }
     };
     Translate.prototype.onRender = function () {
         if (Input.mode == InputMode.VERTEX) {
@@ -31,6 +41,9 @@ var Translate = /** @class */ (function () {
         if (Input.mode == InputMode.SECTOR) {
             mainCanvas.highlightSector(mapData.getNearestSector(Input.mousePos));
         }
+    };
+    Translate.prototype.onUnswitch = function () {
+        Input.lockModes = false;
     };
     return Translate;
 }());
@@ -87,7 +100,7 @@ var Extrude = /** @class */ (function () {
             alpha: 1
         };
         new Anim(animEdge, "alpha", 0, 0.2, null, function () {
-            mainCanvas.drawBasicEdges(animEdge.edges, Color.rgbaToHex(1, 1, 1, animEdge.alpha), (1.0 - animEdge.alpha) * 50, false);
+            mainCanvas.drawBasicEdges(animEdge.edges, Color.rgbaToHex(1, 1, 1, animEdge.alpha), (1.0 - animEdge.alpha) * 30, false);
         });
     };
     Extrude.prototype.onRender = function () {
@@ -107,9 +120,10 @@ var Extrude = /** @class */ (function () {
     return Extrude;
 }());
 function changeTool(tool) {
+    if (activeTool != null && activeTool.onUnswitch) {
+        activeTool.onUnswitch();
+    }
     activeTool = tool;
-    var el = document.getElementById("infopanel");
-    el.innerHTML = tool.name;
     if (activeTool.onSwitch) {
         activeTool.onSwitch();
     }

@@ -61,6 +61,19 @@ var MapData = /** @class */ (function () {
         }
         return nEdge;
     };
+    MapData.prototype.getVerticesAt = function (p) {
+        var allEdges = this.getAllEdges();
+        if (allEdges.length == 0)
+            return null;
+        var outputVertices = new Array();
+        allEdges.forEach(function (e) {
+            if (e.start.equals(p))
+                outputVertices.push(e.start);
+            if (e.end.equals(p))
+                outputVertices.push(e.end);
+        });
+        return outputVertices;
+    };
     MapData.prototype.moveVertex = function (from, to) {
         // This gets slower the more lines there are. If this gets bad, sort the lines and do a binary search
         // Also, this invalidates sectors a lot. I should really have a system for marking sectors as dirty and invalidate later.

@@ -32,6 +32,8 @@ var BuilderCanvas = /** @class */ (function () {
         //     HIGHLIGHTLINE_COLOR : string    = "#FFFFFF";
         this.VERTEX_COLOR = "#FF9944";
         this.HIGHLIGHT_COLOR = "#FFFFFF55";
+        this.ACTIVE_FONT_COLOR = "#FFFFFFFF";
+        this.INACTIVE_FONT_COLOR = "#FFFFFF77";
         //     SECTOR_COLOR : string           = "#22441144";
         //     SELECTEDLINE_COLOR : string     = "#FFAA11";
         //     public resetDefaultColors():void {
@@ -112,6 +114,16 @@ var BuilderCanvas = /** @class */ (function () {
         this.ctx.moveTo(this.modeSelectionOffset.x, this.modeSelectionOffset.y);
         this.ctx.lineTo(this.modeSelectionOffset.x + 64, this.modeSelectionOffset.y);
         this.ctx.stroke();
+        this.ctx.font = "18px Ubuntu Mono";
+        for (var i = 0; i < tools.length; i++) {
+            if (tools[i] == activeTool) {
+                this.ctx.fillStyle = this.ACTIVE_FONT_COLOR;
+            }
+            else {
+                this.ctx.fillStyle = this.INACTIVE_FONT_COLOR;
+            }
+            this.ctx.fillText('[' + tools[i].selectKey + '] ' + tools[i].name, 10, 120 + (i * 20));
+        }
     };
     //     drawDebug() {
     //         this.ctx.strokeText(Input.state.toString(), 10, 10);

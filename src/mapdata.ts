@@ -73,6 +73,19 @@ class MapData {
         return nEdge;
     }
 
+    getVerticesAt(p:Vertex):Array<Vertex> {
+        let allEdges:Array<Edge> = this.getAllEdges();
+        if (allEdges.length == 0) return null;
+
+        let outputVertices:Array<Vertex> = new Array<Vertex>();
+        allEdges.forEach(e => {
+            if (e.start.equals(p)) outputVertices.push(e.start);
+            if (e.end.equals(p)) outputVertices.push(e.end);
+        });
+
+        return outputVertices;
+    }
+
     moveVertex(from:Vertex, to:Vertex) {
 
         // This gets slower the more lines there are. If this gets bad, sort the lines and do a binary search

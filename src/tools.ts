@@ -10,6 +10,7 @@ interface Tool {
     onMouseMove?();
     onRender?();
     onSwitch?();
+    onUnswitch?();
 }
 
 class Translate implements Tool {
@@ -18,24 +19,31 @@ class Translate implements Tool {
     lastPos:Vertex;
     dragging:Boolean = false;
 
+    activeVertices:Array<Vertex>;
+
     public constructor () {
         this.lastPos = Input.mouseGridPos;
     }
     
     public onMouseDown():void {
-        this.dragging = true;
+        if (Input.mode == InputMode.VERTEX) {
+            this.activeVertices = mapData.getVerticesAt(Input.mouseGridPos);
+
+            if (this.activeVertices.length > 0) {
+                this.dragging = true;
+                Input.lockModes = true;
+            }
+        }
     }
 
     public onMouseUp():void {
         this.dragging = false
+        Input.lockModes = false;
     }
 
     public onMouseMove():void {
-        if (this.lastPos != Input.mouseGridPos) {
-            if (this.dragging && Input.mode == InputMode.VERTEX) {
-                mapData.moveVertex(this.lastPos, Input.mouseGridPos);
-            }
-            this.lastPos = Input.mouseGridPos;
+        if (Input.mode == InputMode.VERTEX && this.dragging) {
+            this.activeVertices.forEach(v => v.setTo(Input.mouseGridPos));
         }
     }
 
@@ -51,6 +59,10 @@ class Translate implements Tool {
         if (Input.mode == InputMode.SECTOR) {
             mainCanvas.highlightSector(mapData.getNearestSector(Input.mousePos));
         }
+    }
+
+    public onUnswitch():void {
+        Input.lockModes = false;
     }
 }
 
@@ -137,10 +149,11 @@ class Extrude implements Tool {
 }
 
 function changeTool(tool:Tool) {
+    if (activeTool!= null && activeTool.onUnswitch) {
+        activeTool.onUnswitch();
+    }
+
     activeTool = tool;
-    
-    let el = document.getElementById("infopanel");
-    el.innerHTML = tool.name;
 
     if (activeTool.onSwitch) {
         activeTool.onSwitch();
