@@ -21,7 +21,7 @@ var Input = /** @class */ (function () {
     Input.mousePos = new Vertex(0, 0);
     Input.mouseGridPos = new Vertex(0, 0);
     Input.viewDragging = false;
-    Input.mode = InputMode.EDGE;
+    Input.mode = InputMode.VERTEX;
     Input.lockModes = false;
     return Input;
 }());

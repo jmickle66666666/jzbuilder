@@ -2,7 +2,7 @@ var activeTool;
 var tools = new Array();
 var Translate = /** @class */ (function () {
     function Translate() {
-        this.name = "translate tool";
+        this.name = "Translate";
         this.selectKey = "t";
         this.dragging = false;
         this.lastPos = Input.mouseGridPos;
@@ -71,7 +71,7 @@ var Translate = /** @class */ (function () {
 }());
 var Extrude = /** @class */ (function () {
     function Extrude() {
-        this.name = "extrude tool";
+        this.name = "Extrude";
         this.selectKey = "e";
         this.extruding = false;
     }

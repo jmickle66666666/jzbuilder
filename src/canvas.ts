@@ -123,20 +123,13 @@ class BuilderCanvas {
         this.drawGrid();
         this.drawSectors(mapData.sectors);
         this.drawIcons();
-        // this.drawMapLines();
-        // this.drawDrawLines();
-        // if (Input.state == InputState.EXTRUDING) this.drawExtrudeLine();
-        // this.drawVertexes();
-        // this.drawSelectedLines();
-        // this.drawHighlightedLines();
-        // this.drawAnimLines();
-        //this.drawDebug();
     }
 
 
     public modeSelectionOffset:Vertex = new Vertex(10,74);
-    drawIcons() {
+    private toolSpacing:number = 24;
 
+    public drawIcons() {
         this.ctx.drawImage(this.ICON_VERTEX_MODE, 10, 10, 64, 64);
         this.ctx.drawImage(this.ICON_EDGE_MODE, 84, 10, 64, 64);
         this.ctx.drawImage(this.ICON_SECTOR_MODE, 158, 10, 64, 64);
@@ -148,16 +141,30 @@ class BuilderCanvas {
         this.ctx.lineTo(this.modeSelectionOffset.x + 64, this.modeSelectionOffset.y);
         this.ctx.stroke();
 
-        this.ctx.font = "18px Ubuntu Mono";
+        this.ctx.textBaseline = "middle";
+        
         for (let i = 0; i < tools.length; i++) {
             if (tools[i] == activeTool) {
                 this.ctx.fillStyle = this.ACTIVE_FONT_COLOR;
             } else {
                 this.ctx.fillStyle = this.INACTIVE_FONT_COLOR;
             }
-            this.ctx.fillText('[' + tools[i].selectKey + '] ' +tools[i].name, 10, 120 + (i*20));
-        }
+            this.ctx.textAlign = "left";
+            this.ctx.font = "18px Ubuntu Mono";
+            this.ctx.fillText(tools[i].name, 40, 100 + (i*this.toolSpacing));
 
+            this.ctx.textAlign = "center";
+            this.ctx.fillStyle = this.ACTIVE_FONT_COLOR;
+            this.ctx.font = "12px Open Sans";
+            this.ctx.fillText(tools[i].selectKey.toLocaleUpperCase(), 20, 100 + (i*this.toolSpacing));
+
+            this.ctx.strokeStyle = this.ACTIVE_FONT_COLOR;
+            this.ctx.beginPath;
+            this.ctx.lineWidth = 1;
+            this.ctx.beginPath();
+            this.ctx.ellipse(20, 98.5 + (i*this.toolSpacing), 9, 9, 0, 0, Math.PI*2);
+            this.ctx.stroke();
+        }
     }
 
 

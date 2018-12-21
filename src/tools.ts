@@ -14,7 +14,7 @@ interface Tool {
 }
 
 class Translate implements Tool {
-    name:string = "translate tool";
+    name:string = "Translate";
     selectKey:string = "t";
     lastPos:Vertex;
     dragging:Boolean = false;
@@ -101,7 +101,7 @@ class Translate implements Tool {
 }
 
 class Extrude implements Tool {
-    name:string = "extrude tool";
+    name:string = "Extrude";
     selectKey:string = "e";
 
     extruding:Boolean = false;

@@ -69,6 +69,7 @@ var BuilderCanvas = /** @class */ (function () {
         this.zoom = 1.0;
         this.gridSize = 32;
         this.modeSelectionOffset = new Vertex(10, 74);
+        this.toolSpacing = 24;
         this.canvas = canvas;
         this.viewOffset = new Vertex(-Math.round(canvas.clientWidth * 0.5), -Math.round(canvas.clientHeight * 0.5));
         this.ctx = this.canvas.getContext('2d');
@@ -95,14 +96,6 @@ var BuilderCanvas = /** @class */ (function () {
         this.drawGrid();
         this.drawSectors(mapData.sectors);
         this.drawIcons();
-        // this.drawMapLines();
-        // this.drawDrawLines();
-        // if (Input.state == InputState.EXTRUDING) this.drawExtrudeLine();
-        // this.drawVertexes();
-        // this.drawSelectedLines();
-        // this.drawHighlightedLines();
-        // this.drawAnimLines();
-        //this.drawDebug();
     };
     BuilderCanvas.prototype.drawIcons = function () {
         this.ctx.drawImage(this.ICON_VERTEX_MODE, 10, 10, 64, 64);
@@ -114,7 +107,7 @@ var BuilderCanvas = /** @class */ (function () {
         this.ctx.moveTo(this.modeSelectionOffset.x, this.modeSelectionOffset.y);
         this.ctx.lineTo(this.modeSelectionOffset.x + 64, this.modeSelectionOffset.y);
         this.ctx.stroke();
-        this.ctx.font = "18px Ubuntu Mono";
+        this.ctx.textBaseline = "middle";
         for (var i = 0; i < tools.length; i++) {
             if (tools[i] == activeTool) {
                 this.ctx.fillStyle = this.ACTIVE_FONT_COLOR;
@@ -122,7 +115,19 @@ var BuilderCanvas = /** @class */ (function () {
             else {
                 this.ctx.fillStyle = this.INACTIVE_FONT_COLOR;
             }
-            this.ctx.fillText('[' + tools[i].selectKey + '] ' + tools[i].name, 10, 120 + (i * 20));
+            this.ctx.textAlign = "left";
+            this.ctx.font = "18px Ubuntu Mono";
+            this.ctx.fillText(tools[i].name, 40, 100 + (i * this.toolSpacing));
+            this.ctx.textAlign = "center";
+            this.ctx.fillStyle = this.ACTIVE_FONT_COLOR;
+            this.ctx.font = "12px Open Sans";
+            this.ctx.fillText(tools[i].selectKey.toLocaleUpperCase(), 20, 100 + (i * this.toolSpacing));
+            this.ctx.strokeStyle = this.ACTIVE_FONT_COLOR;
+            this.ctx.beginPath;
+            this.ctx.lineWidth = 1;
+            this.ctx.beginPath();
+            this.ctx.ellipse(20, 98.5 + (i * this.toolSpacing), 9, 9, 0, 0, Math.PI * 2);
+            this.ctx.stroke();
         }
     };
     //     drawDebug() {

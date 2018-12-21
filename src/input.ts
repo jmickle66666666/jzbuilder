@@ -9,7 +9,7 @@ class Input {
     static mouseGridPos:Vertex = new Vertex(0, 0);
 
     static viewDragging:boolean = false;
-    static mode:InputMode = InputMode.EDGE;
+    static mode:InputMode = InputMode.VERTEX;
 
     static lockModes:Boolean = false;
 
