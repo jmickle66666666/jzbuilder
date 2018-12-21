@@ -29,7 +29,8 @@ class Translate implements Tool {
     
     public onMouseDown():void {
         if (Input.mode == InputMode.VERTEX) {
-            this.activeVertices = mapData.getVerticesAt(Input.mouseGridPos);
+            let v = mapData.getNearestVertex(Input.mousePos);
+            this.activeVertices = mapData.getVerticesAt(v);
 
             if (this.activeVertices.length > 0) {
                 this.dragging = true;
@@ -82,7 +83,7 @@ class Translate implements Tool {
             }
         } else {
             if (Input.mode == InputMode.VERTEX) {
-                mainCanvas.highlightVertex(Input.mouseGridPos);
+                mainCanvas.highlightVertex(mapData.getNearestVertex(Input.mousePos));
             }
 
             if (Input.mode == InputMode.EDGE) {

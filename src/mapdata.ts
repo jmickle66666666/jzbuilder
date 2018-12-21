@@ -124,6 +124,27 @@ class MapData {
         return output;
     }
 
+    getNearestVertex(v:Vertex):Vertex {
+
+        let vertexes = new Array<Vertex>();
+        let edges = this.getAllEdges();
+        edges.forEach(e => {
+            vertexes.push(e.start);
+            vertexes.push(e.end);
+        });
+
+        let nDist = sqrDist(v, vertexes[0]);
+        let nVert = vertexes[0];
+        for (let i = 1; i < vertexes.length; i++) {
+            let d = sqrDist(v, vertexes[i]);
+            if (d < nDist) {
+                nDist = d;
+                nVert = vertexes[i];
+            }
+        }
+        return nVert;
+    }
+
 //     getLinesWithVertex(p:Vertex):Array<any> {
 //         let allLines:Array<Line> = this.getAllLines();
 //         if (allLines.length == 0) return null;

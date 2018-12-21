@@ -104,6 +104,24 @@ var MapData = /** @class */ (function () {
         }); });
         return output;
     };
+    MapData.prototype.getNearestVertex = function (v) {
+        var vertexes = new Array();
+        var edges = this.getAllEdges();
+        edges.forEach(function (e) {
+            vertexes.push(e.start);
+            vertexes.push(e.end);
+        });
+        var nDist = sqrDist(v, vertexes[0]);
+        var nVert = vertexes[0];
+        for (var i = 1; i < vertexes.length; i++) {
+            var d = sqrDist(v, vertexes[i]);
+            if (d < nDist) {
+                nDist = d;
+                nVert = vertexes[i];
+            }
+        }
+        return nVert;
+    };
     return MapData;
 }());
 //# sourceMappingURL=mapdata.js.map
