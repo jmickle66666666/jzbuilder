@@ -32,6 +32,9 @@ var Anim = /** @class */ (function () {
     Anim.prototype.lerp = function (a, b, amt) {
         return (b * amt) + (a * (1 - amt));
     };
+    Anim.prototype.cancel = function () {
+        Anim.remove(this);
+    };
     Anim.update = function () {
         if (this.animators == null)
             return;

@@ -15,7 +15,10 @@ var Input = /** @class */ (function () {
                 off += 74;
             if (mode == InputMode.SECTOR)
                 off += 74;
-            new Anim(mainCanvas.modeSelectionOffset, "x", off, 0.3);
+            if (this.lastAnim != null) {
+                this.lastAnim.cancel();
+            }
+            this.lastAnim = new Anim(mainCanvas.modeSelectionOffset, "x", off, 0.3);
         }
     };
     Input.mousePos = new Vertex(0, 0);

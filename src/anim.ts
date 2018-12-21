@@ -46,6 +46,10 @@ class Anim {
         return (b * amt) + (a * (1-amt));
     }
 
+    public cancel() {
+        Anim.remove(this);
+    }
+
     // STATIC
 
     public static animators:Array<Anim>;

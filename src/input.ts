@@ -13,6 +13,8 @@ class Input {
 
     static lockModes:Boolean = false;
 
+    static lastAnim:Anim;
+
     static switchMode(mode:InputMode) {
         if (Input.lockModes == false) {
             Input.mode = mode;
@@ -21,7 +23,11 @@ class Input {
             if (mode != InputMode.VERTEX) off += 74;
             if (mode == InputMode.SECTOR) off += 74;
 
-            new Anim(mainCanvas.modeSelectionOffset, "x", off, 0.3);
+            if (this.lastAnim != null) {
+                this.lastAnim.cancel();
+            }
+
+            this.lastAnim = new Anim(mainCanvas.modeSelectionOffset, "x", off, 0.3);
         }
     }
 }
