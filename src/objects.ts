@@ -28,19 +28,14 @@ class Sector {
 }
 
 class Edge {
-    // An edge is a bound of a sector
-    // An edge potentially has a link to another sector edge
-    // An edge has a dynamic, ordered list of modifiers 
-    // An edge has a start and an end, but a processed output too
-    // the processed output is the result of all the modifiers
 
     public start:Vertex;
     public end:Vertex;
-    public dirty:Boolean = true;
     public edgeLink:Edge;
-    public modifiers : Array<EdgeModifier>;
     public sector : Sector;
-
+    
+    public modifiers : Array<EdgeModifier>;
+    public dirty:Boolean = true;
     private processCache:ProcessedEdge;
     public process():ProcessedEdge {
         if (!this.dirty) {
