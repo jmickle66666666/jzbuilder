@@ -53,6 +53,12 @@ function onKeyDown(e) {
             changeTool(tools[i]);
         }
     }
+    if (e.key == "]") {
+        mainCanvas.gridSize *= 2;
+    }
+    if (e.key == "[") {
+        mainCanvas.gridSize /= 2;
+    }
     if (e.key == "Escape") {
         changeTool(tools[0]);
     }
