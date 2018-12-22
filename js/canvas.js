@@ -225,6 +225,8 @@ var BuilderCanvas = /** @class */ (function () {
         this.ctx.stroke();
     };
     BuilderCanvas.prototype.highlightSector = function (s) {
+        if (s == null)
+            return;
         this.drawBasicEdges(s.edges, this.HIGHLIGHT_COLOR, 5, false);
     };
     return BuilderCanvas;

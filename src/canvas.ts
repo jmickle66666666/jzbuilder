@@ -258,6 +258,7 @@ class BuilderCanvas {
     }
 
     public highlightSector(s:Sector) {
+        if (s == null) return;
         this.drawBasicEdges(s.edges, this.HIGHLIGHT_COLOR, 5, false);
     }
 }

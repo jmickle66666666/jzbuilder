@@ -27,8 +27,20 @@ var MapData = /** @class */ (function () {
         return output;
     };
     MapData.prototype.getNearestSector = function (p) {
-        var e = this.getNearestEdge(p);
-        return e.sector; // lol
+        if (this.sectors.length == 0)
+            return null;
+        var nDist = Number.MAX_VALUE;
+        var nSect = null;
+        this.sectors.forEach(function (s) {
+            if (s.rect.pointInBounds(p)) {
+                var d = sqrDist(p, s.rect.midPoint);
+                if (d < nDist) {
+                    nDist = d;
+                    nSect = s;
+                }
+            }
+        });
+        return nSect;
     };
     MapData.prototype.getNearestEdge = function (p) {
         var allEdges = this.getAllEdges();

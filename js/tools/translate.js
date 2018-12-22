@@ -5,7 +5,7 @@ var Translate = /** @class */ (function () {
         this.dragging = false;
         this.lastPos = Input.mouseGridPos;
     }
-    Translate.prototype.onMouseDown = function () {
+    Translate.prototype.onMouseDown = function (e) {
         if (Input.mode == InputMode.VERTEX) {
             var v = mapData.getNearestVertex(Input.mousePos);
             if (pointDistance(v, Input.mousePos) < 64) {
@@ -28,24 +28,26 @@ var Translate = /** @class */ (function () {
         }
         if (Input.mode == InputMode.SECTOR) {
             this.activeSector = mapData.getNearestSector(Input.mouseGridPos);
-            var verts_1 = new Array();
-            this.activeSector.edges.forEach(function (e) {
-                verts_1 = verts_1.concat(mapData.getVerticesAt(e.start));
-                verts_1 = verts_1.concat(mapData.getVerticesAt(e.end));
-            });
-            this.activeVertices = verts_1.filter(function (item, pos) {
-                return verts_1.indexOf(item) == pos;
-            });
-            this.dragging = true;
-            Input.lockModes = true;
-            this.lastPos = Input.mouseGridPos;
+            if (this.activeSector != null) {
+                var verts_1 = new Array();
+                this.activeSector.edges.forEach(function (e) {
+                    verts_1 = verts_1.concat(mapData.getVerticesAt(e.start));
+                    verts_1 = verts_1.concat(mapData.getVerticesAt(e.end));
+                });
+                this.activeVertices = verts_1.filter(function (item, pos) {
+                    return verts_1.indexOf(item) == pos;
+                });
+                this.dragging = true;
+                Input.lockModes = true;
+                this.lastPos = Input.mouseGridPos;
+            }
         }
     };
-    Translate.prototype.onMouseUp = function () {
+    Translate.prototype.onMouseUp = function (e) {
         this.dragging = false;
         Input.lockModes = false;
     };
-    Translate.prototype.onMouseMove = function () {
+    Translate.prototype.onMouseMove = function (e) {
         if (this.dragging) {
             if (!this.lastPos.equals(Input.mouseGridPos)) {
                 var diff_1 = Vertex.Subtract(Input.mouseGridPos, this.lastPos);

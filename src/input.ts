@@ -58,6 +58,10 @@ function onKeyDown(e : KeyboardEvent):void {
             changeTool(tools[i]);
         }
     }
+
+    if (e.key == "Escape") {
+        changeTool(tools[0]);
+    }
 }
 
 function onKeyUp(e:KeyboardEvent):void {
@@ -76,7 +80,7 @@ function onMouseMove(e:MouseEvent) {
     }
 
     if (activeTool.onMouseMove) {
-        activeTool.onMouseMove();
+        activeTool.onMouseMove(e);
     }
 }
 
@@ -100,12 +104,12 @@ function onMouseDown(e:MouseEvent) {
     e.preventDefault();
 
     if (activeTool.onMouseDown) {
-        activeTool.onMouseDown();
+        activeTool.onMouseDown(e);
     }
 }
 
 function onMouseUp(e:MouseEvent) {
     if (activeTool.onMouseUp) {
-        activeTool.onMouseUp();
+        activeTool.onMouseUp(e);
     }
 }

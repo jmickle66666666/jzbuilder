@@ -12,7 +12,7 @@ class Translate implements Tool {
         this.lastPos = Input.mouseGridPos;
     }
     
-    public onMouseDown():void {
+    public onMouseDown(e:MouseEvent):void {
         if (Input.mode == InputMode.VERTEX) {
             let v = mapData.getNearestVertex(Input.mousePos);
 
@@ -39,28 +39,31 @@ class Translate implements Tool {
 
         if (Input.mode == InputMode.SECTOR) {
             this.activeSector = mapData.getNearestSector(Input.mouseGridPos);
-            let verts = new Array<Vertex>();
-            this.activeSector.edges.forEach(e => {
-                verts = verts.concat(mapData.getVerticesAt(e.start));
-                verts = verts.concat(mapData.getVerticesAt(e.end));
-            });
 
-            this.activeVertices = verts.filter(function(item, pos) {
-                return verts.indexOf(item) == pos;
-            })
+            if (this.activeSector != null) {
+                let verts = new Array<Vertex>();
+                this.activeSector.edges.forEach(e => {
+                    verts = verts.concat(mapData.getVerticesAt(e.start));
+                    verts = verts.concat(mapData.getVerticesAt(e.end));
+                });
 
-            this.dragging = true;
-            Input.lockModes = true;
-            this.lastPos = Input.mouseGridPos;
+                this.activeVertices = verts.filter(function(item, pos) {
+                    return verts.indexOf(item) == pos;
+                })
+
+                this.dragging = true;
+                Input.lockModes = true;
+                this.lastPos = Input.mouseGridPos;
+            }
         }
     }
 
-    public onMouseUp():void {
+    public onMouseUp(e:MouseEvent):void {
         this.dragging = false
         Input.lockModes = false;
     }
 
-    public onMouseMove():void {
+    public onMouseMove(e:MouseEvent):void {
 
         if (this.dragging) {
             if (!this.lastPos.equals(Input.mouseGridPos)) {

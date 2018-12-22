@@ -7,17 +7,17 @@ var Extrude = /** @class */ (function () {
     Extrude.prototype.onSwitch = function () {
         Input.switchMode(InputMode.EDGE);
     };
-    Extrude.prototype.onMouseMove = function () {
+    Extrude.prototype.onMouseMove = function (e) {
         if (this.extruding) {
             this.translation = Vertex.Subtract(Input.mouseGridPos, this.initialPosition);
         }
     };
-    Extrude.prototype.onMouseDown = function () {
+    Extrude.prototype.onMouseDown = function (e) {
         if (Input.mode == InputMode.EDGE) {
             this.startExtrude(mapData.getNearestEdge(Input.mousePos));
         }
     };
-    Extrude.prototype.onMouseUp = function () {
+    Extrude.prototype.onMouseUp = function (e) {
         if (this.extruding) {
             this.extruding = false;
             this.applyExtrude();

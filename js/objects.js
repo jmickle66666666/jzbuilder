@@ -2,10 +2,31 @@ var Sector = /** @class */ (function () {
     function Sector() {
         this.edges = new Array();
     }
+    Object.defineProperty(Sector.prototype, "rect", {
+        get: function () {
+            if (this._rect)
+                return this._rect;
+            var minx = Number.MAX_VALUE;
+            var maxx = Number.MIN_VALUE;
+            var miny = Number.MAX_VALUE;
+            var maxy = Number.MIN_VALUE;
+            this.edges.forEach(function (e) {
+                minx = Math.min(minx, e.start.x, e.end.x);
+                miny = Math.min(miny, e.start.y, e.end.y);
+                maxx = Math.max(maxx, e.start.x, e.end.x);
+                maxy = Math.max(maxy, e.start.y, e.end.y);
+            });
+            this._rect = new Rect(minx, miny, maxx - minx, maxy - miny);
+            return this._rect;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Sector.prototype.update = function () {
         for (var i = 0; i < this.edges.length; i++) {
             this.edges[i].sector = this;
         }
+        this._rect = null;
     };
     Sector.prototype.nextEdge = function (edge) {
         var index = this.edges.indexOf(edge) + 1;
@@ -167,7 +188,6 @@ var Vertex = /** @class */ (function () {
     };
     return Vertex;
 }());
-// Probably defunct?
 var Rect = /** @class */ (function () {
     function Rect(x, y, width, height) {
         if (x === void 0) { x = 0; }

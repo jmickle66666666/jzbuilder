@@ -4,9 +4,9 @@ let tools:Array<Tool> = new Array<Tool>();
 interface Tool {
     name:string;
     selectKey:string;
-    onMouseDown?();
-    onMouseUp?();
-    onMouseMove?();
+    onMouseDown?(e:MouseEvent);
+    onMouseUp?(e:MouseEvent);
+    onMouseMove?(e:MouseEvent);
     onRender?();
     onSwitch?();
     onUnswitch?();

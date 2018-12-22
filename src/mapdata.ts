@@ -33,9 +33,22 @@ class MapData {
         return output;
     }
 
-    getNearestSector(p:Vertex):Sector { // this sucks
-        let e:Edge = this.getNearestEdge(p);
-        return e.sector; // lol
+    getNearestSector(p:Vertex):Sector { 
+        if (this.sectors.length == 0) return null;
+
+        let nDist = Number.MAX_VALUE;
+        let nSect = null;
+        this.sectors.forEach(s => {
+            if (s.rect.pointInBounds(p)) {
+                let d = sqrDist(p, s.rect.midPoint);
+                if (d < nDist) {
+                    nDist = d;
+                    nSect = s;
+                }
+            }
+        });
+
+        return nSect;
     }
 
     getNearestEdge(p:Vertex):Edge {

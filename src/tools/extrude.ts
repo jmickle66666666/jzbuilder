@@ -11,19 +11,19 @@ class Extrude implements Tool {
         Input.switchMode(InputMode.EDGE);
     }
 
-    public onMouseMove():void {
+    public onMouseMove(e:MouseEvent):void {
         if (this.extruding) {
             this.translation = Vertex.Subtract(Input.mouseGridPos, this.initialPosition);
         }
     }
 
-    public onMouseDown():void {
+    public onMouseDown(e:MouseEvent):void {
         if (Input.mode == InputMode.EDGE) {
             this.startExtrude(mapData.getNearestEdge(Input.mousePos));
         }
     }
 
-    public onMouseUp():void {
+    public onMouseUp(e:MouseEvent):void {
         if (this.extruding) {
             this.extruding = false;
             this.applyExtrude();

@@ -53,6 +53,9 @@ function onKeyDown(e) {
             changeTool(tools[i]);
         }
     }
+    if (e.key == "Escape") {
+        changeTool(tools[0]);
+    }
 }
 function onKeyUp(e) {
     dirty = true;
@@ -68,7 +71,7 @@ function onMouseMove(e) {
         mainCanvas.viewOffset.y -= e.movementY;
     }
     if (activeTool.onMouseMove) {
-        activeTool.onMouseMove();
+        activeTool.onMouseMove(e);
     }
 }
 function onMouseWheel(e) {
@@ -88,12 +91,12 @@ function onMouseWheel(e) {
 function onMouseDown(e) {
     e.preventDefault();
     if (activeTool.onMouseDown) {
-        activeTool.onMouseDown();
+        activeTool.onMouseDown(e);
     }
 }
 function onMouseUp(e) {
     if (activeTool.onMouseUp) {
-        activeTool.onMouseUp();
+        activeTool.onMouseUp(e);
     }
 }
 //# sourceMappingURL=input.js.map
