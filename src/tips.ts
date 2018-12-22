@@ -1,6 +1,6 @@
 var tips:Array<string> = [
     'welcome, to jz🅱️uilder2',
-    'extruding is fun! try it out with the E key!',
+    'extruding is fun! try it out with the W key!',
     // 'you can delete stuff with ctrl-backspace! mac CMD key isn\'t supported yet, for silly reasons',
     'wow! this tool is a lot of fun, huh?',
     'i hope you\'re doing ok! remember to reach out to friends you haven\'t caught up with in a while. they\'ll probably be very happy to hear from you!',
