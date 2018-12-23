@@ -1,7 +1,4 @@
-let activeTool:Tool;
-let tools:Array<Tool> = new Array<Tool>();
-
-interface Tool {
+interface ITool {
     name:string;
     selectKey:string;
     onMouseDown?(e:MouseEvent);
@@ -12,14 +9,20 @@ interface Tool {
     onUnswitch?();
 }
 
-function changeTool(tool:Tool) {
-    if (activeTool!= null && activeTool.onUnswitch) {
-        activeTool.onUnswitch();
-    }
+class Tool {
+    static activeTool:ITool;
 
-    activeTool = tool;
+    static tools:Array<ITool> = new Array<ITool>();
 
-    if (activeTool.onSwitch) {
-        activeTool.onSwitch();
+    static changeTool(tool:ITool) {
+        if (Tool.activeTool != null && Tool.activeTool.onUnswitch) {
+            Tool.activeTool.onUnswitch();
+        }
+    
+        Tool.activeTool = tool;
+    
+        if (Tool.activeTool.onSwitch) {
+            Tool.activeTool.onSwitch();
+        }
     }
 }

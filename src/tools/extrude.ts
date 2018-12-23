@@ -1,4 +1,4 @@
-class Extrude implements Tool {
+class Extrude implements ITool {
     name:string = "Extrude";
     selectKey:string = "w";
 

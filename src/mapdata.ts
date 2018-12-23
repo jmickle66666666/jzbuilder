@@ -40,7 +40,7 @@ class MapData {
         let nSect = null;
         this.sectors.forEach(s => {
             if (s.rect.pointInBounds(p)) {
-                let d = sqrDist(p, s.rect.midPoint);
+                let d = Util.sqrDist(p, s.rect.midPoint);
                 if (d < nDist) {
                     nDist = d;
                     nSect = s;
@@ -56,10 +56,10 @@ class MapData {
         if (allEdges.length == 0) return null;
         if (allEdges.length == 1) return allEdges[0];
 
-        let nDist = distToSegmentMidpoint(p, allEdges[0]);
+        let nDist = Util.distToEdgeMidpoint(p, allEdges[0]);
         let nEdge = allEdges[0];
         for (let i = 1; i < allEdges.length; i++) {
-            let d = distToSegmentMidpoint(p, allEdges[i]);
+            let d = Util.distToEdgeMidpoint(p, allEdges[i]);
             if (d < nDist) {
                 nDist = d;
                 nEdge = allEdges[i];
@@ -126,10 +126,10 @@ class MapData {
             vertexes.push(e.end);
         });
 
-        let nDist = sqrDist(v, vertexes[0]);
+        let nDist = Util.sqrDist(v, vertexes[0]);
         let nVert = vertexes[0];
         for (let i = 1; i < vertexes.length; i++) {
-            let d = sqrDist(v, vertexes[i]);
+            let d = Util.sqrDist(v, vertexes[i]);
             if (d < nDist) {
                 nDist = d;
                 nVert = vertexes[i];

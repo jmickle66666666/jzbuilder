@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "outDir": "./js/",
+        "outFile": "./js/jzbuilder.js",
         //"strictNullChecks": true,
         "target": "es5",
         "sourceMap": true

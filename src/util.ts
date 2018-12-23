@@ -1,14 +1,46 @@
 // lots commented out until i need it
 // this is because it might need updating and i'd rather fix that as i use them
 
-function sqrDist(p1:Vertex, p2:Vertex):number {
-    var a = p2.x - p1.x;
-    var b = p2.y - p1.y;
-    return a**2 + b**2;
+class Rect {
+    public topLeft : Vertex;
+    public bottomRight : Vertex;
+
+    public constructor (x:number = 0, y:number = 0, width:number = 0, height:number = 0) {
+        this.topLeft = new Vertex(x, y);
+        this.bottomRight = new Vertex(x + width, y + height);
+    }
+
+    public get midPoint():Vertex {
+        return new Vertex((this.topLeft.x + this.bottomRight.x) / 2, (this.topLeft.y + this.bottomRight.y) / 2);
+    }
+
+    public get width():number {
+        return this.bottomRight.x - this.topLeft.x;
+    }
+
+    public get height():number {
+        return this.bottomRight.y - this.topLeft.y;
+    }
+
+    public pointInBounds(p:Vertex):boolean {
+        return p.x >= this.topLeft.x && p.y >= this.topLeft.y && p.x < this.bottomRight.x && p.y < this.bottomRight.y;
+    }
 }
 
-function distToSegmentMidpoint(p:Vertex, l:Edge):number {
-    return sqrDist(p, new Vertex((l.start.x + l.end.x)/2, (l.start.y + l.end.y)/2));
+class Util {
+    static sqrDist(p1:Vertex, p2:Vertex):number {
+        var a = p2.x - p1.x;
+        var b = p2.y - p1.y;
+        return a**2 + b**2;
+    }
+
+    static distToEdgeMidpoint(p:Vertex, l:Edge):number {
+        return Util.sqrDist(p, new Vertex((l.start.x + l.end.x)/2, (l.start.y + l.end.y)/2));
+    }
+
+    static distance(a:Vertex, b:Vertex):number {
+        return Math.sqrt(Util.sqrDist(a, b));
+    }
 }
 
 class Color {
@@ -106,10 +138,6 @@ class Color {
 //     let c:number = pointDistance(p3, p1);
 //     return Math.acos(((a**2 + b**2) - c**2)/((a*b)*2));
 // }
-
-function pointDistance(a:Vertex, b:Vertex):number {
-    return Math.sqrt(sqrDist(a, b));
-}
 
 // function lineAngle(a:Vertex, b:Vertex):number {
 //     return Math.atan2(b.y - a.y, b.x - a.x);

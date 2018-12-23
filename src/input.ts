@@ -5,8 +5,8 @@ enum InputMode {
 }
 
 class Input {
-    static mousePos:Vertex = new Vertex(0, 0);
-    static mouseGridPos:Vertex = new Vertex(0, 0);
+    static mousePos:Vertex;
+    static mouseGridPos:Vertex;
 
     static viewDragging:boolean = false;
     static mode:InputMode = InputMode.VERTEX;
@@ -32,6 +32,9 @@ class Input {
     }
 
     static Initialise() {
+        this.mousePos = new Vertex(0, 0);
+        this.mouseGridPos = new Vertex(0, 0);
+
         window.addEventListener("keydown", onKeyDown);
         window.addEventListener("keyup", onKeyUp);
         mainCanvas.canvas.addEventListener("mousemove", onMouseMove);
@@ -53,9 +56,9 @@ function onKeyDown(e : KeyboardEvent):void {
     if (e.key == "2") Input.switchMode(InputMode.EDGE);
     if (e.key == "3") Input.switchMode(InputMode.SECTOR);
 
-    for (let i = 0; i < tools.length; i++) {
-        if (e.key == tools[i].selectKey) {
-            changeTool(tools[i]);
+    for (let i = 0; i < Tool.tools.length; i++) {
+        if (e.key == Tool.tools[i].selectKey) {
+            Tool.changeTool(Tool.tools[i]);
         }
     }
 
@@ -68,7 +71,7 @@ function onKeyDown(e : KeyboardEvent):void {
     }
 
     if (e.key == "Escape") {
-        changeTool(tools[0]);
+        Tool.changeTool(Tool.tools[0]);
     }
 }
 
@@ -87,8 +90,8 @@ function onMouseMove(e:MouseEvent) {
         mainCanvas.viewOffset.y -= e.movementY;
     }
 
-    if (activeTool.onMouseMove) {
-        activeTool.onMouseMove(e);
+    if (Tool.activeTool.onMouseMove) {
+        Tool.activeTool.onMouseMove(e);
     }
 }
 
@@ -111,13 +114,13 @@ function onMouseWheel(e:MouseWheelEvent) {
 function onMouseDown(e:MouseEvent) {
     e.preventDefault();
 
-    if (activeTool.onMouseDown) {
-        activeTool.onMouseDown(e);
+    if (Tool.activeTool.onMouseDown) {
+        Tool.activeTool.onMouseDown(e);
     }
 }
 
 function onMouseUp(e:MouseEvent) {
-    if (activeTool.onMouseUp) {
-        activeTool.onMouseUp(e);
+    if (Tool.activeTool.onMouseUp) {
+        Tool.activeTool.onMouseUp(e);
     }
 }

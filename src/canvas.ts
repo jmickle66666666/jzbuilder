@@ -89,20 +89,20 @@ class BuilderCanvas {
         this.ctx.font = "18px Ubuntu Mono";
         this.ctx.fillText("Tools", 20, 110);
         
-        for (let i = 0; i < tools.length; i++) {
-            if (tools[i] == activeTool) {
+        for (let i = 0; i < Tool.tools.length; i++) {
+            if (Tool.tools[i] == Tool.activeTool) {
                 this.ctx.fillStyle = this.ACTIVE_FONT_COLOR;
             } else {
                 this.ctx.fillStyle = this.INACTIVE_FONT_COLOR;
             }
             this.ctx.textAlign = "left";
             this.ctx.font = "18px Ubuntu Mono";
-            this.ctx.fillText(tools[i].name, 40, 140 + (i*this.toolSpacing));
+            this.ctx.fillText(Tool.tools[i].name, 40, 140 + (i*this.toolSpacing));
 
             this.ctx.textAlign = "center";
             this.ctx.fillStyle = this.ACTIVE_FONT_COLOR;
             this.ctx.font = "12px Open Sans";
-            this.ctx.fillText(tools[i].selectKey.toLocaleUpperCase(), 20, 140 + (i*this.toolSpacing));
+            this.ctx.fillText(Tool.tools[i].selectKey.toLocaleUpperCase(), 20, 140 + (i*this.toolSpacing));
 
             this.ctx.strokeStyle = this.ACTIVE_FONT_COLOR;
             this.ctx.beginPath;

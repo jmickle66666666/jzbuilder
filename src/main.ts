@@ -1,17 +1,24 @@
 
 let mainCanvas : BuilderCanvas;
 let mapData : MapData;
-let dirty:Boolean;
+let dirty : Boolean;
 
 function init() {
+    window.setInterval(update, 1000/60);
+
+    window.addEventListener("resize", function() {
+        mainCanvas = new BuilderCanvas(document.getElementById("maincanvas") as HTMLCanvasElement);
+        render();
+    });
+
     mapData = new MapData();
     mainCanvas = new BuilderCanvas(document.getElementById("maincanvas") as HTMLCanvasElement);
     dirty = true;
 
-    tools.push(new Translate());
-    tools.push(new Extrude());
+    Tool.tools.push(new BaseTool());
+    Tool.tools.push(new Extrude());
 
-    changeTool(tools[0]);
+    Tool.changeTool(Tool.tools[0]);
 
     Input.Initialise()
 }
@@ -27,15 +34,10 @@ function update() {
 function render() {
     mainCanvas.redraw();
     Anim.render();
-    if (activeTool.onRender) {
-        activeTool.onRender();
+    if (Tool.activeTool.onRender) {
+        Tool.activeTool.onRender();
     }
 }
 
-init();
-window.setInterval(update, 1000/60);
+window.addEventListener("load", init);
 
-window.addEventListener("resize", function() {
-    mainCanvas = new BuilderCanvas(document.getElementById("maincanvas") as HTMLCanvasElement);
-    render();
-});
