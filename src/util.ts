@@ -41,6 +41,19 @@ class Util {
     static distance(a:Vertex, b:Vertex):number {
         return Math.sqrt(Util.sqrDist(a, b));
     }
+
+    // From: https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
+    static sqr(x) { return x * x }
+    static dist2(v, w) { return Util.sqr(v.x - w.x) + Util.sqr(v.y - w.y) }
+    static distToSegmentSquared(p, v, w) {
+        var l2 = Util.dist2(v, w);
+        if (l2 == 0) return Util.dist2(p, v);
+        var t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+        t = Math.max(0, Math.min(1, t));
+        return Util.dist2(p, { x: v.x + t * (w.x - v.x),
+                            y: v.y + t * (w.y - v.y) });
+    }
+    static distToSegment(p, v, w) { return Math.sqrt(Util.distToSegmentSquared(p, v, w)); }
 }
 
 class Color {
@@ -55,6 +68,7 @@ class Color {
     }
 
     public static rgbaToHex(r:number, g:number, b:number, a:number):string {
+        a = Math.min(1.0, Math.max(0.0, a));
         return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b) + this.componentToHex(a);
     }
 

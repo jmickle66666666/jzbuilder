@@ -17,6 +17,7 @@ function init() {
 
     Tool.tools.push(new BaseTool());
     Tool.tools.push(new Extrude());
+    Tool.tools.push(new Split());
 
     Tool.changeTool(Tool.tools[0]);
 

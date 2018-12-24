@@ -1,6 +1,7 @@
 interface ITool {
     name:string;
     selectKey:string;
+    cursor?:string;
     onMouseDown?(e:MouseEvent);
     onMouseUp?(e:MouseEvent);
     onMouseMove?(e:MouseEvent);
@@ -21,6 +22,12 @@ class Tool {
         }
     
         Tool.activeTool = tool;
+
+        if (Tool.activeTool.cursor) {
+            document.body.style.cursor = Tool.activeTool.cursor;
+        } else {
+            document.body.style.cursor = "";
+        }
     
         if (Tool.activeTool.onSwitch) {
             Tool.activeTool.onSwitch();

@@ -26,6 +26,9 @@ class BaseTool implements ITool {
 
     public onModeChange(mode:InputMode) {
         // Select edges of selected sectors, select vertexes of selected edges
+        this.selectedVertexes.length = 0;
+        this.selectedEdges.length = 0;
+        this.selectedSectors.length = 0;
     }
     
     public onMouseDown(e:MouseEvent):void {
@@ -43,8 +46,6 @@ class BaseTool implements ITool {
         if (!this.dragged) {
 
             if (!Input.shiftHeld) {
-                // Holding shift will concat selection, so otherwise we should clear the selection
-    
                 this.selectedVertexes.length = 0;
                 this.selectedEdges.length = 0;
                 this.selectedSectors.length = 0;

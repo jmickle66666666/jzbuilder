@@ -239,11 +239,11 @@ class BuilderCanvas {
         }
     }
 
-    public highlightVertex(v:Vertex, color:string = this.HIGHLIGHT_COLOR) {
+    public highlightVertex(v:Vertex, color:string = this.HIGHLIGHT_COLOR, size:number = 5) {
         let p = this.posToView(v);
         this.ctx.fillStyle = color;
         this.ctx.beginPath();
-        this.ctx.ellipse(p.x, p.y, 5, 5, 0, 0, Math.PI * 2);
+        this.ctx.ellipse(p.x, p.y, size, size, 0, 0, Math.PI * 2);
         this.ctx.fill();
     }
 

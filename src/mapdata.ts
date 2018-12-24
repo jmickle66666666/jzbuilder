@@ -19,8 +19,8 @@ class MapData {
         s.edges.push(new Edge(v[2], v[1]));
         s.edges.push(new Edge(v[1], v[0]));
         s.edges.push(new Edge(v[0], v[3]));
-        s.edges[1].modifiers.push(new EdgeSubdivider(3));
-        s.edges[1].modifiers.push(new EdgeInset(8, 0));
+        // s.edges[1].modifiers.push(new EdgeSubdivider(3));
+        // s.edges[1].modifiers.push(new EdgeInset(8, 0));
         s.update();
         this.sectors.push(s);
     }
@@ -56,10 +56,10 @@ class MapData {
         if (allEdges.length == 0) return null;
         if (allEdges.length == 1) return allEdges[0];
 
-        let nDist = Util.distToEdgeMidpoint(p, allEdges[0]);
+        let nDist = Util.distToSegmentSquared(p, allEdges[0].start, allEdges[1].end);
         let nEdge = allEdges[0];
         for (let i = 1; i < allEdges.length; i++) {
-            let d = Util.distToEdgeMidpoint(p, allEdges[i]);
+            let d = Util.distToSegmentSquared(p, allEdges[i].start, allEdges[i].end);
             if (d < nDist) {
                 nDist = d;
                 nEdge = allEdges[i];
@@ -149,6 +149,34 @@ class MapData {
             }
         }
         return nVert;
+    }
+
+    splitLinesAt(v:Vertex):boolean {
+        let output = false;
+        this.sectors.forEach(s => {
+            s.edges.forEach(e => {
+                if (Util.distToSegmentSquared(v, e.start, e.end) < 1) {
+                    e.split(v);
+                    output = true;
+                }
+            });
+        });
+        return output;
+    }
+
+    updateEdgePairs():void {
+
+        let edges = this.getAllEdges();
+
+        edges.forEach(e1 => {
+            edges.forEach(e2 => {
+                if (e1.start.equals(e2.end) && e1.end.equals(e2.start)) {
+                    e1.edgeLink = e2;
+                    e2.edgeLink = e1;
+                }
+            });
+        });
+        
     }
 
     // Keeping this in case there's something i can take from it

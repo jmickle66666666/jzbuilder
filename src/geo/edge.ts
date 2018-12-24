@@ -89,10 +89,36 @@ class Edge {
         this.dirty = true;
     }
 
+    public split(v:Vertex):Edge {
+        if (v.equals(this.start) || v.equals(this.end)) return;
+        let newLine = new Edge(v, this.end);
+        this.end = v;
+        this.sector.edges.splice(this.sector.edges.indexOf(this) + 1, 0, newLine);
+        this.dirty = true;
+        this.sector.update();
+        return newLine;
+    }
+
+    public splitAtExistingVertexes() {
+        mapData.sectors.forEach(s => {
+            s.edges.forEach(e => {
+                if (Util.distToSegmentSquared(e.start, this.start, this.end) < 1) {
+                    this.split(e.start);
+                } else if (Util.distToSegmentSquared(e.end, this.start, this.end) < 1) {
+                    this.split(e.end);
+                }
+            });
+        });
+    }
+
     public clearModifiers() {
         this.modifiers = new Array<EdgeModifier>();
         this.processCache = null;
         this.dirty = true;
+    }
+
+    public getAngle():number {
+        return Math.atan2(this.end.y - this.start.y, this.end.x - this.start.x);
     }
 }
 

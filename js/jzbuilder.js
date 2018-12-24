@@ -268,12 +268,13 @@ var BuilderCanvas = /** @class */ (function () {
             this.drawVertex(edges[i].end);
         }
     };
-    BuilderCanvas.prototype.highlightVertex = function (v, color) {
+    BuilderCanvas.prototype.highlightVertex = function (v, color, size) {
         if (color === void 0) { color = this.HIGHLIGHT_COLOR; }
+        if (size === void 0) { size = 5; }
         var p = this.posToView(v);
         this.ctx.fillStyle = color;
         this.ctx.beginPath();
-        this.ctx.ellipse(p.x, p.y, 5, 5, 0, 0, Math.PI * 2);
+        this.ctx.ellipse(p.x, p.y, size, size, 0, 0, Math.PI * 2);
         this.ctx.fill();
     };
     BuilderCanvas.prototype.highlightEdge = function (e, color) {
@@ -426,6 +427,7 @@ function init() {
     dirty = true;
     Tool.tools.push(new BaseTool());
     Tool.tools.push(new Extrude());
+    Tool.tools.push(new Split());
     Tool.changeTool(Tool.tools[0]);
     Input.Initialise();
 }
@@ -460,8 +462,8 @@ var MapData = /** @class */ (function () {
         s.edges.push(new Edge(v[2], v[1]));
         s.edges.push(new Edge(v[1], v[0]));
         s.edges.push(new Edge(v[0], v[3]));
-        s.edges[1].modifiers.push(new EdgeSubdivider(3));
-        s.edges[1].modifiers.push(new EdgeInset(8, 0));
+        // s.edges[1].modifiers.push(new EdgeSubdivider(3));
+        // s.edges[1].modifiers.push(new EdgeInset(8, 0));
         s.update();
         this.sectors.push(s);
     };
@@ -494,10 +496,10 @@ var MapData = /** @class */ (function () {
             return null;
         if (allEdges.length == 1)
             return allEdges[0];
-        var nDist = Util.distToEdgeMidpoint(p, allEdges[0]);
+        var nDist = Util.distToSegmentSquared(p, allEdges[0].start, allEdges[1].end);
         var nEdge = allEdges[0];
         for (var i = 1; i < allEdges.length; i++) {
-            var d = Util.distToEdgeMidpoint(p, allEdges[i]);
+            var d = Util.distToSegmentSquared(p, allEdges[i].start, allEdges[i].end);
             if (d < nDist) {
                 nDist = d;
                 nEdge = allEdges[i];
@@ -580,6 +582,29 @@ var MapData = /** @class */ (function () {
         }
         return nVert;
     };
+    MapData.prototype.splitLinesAt = function (v) {
+        var output = false;
+        this.sectors.forEach(function (s) {
+            s.edges.forEach(function (e) {
+                if (Util.distToSegmentSquared(v, e.start, e.end) < 1) {
+                    e.split(v);
+                    output = true;
+                }
+            });
+        });
+        return output;
+    };
+    MapData.prototype.updateEdgePairs = function () {
+        var edges = this.getAllEdges();
+        edges.forEach(function (e1) {
+            edges.forEach(function (e2) {
+                if (e1.start.equals(e2.end) && e1.end.equals(e2.start)) {
+                    e1.edgeLink = e2;
+                    e2.edgeLink = e1;
+                }
+            });
+        });
+    };
     return MapData;
 }());
 var tips = [
@@ -607,6 +632,12 @@ var Tool = /** @class */ (function () {
             Tool.activeTool.onUnswitch();
         }
         Tool.activeTool = tool;
+        if (Tool.activeTool.cursor) {
+            document.body.style.cursor = Tool.activeTool.cursor;
+        }
+        else {
+            document.body.style.cursor = "";
+        }
         if (Tool.activeTool.onSwitch) {
             Tool.activeTool.onSwitch();
         }
@@ -665,6 +696,19 @@ var Util = /** @class */ (function () {
     Util.distance = function (a, b) {
         return Math.sqrt(Util.sqrDist(a, b));
     };
+    // From: https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
+    Util.sqr = function (x) { return x * x; };
+    Util.dist2 = function (v, w) { return Util.sqr(v.x - w.x) + Util.sqr(v.y - w.y); };
+    Util.distToSegmentSquared = function (p, v, w) {
+        var l2 = Util.dist2(v, w);
+        if (l2 == 0)
+            return Util.dist2(p, v);
+        var t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+        t = Math.max(0, Math.min(1, t));
+        return Util.dist2(p, { x: v.x + t * (w.x - v.x),
+            y: v.y + t * (w.y - v.y) });
+    };
+    Util.distToSegment = function (p, v, w) { return Math.sqrt(Util.distToSegmentSquared(p, v, w)); };
     return Util;
 }());
 var Color = /** @class */ (function () {
@@ -679,6 +723,7 @@ var Color = /** @class */ (function () {
         return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
     };
     Color.rgbaToHex = function (r, g, b, a) {
+        a = Math.min(1.0, Math.max(0.0, a));
         return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b) + this.componentToHex(a);
     };
     Color.random = function () {
@@ -890,10 +935,36 @@ var Edge = /** @class */ (function () {
         }
         this.dirty = true;
     };
+    Edge.prototype.split = function (v) {
+        if (v.equals(this.start) || v.equals(this.end))
+            return;
+        var newLine = new Edge(v, this.end);
+        this.end = v;
+        this.sector.edges.splice(this.sector.edges.indexOf(this) + 1, 0, newLine);
+        this.dirty = true;
+        this.sector.update();
+        return newLine;
+    };
+    Edge.prototype.splitAtExistingVertexes = function () {
+        var _this = this;
+        mapData.sectors.forEach(function (s) {
+            s.edges.forEach(function (e) {
+                if (Util.distToSegmentSquared(e.start, _this.start, _this.end) < 1) {
+                    _this.split(e.start);
+                }
+                else if (Util.distToSegmentSquared(e.end, _this.start, _this.end) < 1) {
+                    _this.split(e.end);
+                }
+            });
+        });
+    };
     Edge.prototype.clearModifiers = function () {
         this.modifiers = new Array();
         this.processCache = null;
         this.dirty = true;
+    };
+    Edge.prototype.getAngle = function () {
+        return Math.atan2(this.end.y - this.start.y, this.end.x - this.start.x);
     };
     return Edge;
 }());
@@ -992,6 +1063,9 @@ var BaseTool = /** @class */ (function () {
     }
     BaseTool.prototype.onModeChange = function (mode) {
         // Select edges of selected sectors, select vertexes of selected edges
+        this.selectedVertexes.length = 0;
+        this.selectedEdges.length = 0;
+        this.selectedSectors.length = 0;
     };
     BaseTool.prototype.onMouseDown = function (e) {
         this.dragged = false;
@@ -1003,7 +1077,6 @@ var BaseTool = /** @class */ (function () {
         Input.lockModes = false;
         if (!this.dragged) {
             if (!Input.shiftHeld) {
-                // Holding shift will concat selection, so otherwise we should clear the selection
                 this.selectedVertexes.length = 0;
                 this.selectedEdges.length = 0;
                 this.selectedSectors.length = 0;
@@ -1124,9 +1197,23 @@ var Extrude = /** @class */ (function () {
     Extrude.prototype.onSwitch = function () {
         Input.switchMode(InputMode.EDGE);
     };
+    Extrude.prototype.onUnswitch = function () {
+        document.body.style.cursor = '';
+    };
     Extrude.prototype.onMouseMove = function (e) {
         if (this.extruding) {
             this.translation = Vertex.Subtract(Input.mouseGridPos, this.initialPosition);
+        }
+        else {
+            var angle = mapData.getNearestEdge(Input.mousePos).getAngle();
+            angle = -angle;
+            while (angle < 0)
+                angle += Math.PI * 2;
+            angle += Math.PI / 2;
+            angle %= Math.PI;
+            angle /= Math.PI;
+            // console.log(angle);
+            document.body.style.cursor = Extrude.cursors[Math.round((angle * Extrude.cursors.length) + 0.25)];
         }
     };
     Extrude.prototype.onMouseDown = function (e) {
@@ -1160,11 +1247,16 @@ var Extrude = /** @class */ (function () {
         newSector.edges.push(edge3);
         newSector.edges.push(edge2);
         newSector.update();
+        mapData.splitLinesAt(edge3.start);
+        mapData.splitLinesAt(edge3.end);
+        edge1.splitAtExistingVertexes();
+        edge2.splitAtExistingVertexes();
+        edge3.splitAtExistingVertexes();
+        edge4.splitAtExistingVertexes();
         mapData.sectors.push(newSector);
         this.targetEdge.clearModifiers();
         this.targetEdge.dirty = true;
-        this.targetEdge.edgeLink = edge1;
-        edge1.edgeLink = this.targetEdge;
+        mapData.updateEdgePairs();
         var animEdge = {
             edges: [edge1, edge2, edge3, edge4],
             alpha: 1
@@ -1187,6 +1279,41 @@ var Extrude = /** @class */ (function () {
             }
         }
     };
+    Extrude.cursors = [
+        "ew-resize",
+        "nesw-resize",
+        "ns-resize",
+        "nwse-resize"
+    ];
     return Extrude;
+}());
+var Split = /** @class */ (function () {
+    function Split() {
+        this.name = "Split";
+        this.selectKey = "e";
+    }
+    Split.prototype.onMouseDown = function (e) {
+        if (mapData.splitLinesAt(Input.mouseGridPos)) {
+            var ov_1 = {
+                v: Input.mouseGridPos.clone(),
+                a: 2
+            };
+            new Anim(ov_1, "a", 0, 0.2, null, function () {
+                mainCanvas.highlightVertex(ov_1.v, Color.rgbaToHex(1, 0.5, 0.95, ov_1.a), 2 + Math.max(0, (1.0 - ov_1.a) * 10));
+            });
+        }
+    };
+    Split.prototype.onSwitch = function () {
+        Input.switchMode(InputMode.EDGE);
+        Input.lockModes = true;
+    };
+    Split.prototype.onUnswitch = function () {
+        Input.lockModes = false;
+    };
+    Split.prototype.onRender = function () {
+        mainCanvas.highlightVertex(Input.mouseGridPos);
+        // mainCanvas.highlightEdge(mapData.getNearestEdge(Input.mouseGridPos));
+    };
+    return Split;
 }());
 //# sourceMappingURL=jzbuilder.js.map

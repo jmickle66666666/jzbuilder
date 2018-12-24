@@ -2,6 +2,13 @@ class Extrude implements ITool {
     name:string = "Extrude";
     selectKey:string = "w";
 
+    static cursors:string[] = [
+        "ew-resize",
+        "nesw-resize",
+        "ns-resize",
+        "nwse-resize"
+    ]
+
     extruding:Boolean = false;
     targetEdge:Edge;
     translation:Vertex;
@@ -10,10 +17,30 @@ class Extrude implements ITool {
     public onSwitch():void {
         Input.switchMode(InputMode.EDGE);
     }
+    
+    public onUnswitch():void {
+        document.body.style.cursor = '';
+    }
 
     public onMouseMove(e:MouseEvent):void {
         if (this.extruding) {
             this.translation = Vertex.Subtract(Input.mouseGridPos, this.initialPosition);
+        } else {
+            let angle = mapData.getNearestEdge(Input.mousePos).getAngle();
+
+            angle = -angle;
+
+            while (angle < 0) angle += Math.PI * 2;
+
+            angle += Math.PI / 2;
+
+            angle %= Math.PI;
+
+            angle /= Math.PI;
+
+            // console.log(angle);
+
+            document.body.style.cursor = Extrude.cursors[Math.round((angle*Extrude.cursors.length) + 0.25)];
         }
     }
 
@@ -52,12 +79,21 @@ class Extrude implements ITool {
         newSector.edges.push(edge3);
         newSector.edges.push(edge2);
         newSector.update();
+
+        mapData.splitLinesAt(edge3.start);
+        mapData.splitLinesAt(edge3.end);
+
+        edge1.splitAtExistingVertexes();
+        edge2.splitAtExistingVertexes();
+        edge3.splitAtExistingVertexes();
+        edge4.splitAtExistingVertexes();
+
         mapData.sectors.push(newSector);
 
         this.targetEdge.clearModifiers();
         this.targetEdge.dirty = true;
-        this.targetEdge.edgeLink = edge1;
-        edge1.edgeLink = this.targetEdge;
+
+        mapData.updateEdgePairs();
 
         let animEdge = {
             edges : [edge1, edge2, edge3, edge4],
