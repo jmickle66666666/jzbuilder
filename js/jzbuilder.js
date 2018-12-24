@@ -639,6 +639,9 @@ var Tool = /** @class */ (function () {
             Tool.activeTool.onSwitch();
         }
     };
+    Tool.defaultTool = function () {
+        Tool.changeTool(Tool.tools[0]);
+    };
     Tool.tools = new Array();
     return Tool;
 }());
@@ -1072,11 +1075,40 @@ var BaseTool = /** @class */ (function () {
         this.selectedVertexes.length = 0;
         this.selectedEdges.length = 0;
         this.selectedSectors.length = 0;
+        this.updateActiveVertexes();
     };
     BaseTool.prototype.onMouseDown = function (e) {
-        this.dragged = false;
-        this.dragging = true;
-        this.lastPos = Input.mouseGridPos;
+        if (e.button == 0) {
+            this.dragged = false;
+            this.dragging = true;
+            this.lastPos = Input.mouseGridPos;
+        }
+        else if (e.button == 2) {
+            if (Input.mode == InputMode.VERTEX && this.selectedVertexes.length != 0) {
+                ContextMenu.create(new MenuItem("Selected Vertexes: " + this.selectedVertexes.length, null));
+            }
+            else if (Input.mode == InputMode.EDGE && this.selectedEdges.length != 0) {
+                if (this.selectedEdges.length == 1) {
+                    var edge_1 = this.selectedEdges[0];
+                    ContextMenu.create(new MenuItem("Split edge", function () {
+                        edge_1.split(edge_1.getMidpoint());
+                    }));
+                }
+                // ContextMenu.create(
+                //     new MenuItem(
+                //         "Selected Edges: " + this.selectedEdges.length,
+                //         null
+                //     )
+                // );
+            }
+            else if (Input.mode == InputMode.SECTOR && this.selectedSectors.length != 0) {
+                ContextMenu.create(new MenuItem("Selected Sectors: " + this.selectedSectors.length, null));
+            }
+            else {
+                // general menu!
+                ContextMenu.create(new MenuItem("Test", function () { console.log("clicked Test item"); }));
+            }
+        }
     };
     BaseTool.prototype.onMouseUp = function (e) {
         this.dragging = false;
@@ -1198,6 +1230,87 @@ var BaseTool = /** @class */ (function () {
         });
     };
     return BaseTool;
+}());
+var ContextMenu = /** @class */ (function () {
+    function ContextMenu(position) {
+        var items = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            items[_i - 1] = arguments[_i];
+        }
+        var _this = this;
+        this.name = "menu";
+        this.selectKey = "none";
+        this.position = position;
+        this.items = items;
+        dirty = true;
+        this.width = 0;
+        this.items.forEach(function (i) {
+            _this.width = Math.max(_this.width, i.label.length * 8);
+        });
+        this.width += 8;
+    }
+    ContextMenu.prototype.onMouseDown = function (e) {
+        if (e.button == 0) {
+            var index = this.getMouseItemIndex();
+            if (index != -1) {
+                if (this.items[index].onClick) {
+                    this.items[index].onClick();
+                    Tool.defaultTool();
+                }
+            }
+            else {
+                Tool.defaultTool();
+            }
+        }
+    };
+    ContextMenu.prototype.onRender = function () {
+        var pos = mainCanvas.posToView(this.position);
+        mainCanvas.ctx.fillStyle = ContextMenu.fillColor;
+        mainCanvas.ctx.fillRect(pos.x, pos.y, this.width, ContextMenu.itemSpacing * this.items.length);
+        var index = this.getMouseItemIndex();
+        if (index != -1) {
+            mainCanvas.ctx.fillStyle = ContextMenu.selectFillColor;
+            mainCanvas.ctx.fillRect(pos.x, pos.y + this.getMouseItemIndex() * ContextMenu.itemSpacing, this.width, ContextMenu.itemSpacing);
+        }
+        mainCanvas.ctx.textAlign = "left";
+        mainCanvas.ctx.textBaseline = "bottom";
+        mainCanvas.ctx.font = "16px Ubuntu Mono";
+        mainCanvas.ctx.fillStyle = ContextMenu.textColor;
+        for (var i = 0; i < this.items.length; i++) {
+            var m = this.items[i];
+            mainCanvas.ctx.fillText(m.label, pos.x + 4, pos.y + ((i + 0.8) * ContextMenu.itemSpacing));
+        }
+    };
+    ContextMenu.prototype.getMouseItemIndex = function () {
+        if (Input.mousePos.x < this.position.x)
+            return -1;
+        if (Input.mousePos.y < this.position.y)
+            return -1;
+        if (Input.mousePos.y >= this.position.y + (this.items.length * ContextMenu.itemSpacing))
+            return -1;
+        if (Input.mousePos.x >= this.position.x + this.width)
+            return -1;
+        return Math.floor((Input.mousePos.y - this.position.y) / ContextMenu.itemSpacing);
+    };
+    ContextMenu.create = function () {
+        var items = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            items[_i] = arguments[_i];
+        }
+        Tool.changeTool(new (ContextMenu.bind.apply(ContextMenu, [void 0, Input.mousePos].concat(items)))());
+    };
+    ContextMenu.fillColor = Color.rgbToHex(0.2, 0.2, 0.2);
+    ContextMenu.selectFillColor = Color.rgbToHex(0.4, 0.4, 0.4);
+    ContextMenu.textColor = Color.rgbToHex(1, 1, 1);
+    ContextMenu.itemSpacing = 26;
+    return ContextMenu;
+}());
+var MenuItem = /** @class */ (function () {
+    function MenuItem(label, onClick) {
+        this.label = label;
+        this.onClick = onClick;
+    }
+    return MenuItem;
 }());
 var Extrude = /** @class */ (function () {
     function Extrude() {

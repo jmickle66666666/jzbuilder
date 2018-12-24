@@ -29,13 +29,62 @@ class BaseTool implements ITool {
         this.selectedVertexes.length = 0;
         this.selectedEdges.length = 0;
         this.selectedSectors.length = 0;
+        this.updateActiveVertexes();
     }
     
     public onMouseDown(e:MouseEvent):void {
+        if (e.button == 0) {
+            this.dragged = false;
+            this.dragging = true;
+            this.lastPos = Input.mouseGridPos;
+        } else if (e.button == 2) {
 
-        this.dragged = false;
-        this.dragging = true;
-        this.lastPos = Input.mouseGridPos;
+            if (Input.mode == InputMode.VERTEX && this.selectedVertexes.length != 0) {
+
+                ContextMenu.create(
+                    new MenuItem(
+                        "Selected Vertexes: " + this.selectedVertexes.length,
+                        null
+                    )
+                );
+
+            } else if (Input.mode == InputMode.EDGE && this.selectedEdges.length != 0) {
+
+                if (this.selectedEdges.length == 1) {
+
+                    let edge = this.selectedEdges[0];
+                    ContextMenu.create(
+                        new MenuItem(
+                            "Split edge",
+                            function () {
+                                edge.split(edge.getMidpoint());
+                            }
+                        )
+                    );
+                }
+
+            } else if (Input.mode == InputMode.SECTOR && this.selectedSectors.length != 0) {
+
+                ContextMenu.create(
+                    new MenuItem(
+                        "Selected Sectors: " + this.selectedSectors.length,
+                        null
+                    )
+                );
+
+            } else {
+                // general menu!
+
+                ContextMenu.create(
+                    new MenuItem(
+                        "Test",
+                        function() { console.log("clicked Test item") }
+                    )
+                );
+
+            }
+
+        }
 
     }
 

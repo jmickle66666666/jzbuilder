@@ -33,4 +33,8 @@ class Tool {
             Tool.activeTool.onSwitch();
         }
     }
+
+    static defaultTool() {
+        Tool.changeTool(Tool.tools[0]);
+    }
 }
