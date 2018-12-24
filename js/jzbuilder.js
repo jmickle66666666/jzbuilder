@@ -69,6 +69,7 @@ var BuilderCanvas = /** @class */ (function () {
         this.MAPPROCLINE_COLOR = "#ffcc88";
         this.VERTEX_COLOR = "#FF9944";
         this.HIGHLIGHT_COLOR = "#FFFFFF55";
+        this.SELECTION_COLOR = "#FFDD8855";
         this.ACTIVE_FONT_COLOR = "#FFFFFFFF";
         this.INACTIVE_FONT_COLOR = "#FFFFFF77";
         this.VERTEX_SIZE = 2;
@@ -267,16 +268,18 @@ var BuilderCanvas = /** @class */ (function () {
             this.drawVertex(edges[i].end);
         }
     };
-    BuilderCanvas.prototype.highlightVertex = function (v) {
+    BuilderCanvas.prototype.highlightVertex = function (v, color) {
+        if (color === void 0) { color = this.HIGHLIGHT_COLOR; }
         var p = this.posToView(v);
-        this.ctx.fillStyle = this.HIGHLIGHT_COLOR;
+        this.ctx.fillStyle = color;
         this.ctx.beginPath();
         this.ctx.ellipse(p.x, p.y, 5, 5, 0, 0, Math.PI * 2);
         this.ctx.fill();
     };
-    BuilderCanvas.prototype.highlightEdge = function (e) {
+    BuilderCanvas.prototype.highlightEdge = function (e, color) {
+        if (color === void 0) { color = this.HIGHLIGHT_COLOR; }
         var p = this.posToView(e.start);
-        this.ctx.strokeStyle = this.HIGHLIGHT_COLOR;
+        this.ctx.strokeStyle = color;
         this.ctx.lineWidth = 5;
         this.ctx.beginPath();
         this.ctx.moveTo(p.x, p.y);
@@ -284,10 +287,11 @@ var BuilderCanvas = /** @class */ (function () {
         this.ctx.lineTo(p.x, p.y);
         this.ctx.stroke();
     };
-    BuilderCanvas.prototype.highlightSector = function (s) {
+    BuilderCanvas.prototype.highlightSector = function (s, color) {
+        if (color === void 0) { color = this.HIGHLIGHT_COLOR; }
         if (s == null)
             return;
-        this.drawBasicEdges(s.edges, this.HIGHLIGHT_COLOR, 5, false);
+        this.drawBasicEdges(s.edges, color, 5, false);
     };
     return BuilderCanvas;
 }());
@@ -312,6 +316,9 @@ var Input = /** @class */ (function () {
                 this.lastAnim.cancel();
             }
             this.lastAnim = new Anim(mainCanvas.modeSelectionOffset, "x", off, 0.3);
+            if (Tool.activeTool.onModeChange) {
+                Tool.activeTool.onModeChange(mode);
+            }
         }
     };
     Input.Initialise = function () {
@@ -329,6 +336,7 @@ var Input = /** @class */ (function () {
     Input.viewDragging = false;
     Input.mode = InputMode.VERTEX;
     Input.lockModes = false;
+    Input.shiftHeld = false;
     return Input;
 }());
 function onKeyDown(e) {
@@ -355,11 +363,17 @@ function onKeyDown(e) {
     if (e.key == "Escape") {
         Tool.changeTool(Tool.tools[0]);
     }
+    if (e.key == "Shift") {
+        Input.shiftHeld = true;
+    }
 }
 function onKeyUp(e) {
     dirty = true;
     if (e.key == " ")
         Input.viewDragging = false;
+    if (e.key == "Shift") {
+        Input.shiftHeld = false;
+    }
 }
 function onMouseMove(e) {
     dirty = true;
@@ -491,18 +505,32 @@ var MapData = /** @class */ (function () {
         }
         return nEdge;
     };
-    MapData.prototype.getVerticesAt = function (p) {
+    MapData.prototype.getVerticesAt = function (p, into) {
+        if (into === void 0) { into = null; }
         var allEdges = this.getAllEdges();
         if (allEdges.length == 0)
             return null;
-        var outputVertices = new Array();
-        allEdges.forEach(function (e) {
-            if (e.start.equals(p))
-                outputVertices.push(e.start);
-            if (e.end.equals(p))
-                outputVertices.push(e.end);
-        });
-        return outputVertices;
+        if (into == null) {
+            var outputVertices_1 = new Array();
+            allEdges.forEach(function (e) {
+                if (e.start.equals(p))
+                    outputVertices_1.push(e.start);
+                if (e.end.equals(p))
+                    outputVertices_1.push(e.end);
+            });
+            return outputVertices_1;
+        }
+        else {
+            allEdges.forEach(function (e) {
+                if (e.start.equals(p) && into.indexOf(e.start) == -1) {
+                    into.push(e.start);
+                }
+                if (e.end.equals(p) && into.indexOf(e.end) == -1) {
+                    into.push(e.end);
+                }
+            });
+            return into;
+        }
     };
     MapData.prototype.moveVertex = function (from, to) {
         // This gets slower the more edges there are. If this gets bad, sort the lines and do a binary search
@@ -533,18 +561,19 @@ var MapData = /** @class */ (function () {
         }); });
         return output;
     };
-    MapData.prototype.getNearestVertex = function (v) {
+    MapData.prototype.getNearestVertex = function (v, minimumDistance) {
+        if (minimumDistance === void 0) { minimumDistance = Number.MAX_VALUE; }
         var vertexes = new Array();
         var edges = this.getAllEdges();
         edges.forEach(function (e) {
             vertexes.push(e.start);
             vertexes.push(e.end);
         });
-        var nDist = Util.sqrDist(v, vertexes[0]);
-        var nVert = vertexes[0];
-        for (var i = 1; i < vertexes.length; i++) {
+        var nDist = Number.MAX_VALUE;
+        var nVert = null;
+        for (var i = 0; i < vertexes.length; i++) {
             var d = Util.sqrDist(v, vertexes[i]);
-            if (d < nDist) {
+            if (d < minimumDistance && d < nDist) {
                 nDist = d;
                 nVert = vertexes[i];
             }
@@ -955,52 +984,67 @@ var BaseTool = /** @class */ (function () {
         this.selectKey = "q";
         this.dragging = false;
         this.lastPos = Input.mouseGridPos;
+        this.selectedVertexes = new Array();
+        this.selectedEdges = new Array();
+        this.selectedSectors = new Array();
+        this.activeVertices = new Array();
+        this.dragged = false;
     }
+    BaseTool.prototype.onModeChange = function (mode) {
+        // Select edges of selected sectors, select vertexes of selected edges
+    };
     BaseTool.prototype.onMouseDown = function (e) {
-        if (Input.mode == InputMode.VERTEX) {
-            var v = mapData.getNearestVertex(Input.mousePos);
-            if (Util.distance(v, Input.mousePos) < 64) {
-                this.activeVertices = mapData.getVerticesAt(v);
-                if (this.activeVertices.length > 0) {
-                    this.dragging = true;
-                    Input.lockModes = true;
-                    this.lastPos = Input.mouseGridPos;
-                }
-            }
-        }
-        if (Input.mode == InputMode.EDGE) {
-            this.activeEdge = mapData.getNearestEdge(Input.mouseGridPos);
-            this.activeVertices = new Array();
-            this.activeVertices = this.activeVertices.concat(mapData.getVerticesAt(this.activeEdge.start));
-            this.activeVertices = this.activeVertices.concat(mapData.getVerticesAt(this.activeEdge.end));
-            this.dragging = true;
-            Input.lockModes = true;
-            this.lastPos = Input.mouseGridPos;
-        }
-        if (Input.mode == InputMode.SECTOR) {
-            this.activeSector = mapData.getNearestSector(Input.mouseGridPos);
-            if (this.activeSector != null) {
-                var verts_1 = new Array();
-                this.activeSector.edges.forEach(function (e) {
-                    verts_1 = verts_1.concat(mapData.getVerticesAt(e.start));
-                    verts_1 = verts_1.concat(mapData.getVerticesAt(e.end));
-                });
-                this.activeVertices = verts_1.filter(function (item, pos) {
-                    return verts_1.indexOf(item) == pos;
-                });
-                this.dragging = true;
-                Input.lockModes = true;
-                this.lastPos = Input.mouseGridPos;
-            }
-        }
+        this.dragged = false;
+        this.dragging = true;
+        this.lastPos = Input.mouseGridPos;
     };
     BaseTool.prototype.onMouseUp = function (e) {
         this.dragging = false;
         Input.lockModes = false;
+        if (!this.dragged) {
+            if (!Input.shiftHeld) {
+                // Holding shift will concat selection, so otherwise we should clear the selection
+                this.selectedVertexes.length = 0;
+                this.selectedEdges.length = 0;
+                this.selectedSectors.length = 0;
+            }
+            if (Input.mode == InputMode.VERTEX) {
+                var v = mapData.getNearestVertex(Input.mousePos, 64);
+                if (v) {
+                    mapData.getVerticesAt(v, this.selectedVertexes);
+                    this.updateActiveVertexes();
+                }
+            }
+            if (Input.mode == InputMode.EDGE) {
+                var e_1 = mapData.getNearestEdge(Input.mousePos);
+                var i = this.selectedEdges.indexOf(e_1);
+                if (i >= 0) {
+                    this.selectedEdges.splice(i, 1);
+                }
+                else {
+                    this.selectedEdges.push(e_1);
+                }
+                this.updateActiveVertexes();
+            }
+            if (Input.mode == InputMode.SECTOR) {
+                var s = mapData.getNearestSector(Input.mousePos);
+                if (s) {
+                    var i = this.selectedSectors.indexOf(s);
+                    if (i >= 0) {
+                        this.selectedSectors.splice(i, 1);
+                    }
+                    else {
+                        this.selectedSectors.push(s);
+                    }
+                    this.updateActiveVertexes();
+                }
+            }
+        }
     };
     BaseTool.prototype.onMouseMove = function (e) {
-        if (this.dragging) {
+        if (this.dragging && this.activeVertices.length != 0) {
             if (!this.lastPos.equals(Input.mouseGridPos)) {
+                this.dragged = true;
                 var diff_1 = Vertex.Subtract(Input.mouseGridPos, this.lastPos);
                 this.activeVertices.forEach(function (v) {
                     v.translate(diff_1);
@@ -1011,34 +1055,63 @@ var BaseTool = /** @class */ (function () {
         }
     };
     BaseTool.prototype.onRender = function () {
-        if (this.dragging) {
-            if (Input.mode == InputMode.VERTEX) {
-                mainCanvas.highlightVertex(this.activeVertices[0]);
-            }
-            if (Input.mode == InputMode.EDGE) {
-                mainCanvas.highlightEdge(this.activeEdge);
-            }
-            if (Input.mode == InputMode.SECTOR) {
-                mainCanvas.highlightSector(this.activeSector);
+        if (Input.mode == InputMode.VERTEX) {
+            this.selectedVertexes.forEach(function (v) {
+                mainCanvas.highlightVertex(v, mainCanvas.SELECTION_COLOR);
+            });
+        }
+        if (Input.mode == InputMode.EDGE) {
+            this.selectedEdges.forEach(function (e) {
+                mainCanvas.highlightEdge(e, mainCanvas.SELECTION_COLOR);
+            });
+        }
+        if (Input.mode == InputMode.SECTOR) {
+            this.selectedSectors.forEach(function (s) {
+                mainCanvas.highlightSector(s, mainCanvas.SELECTION_COLOR);
+            });
+        }
+        if (Input.mode == InputMode.VERTEX) {
+            var v = mapData.getNearestVertex(Input.mousePos, 64);
+            if (v) {
+                mainCanvas.highlightVertex(v, mainCanvas.HIGHLIGHT_COLOR);
             }
         }
-        else {
-            if (Input.mode == InputMode.VERTEX) {
-                var v = mapData.getNearestVertex(Input.mousePos);
-                if (Util.distance(v, Input.mousePos) < 64) {
-                    mainCanvas.highlightVertex(v);
-                }
-            }
-            if (Input.mode == InputMode.EDGE) {
-                mainCanvas.highlightEdge(mapData.getNearestEdge(Input.mousePos));
-            }
-            if (Input.mode == InputMode.SECTOR) {
-                mainCanvas.highlightSector(mapData.getNearestSector(Input.mousePos));
+        if (Input.mode == InputMode.EDGE) {
+            mainCanvas.highlightEdge(mapData.getNearestEdge(Input.mousePos), mainCanvas.HIGHLIGHT_COLOR);
+        }
+        if (Input.mode == InputMode.SECTOR) {
+            var s = mapData.getNearestSector(Input.mousePos);
+            if (s) {
+                mainCanvas.highlightSector(s, mainCanvas.HIGHLIGHT_COLOR);
             }
         }
     };
+    BaseTool.prototype.onSwitch = function () {
+        this.selectedVertexes.length = 0;
+        this.selectedEdges.length = 0;
+        this.selectedSectors.length = 0;
+    };
     BaseTool.prototype.onUnswitch = function () {
         Input.lockModes = false;
+    };
+    BaseTool.prototype.updateActiveVertexes = function () {
+        var _this = this;
+        this.activeVertices.length = 0;
+        this.selectedVertexes.forEach(function (v) {
+            if (_this.activeVertices.indexOf(v) == -1) {
+                _this.activeVertices.push(v);
+            }
+        });
+        this.selectedEdges.forEach(function (e) {
+            mapData.getVerticesAt(e.start, _this.activeVertices);
+            mapData.getVerticesAt(e.end, _this.activeVertices);
+        });
+        this.selectedSectors.forEach(function (s) {
+            s.edges.forEach(function (e) {
+                mapData.getVerticesAt(e.start, _this.activeVertices);
+                mapData.getVerticesAt(e.end, _this.activeVertices);
+            });
+        });
     };
     return BaseTool;
 }());

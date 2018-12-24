@@ -7,6 +7,7 @@ interface ITool {
     onRender?();
     onSwitch?();
     onUnswitch?();
+    onModeChange?(mode:InputMode);
 }
 
 class Tool {

@@ -15,6 +15,8 @@ class Input {
 
     static lastAnim:Anim;
 
+    static shiftHeld:boolean = false;
+
     static switchMode(mode:InputMode) {
         if (Input.lockModes == false) {
             Input.mode = mode;
@@ -28,6 +30,10 @@ class Input {
             }
 
             this.lastAnim = new Anim(mainCanvas.modeSelectionOffset, "x", off, 0.3);
+
+            if (Tool.activeTool.onModeChange) {
+                Tool.activeTool.onModeChange(mode);
+            }
         }
     }
 
@@ -73,11 +79,19 @@ function onKeyDown(e : KeyboardEvent):void {
     if (e.key == "Escape") {
         Tool.changeTool(Tool.tools[0]);
     }
+
+    if (e.key == "Shift") {
+        Input.shiftHeld = true;
+    }
 }
 
 function onKeyUp(e:KeyboardEvent):void {
     dirty = true;
     if (e.key == " ") Input.viewDragging = false;
+
+    if (e.key == "Shift") {
+        Input.shiftHeld = false;
+    }
 }
 
 function onMouseMove(e:MouseEvent) {

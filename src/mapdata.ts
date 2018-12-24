@@ -68,17 +68,30 @@ class MapData {
         return nEdge;
     }
 
-    getVerticesAt(p:Vertex):Array<Vertex> {
+    getVerticesAt(p:Vertex, into:Array<Vertex> = null):Array<Vertex> {
         let allEdges:Array<Edge> = this.getAllEdges();
         if (allEdges.length == 0) return null;
 
-        let outputVertices:Array<Vertex> = new Array<Vertex>();
-        allEdges.forEach(e => {
-            if (e.start.equals(p)) outputVertices.push(e.start);
-            if (e.end.equals(p)) outputVertices.push(e.end);
-        });
+        if (into == null) {
+            let outputVertices:Array<Vertex> = new Array<Vertex>();
+            allEdges.forEach(e => {
+                if (e.start.equals(p)) outputVertices.push(e.start);
+                if (e.end.equals(p)) outputVertices.push(e.end);
+            });
 
-        return outputVertices;
+            return outputVertices;
+        } else {
+            allEdges.forEach(e => {
+                if (e.start.equals(p) && into.indexOf(e.start) == -1) {
+                    into.push(e.start);
+                }
+                if (e.end.equals(p) && into.indexOf(e.end) == -1) {
+                    into.push(e.end);
+                }
+            });
+
+            return into;
+        }
     }
 
     moveVertex(from:Vertex, to:Vertex) {
@@ -117,7 +130,7 @@ class MapData {
         return output;
     }
 
-    getNearestVertex(v:Vertex):Vertex {
+    getNearestVertex(v:Vertex, minimumDistance:number = Number.MAX_VALUE):Vertex {
 
         let vertexes = new Array<Vertex>();
         let edges = this.getAllEdges();
@@ -126,11 +139,11 @@ class MapData {
             vertexes.push(e.end);
         });
 
-        let nDist = Util.sqrDist(v, vertexes[0]);
-        let nVert = vertexes[0];
-        for (let i = 1; i < vertexes.length; i++) {
+        let nDist = Number.MAX_VALUE;
+        let nVert = null;
+        for (let i = 0; i < vertexes.length; i++) {
             let d = Util.sqrDist(v, vertexes[i]);
-            if (d < nDist) {
+            if (d < minimumDistance && d < nDist) {
                 nDist = d;
                 nVert = vertexes[i];
             }

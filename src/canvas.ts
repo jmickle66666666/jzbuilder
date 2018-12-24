@@ -13,6 +13,7 @@ class BuilderCanvas {
     MAPPROCLINE_COLOR : string          = "#ffcc88";
     VERTEX_COLOR : string           = "#FF9944";
     HIGHLIGHT_COLOR : string       = "#FFFFFF55";
+    SELECTION_COLOR : string       = "#FFDD8855";
     ACTIVE_FONT_COLOR : string       = "#FFFFFFFF";
     INACTIVE_FONT_COLOR : string       = "#FFFFFF77";
 
@@ -238,17 +239,17 @@ class BuilderCanvas {
         }
     }
 
-    public highlightVertex(v:Vertex) {
+    public highlightVertex(v:Vertex, color:string = this.HIGHLIGHT_COLOR) {
         let p = this.posToView(v);
-        this.ctx.fillStyle = this.HIGHLIGHT_COLOR;
+        this.ctx.fillStyle = color;
         this.ctx.beginPath();
         this.ctx.ellipse(p.x, p.y, 5, 5, 0, 0, Math.PI * 2);
         this.ctx.fill();
     }
 
-    public highlightEdge(e:Edge) {
+    public highlightEdge(e:Edge, color:string = this.HIGHLIGHT_COLOR) {
         let p = this.posToView(e.start);
-        this.ctx.strokeStyle = this.HIGHLIGHT_COLOR;
+        this.ctx.strokeStyle = color;
         this.ctx.lineWidth = 5;
         this.ctx.beginPath();
         this.ctx.moveTo(p.x, p.y);
@@ -257,8 +258,8 @@ class BuilderCanvas {
         this.ctx.stroke();
     }
 
-    public highlightSector(s:Sector) {
+    public highlightSector(s:Sector, color:string = this.HIGHLIGHT_COLOR) {
         if (s == null) return;
-        this.drawBasicEdges(s.edges, this.HIGHLIGHT_COLOR, 5, false);
+        this.drawBasicEdges(s.edges, color, 5, false);
     }
 }
