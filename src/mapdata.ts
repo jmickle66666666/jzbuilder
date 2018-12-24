@@ -19,8 +19,6 @@ class MapData {
         s.edges.push(new Edge(v[2], v[1]));
         s.edges.push(new Edge(v[1], v[0]));
         s.edges.push(new Edge(v[0], v[3]));
-        // s.edges[1].modifiers.push(new EdgeSubdivider(3));
-        // s.edges[1].modifiers.push(new EdgeInset(8, 0));
         s.update();
         this.sectors.push(s);
     }
@@ -51,14 +49,13 @@ class MapData {
         return nSect;
     }
 
-    getNearestEdge(p:Vertex):Edge {
+    getNearestEdge(p:Vertex, minimumDistance:number = Number.MAX_VALUE):Edge {
         let allEdges:Array<Edge> = this.getAllEdges();
         if (allEdges.length == 0) return null;
-        if (allEdges.length == 1) return allEdges[0];
 
-        let nDist = Util.distToSegmentSquared(p, allEdges[0].start, allEdges[1].end);
-        let nEdge = allEdges[0];
-        for (let i = 1; i < allEdges.length; i++) {
+        let nDist = minimumDistance;
+        let nEdge = null;
+        for (let i = 0; i < allEdges.length; i++) {
             let d = Util.distToSegmentSquared(p, allEdges[i].start, allEdges[i].end);
             if (d < nDist) {
                 nDist = d;

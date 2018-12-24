@@ -462,8 +462,6 @@ var MapData = /** @class */ (function () {
         s.edges.push(new Edge(v[2], v[1]));
         s.edges.push(new Edge(v[1], v[0]));
         s.edges.push(new Edge(v[0], v[3]));
-        // s.edges[1].modifiers.push(new EdgeSubdivider(3));
-        // s.edges[1].modifiers.push(new EdgeInset(8, 0));
         s.update();
         this.sectors.push(s);
     };
@@ -490,15 +488,14 @@ var MapData = /** @class */ (function () {
         });
         return nSect;
     };
-    MapData.prototype.getNearestEdge = function (p) {
+    MapData.prototype.getNearestEdge = function (p, minimumDistance) {
+        if (minimumDistance === void 0) { minimumDistance = Number.MAX_VALUE; }
         var allEdges = this.getAllEdges();
         if (allEdges.length == 0)
             return null;
-        if (allEdges.length == 1)
-            return allEdges[0];
-        var nDist = Util.distToSegmentSquared(p, allEdges[0].start, allEdges[1].end);
-        var nEdge = allEdges[0];
-        for (var i = 1; i < allEdges.length; i++) {
+        var nDist = minimumDistance;
+        var nEdge = null;
+        for (var i = 0; i < allEdges.length; i++) {
             var d = Util.distToSegmentSquared(p, allEdges[i].start, allEdges[i].end);
             if (d < nDist) {
                 nDist = d;
@@ -1049,6 +1046,15 @@ var Vertex = /** @class */ (function () {
     };
     return Vertex;
 }());
+var UDMF = /** @class */ (function () {
+    function UDMF() {
+    }
+    UDMF.serializeMap = function (data) {
+        var output;
+        return output;
+    };
+    return UDMF;
+}());
 var BaseTool = /** @class */ (function () {
     function BaseTool() {
         this.name = "Move/Edit/Select";
@@ -1090,14 +1096,16 @@ var BaseTool = /** @class */ (function () {
             }
             if (Input.mode == InputMode.EDGE) {
                 var e_1 = mapData.getNearestEdge(Input.mousePos);
-                var i = this.selectedEdges.indexOf(e_1);
-                if (i >= 0) {
-                    this.selectedEdges.splice(i, 1);
+                if (e_1) {
+                    var i = this.selectedEdges.indexOf(e_1);
+                    if (i >= 0) {
+                        this.selectedEdges.splice(i, 1);
+                    }
+                    else {
+                        this.selectedEdges.push(e_1);
+                    }
+                    this.updateActiveVertexes();
                 }
-                else {
-                    this.selectedEdges.push(e_1);
-                }
-                this.updateActiveVertexes();
             }
             if (Input.mode == InputMode.SECTOR) {
                 var s = mapData.getNearestSector(Input.mousePos);
@@ -1150,7 +1158,10 @@ var BaseTool = /** @class */ (function () {
             }
         }
         if (Input.mode == InputMode.EDGE) {
-            mainCanvas.highlightEdge(mapData.getNearestEdge(Input.mousePos), mainCanvas.HIGHLIGHT_COLOR);
+            var e = mapData.getNearestEdge(Input.mousePos, 64);
+            if (e) {
+                mainCanvas.highlightEdge(e, mainCanvas.HIGHLIGHT_COLOR);
+            }
         }
         if (Input.mode == InputMode.SECTOR) {
             var s = mapData.getNearestSector(Input.mousePos);

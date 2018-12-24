@@ -62,13 +62,15 @@ class BaseTool implements ITool {
     
             if (Input.mode == InputMode.EDGE) {
                 let e = mapData.getNearestEdge(Input.mousePos);
-                let i = this.selectedEdges.indexOf(e);
-                if (i >= 0) {
-                    this.selectedEdges.splice(i, 1);
-                } else {
-                    this.selectedEdges.push(e);
+                if (e) {
+                    let i = this.selectedEdges.indexOf(e);
+                    if (i >= 0) {
+                        this.selectedEdges.splice(i, 1);
+                    } else {
+                        this.selectedEdges.push(e);
+                    }
+                    this.updateActiveVertexes();
                 }
-                this.updateActiveVertexes();
             }
     
             if (Input.mode == InputMode.SECTOR) {
@@ -133,7 +135,10 @@ class BaseTool implements ITool {
         }
 
         if (Input.mode == InputMode.EDGE) {
-            mainCanvas.highlightEdge(mapData.getNearestEdge(Input.mousePos), mainCanvas.HIGHLIGHT_COLOR);
+            let e = mapData.getNearestEdge(Input.mousePos, 64);
+            if (e) {
+                mainCanvas.highlightEdge(e, mainCanvas.HIGHLIGHT_COLOR);
+            }
         }
 
         if (Input.mode == InputMode.SECTOR) {
