@@ -131,10 +131,14 @@ function onMouseDown(e:MouseEvent) {
     if (Tool.activeTool.onMouseDown) {
         Tool.activeTool.onMouseDown(e);
     }
+
+    dirty = true;
 }
 
 function onMouseUp(e:MouseEvent) {
     if (Tool.activeTool.onMouseUp) {
         Tool.activeTool.onMouseUp(e);
     }
+
+    dirty = true;
 }

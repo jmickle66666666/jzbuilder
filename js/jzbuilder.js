@@ -602,6 +602,15 @@ var MapData = /** @class */ (function () {
             });
         });
     };
+    MapData.prototype.quicksave = function () {
+        this.quicksaveData = MapIO.serialize(this);
+    };
+    MapData.prototype.quickload = function () {
+        mapData = MapIO.unserialize(this.quicksaveData);
+    };
+    MapData.prototype.testload = function () {
+        mapData = MapIO.unserialize(MapIO.serialize(this));
+    };
     return MapData;
 }());
 var tips = [
@@ -696,6 +705,17 @@ var Util = /** @class */ (function () {
     Util.distance = function (a, b) {
         return Math.sqrt(Util.sqrDist(a, b));
     };
+    Util.timer = function (name) {
+        var start = new Date();
+        return {
+            stop: function () {
+                var end = new Date();
+                var time = end.getTime() - start.getTime();
+                console.log('Timer:', name, 'finished in', time, 'ms');
+            }
+        };
+    };
+    ;
     // From: https://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
     Util.sqr = function (x) { return x * x; };
     Util.dist2 = function (v, w) { return Util.sqr(v.x - w.x) + Util.sqr(v.y - w.y); };
@@ -1049,6 +1069,79 @@ var Vertex = /** @class */ (function () {
     };
     return Vertex;
 }());
+var MapIO = /** @class */ (function () {
+    function MapIO() {
+    }
+    MapIO.serialize = function (data) {
+        var timer = Util.timer("serialize");
+        var output = "JZB01\n";
+        data.sectors.forEach(function (s) {
+            output += MapIO.serializeSector(s) + "\n";
+        });
+        // console.log(output);
+        timer.stop();
+        return output;
+    };
+    MapIO.serializeSector = function (sector) {
+        var output = "s(";
+        for (var i = 0; i < sector.edges.length; i++) {
+            output += MapIO.serializeEdge(sector.edges[i]);
+        }
+        // sector.edges.forEach(e=> {
+        //     output+=MapIO.serializeEdge(e);
+        // });
+        return output;
+    };
+    MapIO.serializeEdge = function (edge) {
+        return "e(" + MapIO.serializeVertex(edge.start) + MapIO.serializeVertex(edge.end) + ")";
+    };
+    MapIO.serializeVertex = function (vertex) {
+        return "v(" + vertex.x + "," + vertex.y + ")";
+    };
+    MapIO.unserialize = function (data) {
+        var timer = Util.timer("unserialize");
+        var output = new MapData();
+        output.sectors.length = 0;
+        var lines = data.split('\n');
+        if (lines[0] != "JZB01") {
+            console.error("Incorrect version. Expected JZB01, got " + lines[0]);
+            return null;
+        }
+        for (var i = 1; i < lines.length; i++) {
+            output.sectors.push(MapIO.unserializeSector(lines[i]));
+        }
+        output.updateEdgePairs();
+        timer.stop();
+        return output;
+    };
+    MapIO.unserializeSector = function (data) {
+        var output = new Sector();
+        // s(e(v(1,1)v(1,1))e(v(1,1)v(1,1))e(v(1,1)v(1,1)))
+        var edges = data.split('e');
+        // s( (v(1,1)v(1,1)) (v(1,1)v(1,1)) (v(1,1)v(1,1)))
+        for (var i = 1; i < edges.length; i++) {
+            output.edges.push(MapIO.unserializeEdge(edges[i]));
+        }
+        output.update();
+        return output;
+    };
+    MapIO.unserializeEdge = function (data) {
+        // (v(1,1)v(1,1))...
+        var vs = data.split('v');
+        // ( (1,1) (1,1))...
+        var e = new Edge(MapIO.unserializeVertex(vs[1]), MapIO.unserializeVertex(vs[2]));
+        // console.log(e);
+        return e;
+    };
+    MapIO.unserializeVertex = function (data) {
+        var output = new Vertex(0, 0);
+        var commaIndex = data.indexOf(',');
+        output.x = Number(data.substr(1, commaIndex - 1));
+        output.y = Number(data.substr(commaIndex + 1, data.indexOf(')') - commaIndex - 1));
+        return output;
+    };
+    return MapIO;
+}());
 var UDMF = /** @class */ (function () {
     function UDMF() {
     }
@@ -1094,19 +1187,18 @@ var BaseTool = /** @class */ (function () {
                         edge_1.split(edge_1.getMidpoint());
                     }));
                 }
+            }
+            else if (Input.mode == InputMode.SECTOR && this.selectedSectors.length != 0) {
                 // ContextMenu.create(
                 //     new MenuItem(
-                //         "Selected Edges: " + this.selectedEdges.length,
+                //         "Selected Sectors: " + this.selectedSectors.length,
                 //         null
                 //     )
                 // );
             }
-            else if (Input.mode == InputMode.SECTOR && this.selectedSectors.length != 0) {
-                ContextMenu.create(new MenuItem("Selected Sectors: " + this.selectedSectors.length, null));
-            }
             else {
                 // general menu!
-                ContextMenu.create(new MenuItem("Test", function () { console.log("clicked Test item"); }));
+                ContextMenu.create(new MenuItem("Testload", function () { mapData.testload(); }), new MenuItem("Quickload", function () { mapData.quickload(); }), new MenuItem("Quicksave", function () { mapData.quicksave(); }));
             }
         }
     };

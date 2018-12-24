@@ -65,20 +65,28 @@ class BaseTool implements ITool {
 
             } else if (Input.mode == InputMode.SECTOR && this.selectedSectors.length != 0) {
 
-                ContextMenu.create(
-                    new MenuItem(
-                        "Selected Sectors: " + this.selectedSectors.length,
-                        null
-                    )
-                );
+                // ContextMenu.create(
+                //     new MenuItem(
+                //         "Selected Sectors: " + this.selectedSectors.length,
+                //         null
+                //     )
+                // );
 
             } else {
                 // general menu!
 
                 ContextMenu.create(
                     new MenuItem(
-                        "Test",
-                        function() { console.log("clicked Test item") }
+                        "Testload",
+                        function() { mapData.testload(); }
+                    ),
+                    new MenuItem(
+                        "Quickload",
+                        function() { mapData.quickload(); }
+                    ),
+                    new MenuItem(
+                        "Quicksave",
+                        function() { mapData.quicksave(); }
                     )
                 );
 

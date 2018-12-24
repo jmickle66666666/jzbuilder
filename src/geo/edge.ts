@@ -2,6 +2,7 @@ class Edge {
 
     public start:Vertex;
     public end:Vertex;
+    
     public edgeLink:Edge;
     public sector : Sector;
     

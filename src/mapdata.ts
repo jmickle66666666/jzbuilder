@@ -176,6 +176,20 @@ class MapData {
         
     }
 
+    quicksaveData:string;
+
+    quicksave():void {
+        this.quicksaveData = MapIO.serialize(this);
+    }
+
+    quickload():void {
+        mapData = MapIO.unserialize(this.quicksaveData);
+    }
+
+    testload():void {
+        mapData = MapIO.unserialize(MapIO.serialize(this));
+    }
+
     // Keeping this in case there's something i can take from it
     
 //     createSplits(v:Vertex) {
