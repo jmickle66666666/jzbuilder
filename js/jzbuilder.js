@@ -1095,7 +1095,7 @@ var BaseTool = /** @class */ (function () {
                 }
             }
             if (Input.mode == InputMode.EDGE) {
-                var e_1 = mapData.getNearestEdge(Input.mousePos);
+                var e_1 = mapData.getNearestEdge(Input.mousePos, 64);
                 if (e_1) {
                     var i = this.selectedEdges.indexOf(e_1);
                     if (i >= 0) {

@@ -61,7 +61,7 @@ class BaseTool implements ITool {
             }
     
             if (Input.mode == InputMode.EDGE) {
-                let e = mapData.getNearestEdge(Input.mousePos);
+                let e = mapData.getNearestEdge(Input.mousePos, 64);
                 if (e) {
                     let i = this.selectedEdges.indexOf(e);
                     if (i >= 0) {
