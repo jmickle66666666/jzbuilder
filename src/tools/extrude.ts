@@ -53,7 +53,9 @@ class Extrude implements ITool {
     public onMouseUp(e:MouseEvent):void {
         if (this.extruding) {
             this.extruding = false;
-            this.applyExtrude();
+            if (!this.initialPosition.equals(Input.mouseGridPos)) {
+                this.applyExtrude();
+            }
         }
     }
 

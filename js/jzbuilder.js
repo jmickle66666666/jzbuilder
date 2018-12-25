@@ -1470,7 +1470,9 @@ var Extrude = /** @class */ (function () {
     Extrude.prototype.onMouseUp = function (e) {
         if (this.extruding) {
             this.extruding = false;
-            this.applyExtrude();
+            if (!this.initialPosition.equals(Input.mouseGridPos)) {
+                this.applyExtrude();
+            }
         }
     };
     Extrude.prototype.startExtrude = function (edge) {
