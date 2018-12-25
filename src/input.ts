@@ -14,7 +14,7 @@ class Input {
     static lockModes:Boolean = false;
 
     static lastAnim:Anim;
-
+    static ctrlHeld:boolean = false; // This is necessary for checking CMD on mac
     static shiftHeld:boolean = false;
 
     static switchMode(mode:InputMode) {
@@ -83,6 +83,14 @@ function onKeyDown(e : KeyboardEvent):void {
     if (e.key == "Shift") {
         Input.shiftHeld = true;
     }
+
+    if (e.keyCode == 224 || e.keyCode == 91 || e.keyCode == 93 || e.key == "Control") {
+        Input.ctrlHeld = true;
+    }
+
+    if (Input.ctrlHeld && e.key == "z") {
+        Undo.undo();
+    }
 }
 
 function onKeyUp(e:KeyboardEvent):void {
@@ -91,6 +99,10 @@ function onKeyUp(e:KeyboardEvent):void {
 
     if (e.key == "Shift") {
         Input.shiftHeld = false;
+    }
+
+    if (e.keyCode == 224 || e.keyCode == 91 || e.keyCode == 93 || e.key == "Control") {
+        Input.ctrlHeld = false;
     }
 }
 

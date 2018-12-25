@@ -337,6 +337,7 @@ var Input = /** @class */ (function () {
     Input.viewDragging = false;
     Input.mode = InputMode.VERTEX;
     Input.lockModes = false;
+    Input.ctrlHeld = false; // This is necessary for checking CMD on mac
     Input.shiftHeld = false;
     return Input;
 }());
@@ -367,6 +368,12 @@ function onKeyDown(e) {
     if (e.key == "Shift") {
         Input.shiftHeld = true;
     }
+    if (e.keyCode == 224 || e.keyCode == 91 || e.keyCode == 93 || e.key == "Control") {
+        Input.ctrlHeld = true;
+    }
+    if (Input.ctrlHeld && e.key == "z") {
+        Undo.undo();
+    }
 }
 function onKeyUp(e) {
     dirty = true;
@@ -374,6 +381,9 @@ function onKeyUp(e) {
         Input.viewDragging = false;
     if (e.key == "Shift") {
         Input.shiftHeld = false;
+    }
+    if (e.keyCode == 224 || e.keyCode == 91 || e.keyCode == 93 || e.key == "Control") {
+        Input.ctrlHeld = false;
     }
 }
 function onMouseMove(e) {
@@ -407,11 +417,13 @@ function onMouseDown(e) {
     if (Tool.activeTool.onMouseDown) {
         Tool.activeTool.onMouseDown(e);
     }
+    dirty = true;
 }
 function onMouseUp(e) {
     if (Tool.activeTool.onMouseUp) {
         Tool.activeTool.onMouseUp(e);
     }
+    dirty = true;
 }
 var mainCanvas;
 var mapData;
@@ -1151,6 +1163,21 @@ var UDMF = /** @class */ (function () {
     };
     return UDMF;
 }());
+var Undo = /** @class */ (function () {
+    function Undo() {
+    }
+    Undo.addState = function () {
+        Undo.stack.push(MapIO.serialize(mapData));
+    };
+    Undo.undo = function () {
+        if (Undo.stack.length > 0) {
+            mapData = MapIO.unserialize(Undo.stack.pop());
+        }
+        dirty = true;
+    };
+    Undo.stack = new Array();
+    return Undo;
+}());
 var BaseTool = /** @class */ (function () {
     function BaseTool() {
         this.name = "Move/Edit/Select";
@@ -1184,6 +1211,7 @@ var BaseTool = /** @class */ (function () {
                 if (this.selectedEdges.length == 1) {
                     var edge_1 = this.selectedEdges[0];
                     ContextMenu.create(new MenuItem("Split edge", function () {
+                        Undo.addState();
                         edge_1.split(edge_1.getMidpoint());
                     }));
                 }
@@ -1244,6 +1272,8 @@ var BaseTool = /** @class */ (function () {
                     this.updateActiveVertexes();
                 }
             }
+            mapData.updateEdgePairs();
+            Undo.addState();
         }
     };
     BaseTool.prototype.onMouseMove = function (e) {
@@ -1452,6 +1482,7 @@ var Extrude = /** @class */ (function () {
         this.initialPosition = Input.mouseGridPos;
     };
     Extrude.prototype.applyExtrude = function () {
+        Undo.addState();
         var newSector = new Sector();
         var edge1 = this.targetEdge.reversedCopy();
         var edge3 = new Edge(this.targetEdge.start, this.targetEdge.end);
@@ -1509,6 +1540,7 @@ var Split = /** @class */ (function () {
         this.selectKey = "e";
     }
     Split.prototype.onMouseDown = function (e) {
+        Undo.addState();
         if (mapData.splitLinesAt(Input.mouseGridPos)) {
             var ov_1 = {
                 v: Input.mouseGridPos.clone(),

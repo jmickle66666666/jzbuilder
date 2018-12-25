@@ -3,6 +3,7 @@ class Split implements ITool {
     selectKey:string = "e";
 
     onMouseDown(e:MouseEvent):void {
+        Undo.addState();
         if (mapData.splitLinesAt(Input.mouseGridPos)) {
             let ov = {
                 v:Input.mouseGridPos.clone(),

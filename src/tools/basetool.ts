@@ -57,6 +57,7 @@ class BaseTool implements ITool {
                         new MenuItem(
                             "Split edge",
                             function () {
+                                Undo.addState();
                                 edge.split(edge.getMidpoint());
                             }
                         )
@@ -143,6 +144,8 @@ class BaseTool implements ITool {
                 }
             }
 
+            mapData.updateEdgePairs();
+            Undo.addState();
         }
     }
 

@@ -68,6 +68,7 @@ class Extrude implements ITool {
     }
 
     applyExtrude():void {
+        Undo.addState();
         let newSector:Sector = new Sector();
         let edge1:Edge = this.targetEdge.reversedCopy();
         let edge3:Edge = new Edge(this.targetEdge.start, this.targetEdge.end);
