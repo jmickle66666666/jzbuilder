@@ -73,6 +73,8 @@ var BuilderCanvas = /** @class */ (function () {
         this.ACTIVE_FONT_COLOR = "#FFFFFFFF";
         this.INACTIVE_FONT_COLOR = "#FFFFFF77";
         this.PROCESSED_VERTEX_COLOR = "#019900";
+        this.ENTITY_COLOR = "#66CC44";
+        this.ENTITY_STROKE_COLOR = "#336622";
         this.VERTEX_SIZE = 2;
         this.ZOOM_SPEED = 1.05;
         this.GRIDLINE_WIDTH = 0.5;
@@ -106,7 +108,20 @@ var BuilderCanvas = /** @class */ (function () {
     BuilderCanvas.prototype.redraw = function () {
         this.drawGrid();
         this.drawSectors(mapData.sectors);
+        this.drawEntities(mapData.entities);
         this.drawIcons();
+    };
+    BuilderCanvas.prototype.drawEntities = function (entities) {
+        var _this = this;
+        this.ctx.fillStyle = this.ENTITY_COLOR;
+        this.ctx.strokeStyle = this.ENTITY_STROKE_COLOR;
+        entities.forEach(function (e) {
+            _this.ctx.beginPath();
+            var p = _this.posToView(e.position);
+            _this.ctx.ellipse(p.x, p.y, 16 / _this.zoom, 16 / _this.zoom, 0, 0, Math.PI * 2);
+            _this.ctx.fill();
+            _this.ctx.stroke();
+        });
     };
     BuilderCanvas.prototype.drawIcons = function () {
         this.ctx.drawImage(this.ICON_VERTEX_MODE, 10, 10, 64, 64);
@@ -442,6 +457,7 @@ function init() {
     Tool.tools.push(new BaseTool());
     Tool.tools.push(new Extrude());
     Tool.tools.push(new Split());
+    // Tool.tools.push(new EntityTool());
     Tool.changeTool(Tool.tools[0]);
     Input.Initialise();
 }
@@ -463,6 +479,7 @@ window.addEventListener("load", init);
 var MapData = /** @class */ (function () {
     function MapData() {
         this.sectors = new Array();
+        this.entities = new Array();
         this.defaultMap();
     }
     MapData.prototype.defaultMap = function () {
@@ -1282,7 +1299,8 @@ var BaseTool = /** @class */ (function () {
         }
         else if (e.button == 2) {
             if (Input.mode == InputMode.VERTEX && this.selectedVertexes.length != 0) {
-                ContextMenu.create(new MenuItem("Selected Vertexes: " + this.selectedVertexes.length, null)).onRender = this.onRender;
+                // Show selected vertexes with selection
+                ContextMenu.create(new MenuItem("Selected Vertexes: " + this.selectedVertexes.length, null));
             }
             else if (Input.mode == InputMode.EDGE && this.selectedEdges.length != 0) {
                 if (this.selectedEdges.length == 1) {
@@ -1528,6 +1546,16 @@ var MenuItem = /** @class */ (function () {
         this.onClick = onClick;
     }
     return MenuItem;
+}());
+var EntityTool = /** @class */ (function () {
+    function EntityTool() {
+        this.name = "Entities";
+        this.selectKey = "r";
+    }
+    EntityTool.prototype.onMouseDown = function () {
+        mapData.entities.push({ position: Input.mousePos.clone() });
+    };
+    return EntityTool;
 }());
 var Extrude = /** @class */ (function () {
     function Extrude() {

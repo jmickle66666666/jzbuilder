@@ -17,6 +17,8 @@ class BuilderCanvas {
     ACTIVE_FONT_COLOR : string       = "#FFFFFFFF";
     INACTIVE_FONT_COLOR : string       = "#FFFFFF77";
     PROCESSED_VERTEX_COLOR : string = "#019900";
+    ENTITY_COLOR:string = "#66CC44";
+    ENTITY_STROKE_COLOR:string = "#336622";
 
     VERTEX_SIZE : number            = 2;
     ZOOM_SPEED : number             = 1.05;
@@ -65,7 +67,20 @@ class BuilderCanvas {
     public redraw():void {
         this.drawGrid();
         this.drawSectors(mapData.sectors);
+        this.drawEntities(mapData.entities);
         this.drawIcons();
+    }
+
+    public drawEntities(entities:Array<IEntity>) {
+        this.ctx.fillStyle = this.ENTITY_COLOR;
+        this.ctx.strokeStyle = this.ENTITY_STROKE_COLOR;
+        entities.forEach(e => {
+            this.ctx.beginPath();
+            let p = this.posToView(e.position);
+            this.ctx.ellipse(p.x, p.y, 16 / this.zoom, 16 / this.zoom, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
+        });
     }
 
 

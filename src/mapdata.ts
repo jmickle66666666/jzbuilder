@@ -2,9 +2,11 @@
 class MapData {
 
     public sectors : Array<Sector>;
+    public entities : Array<IEntity>;
 
     constructor () {
         this.sectors = new Array<Sector>();
+        this.entities = new Array<IEntity>();
         this.defaultMap();
     }
 
