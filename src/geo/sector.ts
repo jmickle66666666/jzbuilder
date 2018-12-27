@@ -46,4 +46,24 @@ class Sector {
         return this.edges[index];
     }
 
+    public buildMesh(material) {
+        this.edges.forEach(e => {
+
+            if (!e.edgeLink) {
+    
+            let g = new THREE.Geometry();
+            g.vertices.push(new THREE.Vector3(e.start.x / 32, 0, e.start.y / 32));
+            g.vertices.push(new THREE.Vector3(e.end.x / 32, 0, e.end.y / 32));
+            g.vertices.push(new THREE.Vector3(e.start.x / 32, 1, e.start.y / 32));
+            g.vertices.push(new THREE.Vector3(e.end.x / 32, 1, e.end.y / 32));
+    
+            g.faces.push(new THREE.Face3(0, 2, 3));
+            g.faces.push(new THREE.Face3(0, 3, 1));
+    
+            let m = new THREE.Mesh(g, material);
+            threescene.add(m);
+            }
+        })
+    }
+
 }

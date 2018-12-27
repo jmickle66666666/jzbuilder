@@ -342,14 +342,110 @@ var Input = /** @class */ (function () {
     Input.Initialise = function () {
         this.mousePos = new Vertex(0, 0);
         this.mouseGridPos = new Vertex(0, 0);
-        window.addEventListener("keydown", onKeyDown);
-        window.addEventListener("keyup", onKeyUp);
-        mainCanvas.canvas.addEventListener("mousemove", onMouseMove);
-        mainCanvas.canvas.addEventListener("mousedown", onMouseDown);
-        mainCanvas.canvas.addEventListener("mouseup", onMouseUp);
+        window.addEventListener("keydown", Input.onKeyDown);
+        window.addEventListener("keyup", Input.onKeyUp);
+        mainCanvas.canvas.addEventListener("mousemove", Input.onMouseMove);
+        mainCanvas.canvas.addEventListener("mousedown", Input.onMouseDown);
+        mainCanvas.canvas.addEventListener("mouseup", Input.onMouseUp);
         // I love standards
-        mainCanvas.canvas.addEventListener("mousewheel", onMouseWheel);
-        mainCanvas.canvas.addEventListener("wheel", onMouseWheel);
+        mainCanvas.canvas.addEventListener("mousewheel", Input.onMouseWheel);
+        mainCanvas.canvas.addEventListener("wheel", Input.onMouseWheel);
+    };
+    Input.Uninitialise = function () {
+        window.removeEventListener("keydown", Input.onKeyDown);
+        window.removeEventListener("keyup", Input.onKeyUp);
+        mainCanvas.canvas.removeEventListener("mousemove", Input.onMouseMove);
+        mainCanvas.canvas.removeEventListener("mousedown", Input.onMouseDown);
+        mainCanvas.canvas.removeEventListener("mouseup", Input.onMouseUp);
+        mainCanvas.canvas.removeEventListener("mousewheel", Input.onMouseWheel);
+        mainCanvas.canvas.removeEventListener("wheel", Input.onMouseWheel);
+    };
+    Input.onKeyDown = function (e) {
+        dirty = true;
+        if (e.key == " ")
+            Input.viewDragging = true;
+        if (e.key == "1")
+            Input.switchMode(InputMode.VERTEX);
+        if (e.key == "2")
+            Input.switchMode(InputMode.EDGE);
+        if (e.key == "3")
+            Input.switchMode(InputMode.SECTOR);
+        for (var i = 0; i < Tool.tools.length; i++) {
+            if (e.key == Tool.tools[i].selectKey) {
+                Tool.changeTool(Tool.tools[i]);
+            }
+        }
+        if (e.key == "]") {
+            mainCanvas.gridSize *= 2;
+        }
+        if (e.key == "[") {
+            mainCanvas.gridSize /= 2;
+        }
+        if (e.key == "Escape") {
+            Tool.changeTool(Tool.tools[0]);
+        }
+        if (e.key == "Shift") {
+            Input.shiftHeld = true;
+        }
+        if (e.keyCode == 224 || e.keyCode == 91 || e.keyCode == 93 || e.key == "Control") {
+            Input.ctrlHeld = true;
+        }
+        if (Input.ctrlHeld && e.key == "z") {
+            Undo.undo();
+        }
+        if (e.key == "Tab") {
+            switchView();
+        }
+    };
+    Input.onKeyUp = function (e) {
+        dirty = true;
+        if (e.key == " ")
+            Input.viewDragging = false;
+        if (e.key == "Shift") {
+            Input.shiftHeld = false;
+        }
+        if (e.keyCode == 224 || e.keyCode == 91 || e.keyCode == 93 || e.key == "Control") {
+            Input.ctrlHeld = false;
+        }
+    };
+    Input.onMouseMove = function (e) {
+        dirty = true;
+        Input.mousePos = mainCanvas.viewToPos(new Vertex(e.offsetX, e.offsetY));
+        Input.mouseGridPos = mainCanvas.viewToGridPos(new Vertex(e.offsetX, e.offsetY));
+        if (Input.viewDragging) {
+            mainCanvas.viewOffset.x -= e.movementX;
+            mainCanvas.viewOffset.y -= e.movementY;
+        }
+        if (Tool.activeTool.onMouseMove) {
+            Tool.activeTool.onMouseMove(e);
+        }
+    };
+    Input.onMouseWheel = function (e) {
+        dirty = true;
+        e.preventDefault();
+        if (e.deltaY > 0) {
+            mainCanvas.zoom *= mainCanvas.ZOOM_SPEED;
+            mainCanvas.viewOffset.x -= (Input.mousePos.x) * ((mainCanvas.ZOOM_SPEED - 1.0) / mainCanvas.zoom);
+            mainCanvas.viewOffset.y -= (Input.mousePos.y) * ((mainCanvas.ZOOM_SPEED - 1.0) / mainCanvas.zoom);
+        }
+        if (e.deltaY < 0) {
+            mainCanvas.zoom /= mainCanvas.ZOOM_SPEED;
+            mainCanvas.viewOffset.x += (Input.mousePos.x) * ((mainCanvas.ZOOM_SPEED - 1.0) / mainCanvas.zoom);
+            mainCanvas.viewOffset.y += (Input.mousePos.y) * ((mainCanvas.ZOOM_SPEED - 1.0) / mainCanvas.zoom);
+        }
+    };
+    Input.onMouseDown = function (e) {
+        e.preventDefault();
+        if (Tool.activeTool.onMouseDown) {
+            Tool.activeTool.onMouseDown(e);
+        }
+        dirty = true;
+    };
+    Input.onMouseUp = function (e) {
+        if (Tool.activeTool.onMouseUp) {
+            Tool.activeTool.onMouseUp(e);
+        }
+        dirty = true;
     };
     Input.viewDragging = false;
     Input.mode = InputMode.VERTEX;
@@ -358,93 +454,97 @@ var Input = /** @class */ (function () {
     Input.shiftHeld = false;
     return Input;
 }());
-function onKeyDown(e) {
-    dirty = true;
-    if (e.key == " ")
-        Input.viewDragging = true;
-    if (e.key == "1")
-        Input.switchMode(InputMode.VERTEX);
-    if (e.key == "2")
-        Input.switchMode(InputMode.EDGE);
-    if (e.key == "3")
-        Input.switchMode(InputMode.SECTOR);
-    for (var i = 0; i < Tool.tools.length; i++) {
-        if (e.key == Tool.tools[i].selectKey) {
-            Tool.changeTool(Tool.tools[i]);
+var Input3D = /** @class */ (function () {
+    function Input3D() {
+    }
+    Input3D.Initialise = function () {
+        window.addEventListener("keydown", Input3D.onKeyDown);
+        window.addEventListener("keyup", Input3D.onKeyUp);
+        threerenderer.domElement.addEventListener("mousemove", Input3D.onMouseMove);
+        threerenderer.domElement.addEventListener("mousedown", Input3D.onMouseDown);
+        threerenderer.domElement.addEventListener("mouseup", Input3D.onMouseUp);
+        // I love standards
+        // mainCanvas.canvas.addEventListener("mousewheel", Input3D.onMouseWheel);
+        // mainCanvas.canvas.addEventListener("wheel", Input3D.onMouseWheel);
+    };
+    Input3D.Uninitialise = function () {
+        window.removeEventListener("keydown", Input3D.onKeyDown);
+        window.removeEventListener("keyup", Input3D.onKeyUp);
+        threerenderer.domElement.removeEventListener("mousemove", Input3D.onMouseMove);
+        threerenderer.domElement.removeEventListener("mousedown", Input3D.onMouseDown);
+        threerenderer.domElement.removeEventListener("mouseup", Input3D.onMouseUp);
+        // mainCanvas.canvas.removeEventListener("mousewheel", Input3D.onMouseWheel);
+        // mainCanvas.canvas.removeEventListener("wheel", Input3D.onMouseWheel);
+    };
+    Input3D.onKeyUp = function (e) {
+        if (e.key == "w")
+            Input3D.forward = false;
+        if (e.key == "a")
+            Input3D.left = false;
+        if (e.key == "s")
+            Input3D.backward = false;
+        if (e.key == "d")
+            Input3D.right = false;
+    };
+    Input3D.onKeyDown = function (e) {
+        if (e.key == "Tab") {
+            switchView();
         }
-    }
-    if (e.key == "]") {
-        mainCanvas.gridSize *= 2;
-    }
-    if (e.key == "[") {
-        mainCanvas.gridSize /= 2;
-    }
-    if (e.key == "Escape") {
-        Tool.changeTool(Tool.tools[0]);
-    }
-    if (e.key == "Shift") {
-        Input.shiftHeld = true;
-    }
-    if (e.keyCode == 224 || e.keyCode == 91 || e.keyCode == 93 || e.key == "Control") {
-        Input.ctrlHeld = true;
-    }
-    if (Input.ctrlHeld && e.key == "z") {
-        Undo.undo();
-    }
-    if (e.key == "Tab") {
-        switchView();
-    }
-}
-function onKeyUp(e) {
-    dirty = true;
-    if (e.key == " ")
-        Input.viewDragging = false;
-    if (e.key == "Shift") {
-        Input.shiftHeld = false;
-    }
-    if (e.keyCode == 224 || e.keyCode == 91 || e.keyCode == 93 || e.key == "Control") {
-        Input.ctrlHeld = false;
-    }
-}
-function onMouseMove(e) {
-    dirty = true;
-    Input.mousePos = mainCanvas.viewToPos(new Vertex(e.offsetX, e.offsetY));
-    Input.mouseGridPos = mainCanvas.viewToGridPos(new Vertex(e.offsetX, e.offsetY));
-    if (Input.viewDragging) {
-        mainCanvas.viewOffset.x -= e.movementX;
-        mainCanvas.viewOffset.y -= e.movementY;
-    }
-    if (Tool.activeTool.onMouseMove) {
-        Tool.activeTool.onMouseMove(e);
-    }
-}
-function onMouseWheel(e) {
-    dirty = true;
-    e.preventDefault();
-    if (e.deltaY > 0) {
-        mainCanvas.zoom *= mainCanvas.ZOOM_SPEED;
-        mainCanvas.viewOffset.x -= (Input.mousePos.x) * ((mainCanvas.ZOOM_SPEED - 1.0) / mainCanvas.zoom);
-        mainCanvas.viewOffset.y -= (Input.mousePos.y) * ((mainCanvas.ZOOM_SPEED - 1.0) / mainCanvas.zoom);
-    }
-    if (e.deltaY < 0) {
-        mainCanvas.zoom /= mainCanvas.ZOOM_SPEED;
-        mainCanvas.viewOffset.x += (Input.mousePos.x) * ((mainCanvas.ZOOM_SPEED - 1.0) / mainCanvas.zoom);
-        mainCanvas.viewOffset.y += (Input.mousePos.y) * ((mainCanvas.ZOOM_SPEED - 1.0) / mainCanvas.zoom);
-    }
-}
-function onMouseDown(e) {
-    e.preventDefault();
-    if (Tool.activeTool.onMouseDown) {
-        Tool.activeTool.onMouseDown(e);
-    }
-    dirty = true;
-}
-function onMouseUp(e) {
-    if (Tool.activeTool.onMouseUp) {
-        Tool.activeTool.onMouseUp(e);
-    }
-    dirty = true;
-}
+        if (e.key == "w")
+            Input3D.forward = true;
+        if (e.key == "a")
+            Input3D.left = true;
+        if (e.key == "s")
+            Input3D.backward = true;
+        if (e.key == "d")
+            Input3D.right = true;
+    };
+    Input3D.onMouseMove = function (e) {
+        if (Input3D.dragging) {
+            Input3D.rotY += e.movementX * -0.008;
+            Input3D.rotX += e.movementY * -0.008;
+            threecam.lookAt(threecam.position.x + Math.sin(Input3D.rotY) * Math.cos(Input3D.rotX), threecam.position.y + Math.sin(Input3D.rotX), threecam.position.z + Math.cos(Input3D.rotY) * Math.cos(Input3D.rotX));
+        }
+    };
+    Input3D.onMouseDown = function (e) {
+        e.preventDefault();
+        if (e.button == 2) {
+            Input3D.dragging = true;
+        }
+    };
+    Input3D.onMouseUp = function (e) {
+        e.preventDefault();
+        if (e.button == 2) {
+            Input3D.dragging = false;
+        }
+    };
+    Input3D.update = function () {
+        if (Input3D.forward) {
+            threecam.translateOnAxis(Input3D.forwardAxis, 0.05);
+        }
+        if (Input3D.backward) {
+            threecam.translateOnAxis(Input3D.backwardAxis, 0.05);
+        }
+        if (Input3D.left) {
+            threecam.translateOnAxis(Input3D.leftAxis, 0.05);
+        }
+        if (Input3D.right) {
+            threecam.translateOnAxis(Input3D.rightAxis, 0.05);
+        }
+    };
+    Input3D.rotX = 0;
+    Input3D.rotY = 0;
+    Input3D.left = false;
+    Input3D.right = false;
+    Input3D.forward = false;
+    Input3D.backward = false;
+    Input3D.forwardAxis = new THREE.Vector3(0, 0, -1);
+    Input3D.backwardAxis = new THREE.Vector3(0, 0, 1);
+    Input3D.leftAxis = new THREE.Vector3(-1, 0, 0);
+    Input3D.rightAxis = new THREE.Vector3(1, 0, 0);
+    Input3D.dragging = false;
+    return Input3D;
+}());
 var mainCanvas;
 var mapData;
 var dirty;
@@ -471,60 +571,49 @@ function init() {
 }
 function update() {
     Anim.update();
+    if (threeDView) {
+        Input3D.update();
+    }
     if (dirty || threeDView) {
         render();
         dirty = false;
     }
 }
 function init3dCam() {
-    threescene = new THREE.Scene();
     var el = document.getElementById("canvasholder");
     threecam = new THREE.PerspectiveCamera(60, mainCanvas.canvas.width / mainCanvas.canvas.height, 0.1, 1000);
     threerenderer = new THREE.WebGLRenderer();
     threerenderer.setSize(mainCanvas.canvas.width, mainCanvas.canvas.height);
     el.appendChild(threerenderer.domElement);
     threerenderer.domElement.style.display = "none";
+}
+function build3dScene() {
+    threescene = new THREE.Scene();
     var material = new THREE.MeshDepthMaterial();
-    // let meshes = [];
     mapData.sectors.forEach(function (s) {
-        s.edges.forEach(function (e) {
-            if (!e.edgeLink) {
-                var g = new THREE.Geometry();
-                g.vertices.push(new THREE.Vector3(e.start.x / 32, 0, e.start.y / 32));
-                g.vertices.push(new THREE.Vector3(e.end.x / 32, 0, e.end.y / 32));
-                g.vertices.push(new THREE.Vector3(e.start.x / 32, 1, e.start.y / 32));
-                g.vertices.push(new THREE.Vector3(e.end.x / 32, 1, e.end.y / 32));
-                g.faces.push(new THREE.Face3(0, 2, 3));
-                g.faces.push(new THREE.Face3(0, 3, 1));
-                var m = new THREE.Mesh(g, material);
-                threescene.add(m);
-            }
-        });
+        s.buildMesh(material);
     });
-    // let geometry = new THREE.BoxGeometry(1,1,1);
-    // let cube = new THREE.Mesh( geometry, material );
-    // threescene.add( cube );
     threecam.position.y = 0.5;
 }
-// let cube;
 function switchView() {
     if (threeDView) {
         threeDView = false;
+        Input.Initialise();
+        Input3D.Uninitialise();
         threerenderer.domElement.style.display = "none";
         document.getElementById("maincanvas").style.display = "flex";
     }
     else {
         threeDView = true;
-        init3dCam();
+        build3dScene();
+        Input.Uninitialise();
+        Input3D.Initialise();
         threerenderer.domElement.style.display = "flex";
         document.getElementById("maincanvas").style.display = "none";
     }
 }
 function render() {
     if (threeDView) {
-        // cube.rotation.x += 0.01;
-        // cube.rotation.y += 0.01;
-        threecam.rotation.y += 0.01;
         threerenderer.render(threescene, threecam);
     }
     else {
@@ -1171,6 +1260,21 @@ var Sector = /** @class */ (function () {
         if (index == -1)
             index = this.edges.length - 1;
         return this.edges[index];
+    };
+    Sector.prototype.buildMesh = function (material) {
+        this.edges.forEach(function (e) {
+            if (!e.edgeLink) {
+                var g = new THREE.Geometry();
+                g.vertices.push(new THREE.Vector3(e.start.x / 32, 0, e.start.y / 32));
+                g.vertices.push(new THREE.Vector3(e.end.x / 32, 0, e.end.y / 32));
+                g.vertices.push(new THREE.Vector3(e.start.x / 32, 1, e.start.y / 32));
+                g.vertices.push(new THREE.Vector3(e.end.x / 32, 1, e.end.y / 32));
+                g.faces.push(new THREE.Face3(0, 2, 3));
+                g.faces.push(new THREE.Face3(0, 3, 1));
+                var m = new THREE.Mesh(g, material);
+                threescene.add(m);
+            }
+        });
     };
     return Sector;
 }());
