@@ -60,7 +60,23 @@ class BaseTool implements ITool {
                                 Undo.addState();
                                 edge.split(edge.getMidpoint());
                             }
-                        )
+                        ),
+                        new MenuItem(
+                            "Add Subdivision Modifier",
+                            function () {
+                                Undo.addState();
+                                edge.modifiers.push(new EdgeSubdivider(2));
+                                Properties.Refresh();
+                            }
+                        ),
+                        new MenuItem(
+                            "Add SinCurve Modifier",
+                            function () {
+                                Undo.addState();
+                                edge.modifiers.push(new SinCurve());
+                                Properties.Refresh();
+                            }
+                        ),
                     );
                 }
 
@@ -94,6 +110,8 @@ class BaseTool implements ITool {
             }
 
         }
+
+        
 
     }
 
@@ -146,6 +164,10 @@ class BaseTool implements ITool {
 
             mapData.updateEdgePairs();
             Undo.addState();
+        }
+
+        if (this.selectedEdges.length == 1) {
+            Properties.EdgeData(this.selectedEdges[0]);
         }
     }
 

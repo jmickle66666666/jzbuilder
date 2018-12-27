@@ -60,12 +60,15 @@ class ContextMenu implements ITool {
     }
 
     public getMouseItemIndex():number {
-        if (Input.mousePos.x < this.position.x) return -1;
-        if (Input.mousePos.y < this.position.y) return -1;
-        if (Input.mousePos.y >= this.position.y + (this.items.length * ContextMenu.itemSpacing)) return -1;
-        if (Input.mousePos.x >= this.position.x + this.width) return -1;
+        let v = mainCanvas.posToView(Input.mousePos);
+        let pos = mainCanvas.posToView(this.position);
 
-        return Math.floor((Input.mousePos.y - this.position.y) / ContextMenu.itemSpacing);
+        if (v.x < pos.x) return -1;
+        if (v.y < pos.y) return -1;
+        if (v.y >= pos.y + (this.items.length * ContextMenu.itemSpacing)) return -1;
+        if (v.x >= pos.x + this.width) return -1;
+
+        return Math.floor((v.y - pos.y) / ContextMenu.itemSpacing);
     }
 
     public static create(...items:Array<MenuItem>) {

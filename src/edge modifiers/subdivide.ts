@@ -1,5 +1,7 @@
-class EdgeSubdivider {
+class EdgeSubdivider implements EdgeModifier {
     private subdivisions:number;
+
+    public name:string = "Subdivide";
 
     public constructor (subdivisions:number) {
         this.subdivisions = Math.round(subdivisions);
@@ -21,6 +23,12 @@ class EdgeSubdivider {
         }
         output.vertices.push(edge.vertices[edge.vertices.length-1]);
         return output;
+    }
+
+    public editorElement():HTMLElement {
+        let elem = document.createElement("div");
+        elem.appendChild(Properties.NumberField(this, "subdivisions"));
+        return elem;
     }
 
     public toString():string {

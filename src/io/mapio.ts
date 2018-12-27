@@ -1,12 +1,23 @@
 class MapIO {
+
+    static profile:boolean = false;
+    static timer;
+
     static serialize(data:MapData):string {
-        let timer = Util.timer("serialize");
+
+        if (MapIO.profile) {
+            MapIO.timer = Util.timer("serialize");
+        }
+
         let output:string = "JZB01\n";
         data.sectors.forEach(s => {
             output += MapIO.serializeSector(s) + "\n";
         });
-        // console.log(output);
-        timer.stop();
+        
+        if (MapIO.profile) {
+            MapIO.timer.stop();
+        }
+
         return output;
     }
 
@@ -15,9 +26,6 @@ class MapIO {
         for (let i = 0; i < sector.edges.length; i++) {
             output += MapIO.serializeEdge(sector.edges[i]);
         }
-        // sector.edges.forEach(e=> {
-        //     output+=MapIO.serializeEdge(e);
-        // });
         return output;
     }
 
@@ -31,7 +39,11 @@ class MapIO {
 
 
     static unserialize(data:string):MapData {
-        let timer = Util.timer("unserialize");
+        
+        if (MapIO.profile) {
+            MapIO.timer = Util.timer("unserialize");
+        }
+
         let output:MapData = new MapData();
         output.sectors.length = 0;
         let lines:Array<string> = data.split('\n');
@@ -45,7 +57,11 @@ class MapIO {
         }
 
         output.updateEdgePairs();
-        timer.stop();
+
+        if (MapIO.profile) {
+            MapIO.timer.stop();
+        }
+
         return output;
     }
 

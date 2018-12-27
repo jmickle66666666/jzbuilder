@@ -16,6 +16,7 @@ class BuilderCanvas {
     SELECTION_COLOR : string       = "#FFDD8855";
     ACTIVE_FONT_COLOR : string       = "#FFFFFFFF";
     INACTIVE_FONT_COLOR : string       = "#FFFFFF77";
+    PROCESSED_VERTEX_COLOR : string = "#019900";
 
     VERTEX_SIZE : number            = 2;
     ZOOM_SPEED : number             = 1.05;
@@ -157,8 +158,8 @@ class BuilderCanvas {
         }
     }
 
-    drawVertex(vertex:Vertex):void {
-        this.ctx.fillStyle = this.VERTEX_COLOR;
+    drawVertex(vertex:Vertex, color:string = this.VERTEX_COLOR):void {
+        this.ctx.fillStyle = color;
         let p = this.posToView(vertex);
         this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
     }
@@ -226,7 +227,7 @@ class BuilderCanvas {
                 
                 for (let i = 1; i < e.vertices.length; i++) {
                     p = this.posToView(e.vertices[i]);
-                    this.drawVertex(e.vertices[i]);
+                    this.drawVertex(e.vertices[i], this.PROCESSED_VERTEX_COLOR);
                     this.ctx.lineTo(p.x, p.y);
                 }
             }

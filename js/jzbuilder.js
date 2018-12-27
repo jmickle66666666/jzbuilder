@@ -72,6 +72,7 @@ var BuilderCanvas = /** @class */ (function () {
         this.SELECTION_COLOR = "#FFDD8855";
         this.ACTIVE_FONT_COLOR = "#FFFFFFFF";
         this.INACTIVE_FONT_COLOR = "#FFFFFF77";
+        this.PROCESSED_VERTEX_COLOR = "#019900";
         this.VERTEX_SIZE = 2;
         this.ZOOM_SPEED = 1.05;
         this.GRIDLINE_WIDTH = 0.5;
@@ -186,8 +187,9 @@ var BuilderCanvas = /** @class */ (function () {
             }
         }
     };
-    BuilderCanvas.prototype.drawVertex = function (vertex) {
-        this.ctx.fillStyle = this.VERTEX_COLOR;
+    BuilderCanvas.prototype.drawVertex = function (vertex, color) {
+        if (color === void 0) { color = this.VERTEX_COLOR; }
+        this.ctx.fillStyle = color;
         var p = this.posToView(vertex);
         this.ctx.fillRect(p.x - this.VERTEX_SIZE, p.y - this.VERTEX_SIZE, this.VERTEX_SIZE * 2, this.VERTEX_SIZE * 2);
     };
@@ -257,7 +259,7 @@ var BuilderCanvas = /** @class */ (function () {
                 this.ctx.moveTo(p.x, p.y);
                 for (var i_1 = 1; i_1 < e.vertices.length; i_1++) {
                     p = this.posToView(e.vertices[i_1]);
-                    this.drawVertex(e.vertices[i_1]);
+                    this.drawVertex(e.vertices[i_1], this.PROCESSED_VERTEX_COLOR);
                     this.ctx.lineTo(p.x, p.y);
                 }
             }
@@ -867,6 +869,7 @@ var Color = /** @class */ (function () {
 // }
 var EdgeInset = /** @class */ (function () {
     function EdgeInset(x, y) {
+        this.name = "Inset";
         this.x = x;
         this.y = y;
     }
@@ -879,8 +882,42 @@ var EdgeInset = /** @class */ (function () {
     };
     return EdgeInset;
 }());
+var SinCurve = /** @class */ (function () {
+    function SinCurve(points, distance) {
+        if (points === void 0) { points = 5; }
+        if (distance === void 0) { distance = 16; }
+        this.name = "SinCurve";
+        this.points = points;
+        this.distance = distance;
+    }
+    SinCurve.prototype.process = function (edge) {
+        if (this.points <= 0)
+            return edge;
+        var output = new ProcessedEdge();
+        for (var i = 0; i < edge.vertices.length - 1; i++) {
+            output.vertices.push(edge.vertices[i]);
+            var offset = Vertex.Subtract(edge.vertices[i + 1], edge.vertices[i]);
+            var e = new Edge(edge.vertices[i], edge.vertices[i + 1]);
+            var normal = e.getNormal();
+            for (var j = 1.0 / this.points; j <= 1.0; j += 1.0 / this.points) {
+                var nv = Vertex.Add(edge.vertices[i], offset.scaled(j));
+                nv.add(normal.scaled(this.distance * Math.sin(j * Math.PI)));
+                output.vertices.push(nv);
+            }
+        }
+        return output;
+    };
+    SinCurve.prototype.editorElement = function () {
+        var elem = document.createElement("div");
+        elem.appendChild(Properties.NumberField(this, "points"));
+        elem.appendChild(Properties.NumberField(this, "distance"));
+        return elem;
+    };
+    return SinCurve;
+}());
 var EdgeSubdivider = /** @class */ (function () {
     function EdgeSubdivider(subdivisions) {
+        this.name = "Subdivide";
         this.subdivisions = Math.round(subdivisions);
     }
     EdgeSubdivider.prototype.process = function (edge) {
@@ -893,6 +930,11 @@ var EdgeSubdivider = /** @class */ (function () {
         }
         output.vertices.push(edge.vertices[edge.vertices.length - 1]);
         return output;
+    };
+    EdgeSubdivider.prototype.editorElement = function () {
+        var elem = document.createElement("div");
+        elem.appendChild(Properties.NumberField(this, "subdivisions"));
+        return elem;
     };
     EdgeSubdivider.prototype.toString = function () {
         return "Edge Subdivide";
@@ -912,7 +954,7 @@ var Edge = /** @class */ (function () {
             return this.processCache;
         }
         else {
-            this.dirty = false;
+            //this.dirty = false;
             var edge = new ProcessedEdge();
             edge.vertices = new Array();
             edge.vertices.push(this.start);
@@ -929,6 +971,11 @@ var Edge = /** @class */ (function () {
         var x = (this.end.x - this.start.x) / l;
         var y = (this.end.y - this.start.y) / l;
         return new Vertex(-y, x);
+    };
+    Edge.prototype.getNormal = function () {
+        var x = (this.end.x - this.start.x);
+        var y = (this.end.y - this.start.y);
+        return new Vertex(-y, x).normalised();
     };
     Edge.prototype.getMidpoint = function () {
         return new Vertex((this.start.x + this.end.x) / 2, (this.start.y + this.end.y) / 2);
@@ -1079,19 +1126,46 @@ var Vertex = /** @class */ (function () {
         this.x += offset.x;
         this.y += offset.y;
     };
+    Vertex.prototype.normalise = function () {
+        var mod = 1.0 / Util.distance(Vertex.Zero, this);
+        this.x *= mod;
+        this.y *= mod;
+    };
+    Vertex.prototype.normalised = function () {
+        var output = this.clone();
+        output.normalise();
+        return output;
+    };
+    Vertex.prototype.scale = function (scale) {
+        this.x *= scale;
+        this.y *= scale;
+    };
+    Vertex.prototype.scaled = function (scale) {
+        var output = this.clone();
+        output.scale(scale);
+        return output;
+    };
+    Vertex.prototype.add = function (add) {
+        this.x += add.x;
+        this.y += add.y;
+    };
+    Vertex.Zero = new Vertex(0, 0);
     return Vertex;
 }());
 var MapIO = /** @class */ (function () {
     function MapIO() {
     }
     MapIO.serialize = function (data) {
-        var timer = Util.timer("serialize");
+        if (MapIO.profile) {
+            MapIO.timer = Util.timer("serialize");
+        }
         var output = "JZB01\n";
         data.sectors.forEach(function (s) {
             output += MapIO.serializeSector(s) + "\n";
         });
-        // console.log(output);
-        timer.stop();
+        if (MapIO.profile) {
+            MapIO.timer.stop();
+        }
         return output;
     };
     MapIO.serializeSector = function (sector) {
@@ -1099,9 +1173,6 @@ var MapIO = /** @class */ (function () {
         for (var i = 0; i < sector.edges.length; i++) {
             output += MapIO.serializeEdge(sector.edges[i]);
         }
-        // sector.edges.forEach(e=> {
-        //     output+=MapIO.serializeEdge(e);
-        // });
         return output;
     };
     MapIO.serializeEdge = function (edge) {
@@ -1111,7 +1182,9 @@ var MapIO = /** @class */ (function () {
         return "v(" + vertex.x + "," + vertex.y + ")";
     };
     MapIO.unserialize = function (data) {
-        var timer = Util.timer("unserialize");
+        if (MapIO.profile) {
+            MapIO.timer = Util.timer("unserialize");
+        }
         var output = new MapData();
         output.sectors.length = 0;
         var lines = data.split('\n');
@@ -1123,7 +1196,9 @@ var MapIO = /** @class */ (function () {
             output.sectors.push(MapIO.unserializeSector(lines[i]));
         }
         output.updateEdgePairs();
-        timer.stop();
+        if (MapIO.profile) {
+            MapIO.timer.stop();
+        }
         return output;
     };
     MapIO.unserializeSector = function (data) {
@@ -1152,6 +1227,7 @@ var MapIO = /** @class */ (function () {
         output.y = Number(data.substr(commaIndex + 1, data.indexOf(')') - commaIndex - 1));
         return output;
     };
+    MapIO.profile = false;
     return MapIO;
 }());
 var UDMF = /** @class */ (function () {
@@ -1213,6 +1289,14 @@ var BaseTool = /** @class */ (function () {
                     ContextMenu.create(new MenuItem("Split edge", function () {
                         Undo.addState();
                         edge_1.split(edge_1.getMidpoint());
+                    }), new MenuItem("Add Subdivision Modifier", function () {
+                        Undo.addState();
+                        edge_1.modifiers.push(new EdgeSubdivider(2));
+                        Properties.Refresh();
+                    }), new MenuItem("Add SinCurve Modifier", function () {
+                        Undo.addState();
+                        edge_1.modifiers.push(new SinCurve());
+                        Properties.Refresh();
                     }));
                 }
             }
@@ -1274,6 +1358,9 @@ var BaseTool = /** @class */ (function () {
             }
             mapData.updateEdgePairs();
             Undo.addState();
+        }
+        if (this.selectedEdges.length == 1) {
+            Properties.EdgeData(this.selectedEdges[0]);
         }
     };
     BaseTool.prototype.onMouseMove = function (e) {
@@ -1404,15 +1491,17 @@ var ContextMenu = /** @class */ (function () {
         }
     };
     ContextMenu.prototype.getMouseItemIndex = function () {
-        if (Input.mousePos.x < this.position.x)
+        var v = mainCanvas.posToView(Input.mousePos);
+        var pos = mainCanvas.posToView(this.position);
+        if (v.x < pos.x)
             return -1;
-        if (Input.mousePos.y < this.position.y)
+        if (v.y < pos.y)
             return -1;
-        if (Input.mousePos.y >= this.position.y + (this.items.length * ContextMenu.itemSpacing))
+        if (v.y >= pos.y + (this.items.length * ContextMenu.itemSpacing))
             return -1;
-        if (Input.mousePos.x >= this.position.x + this.width)
+        if (v.x >= pos.x + this.width)
             return -1;
-        return Math.floor((Input.mousePos.y - this.position.y) / ContextMenu.itemSpacing);
+        return Math.floor((v.y - pos.y) / ContextMenu.itemSpacing);
     };
     ContextMenu.create = function () {
         var items = [];
@@ -1565,5 +1654,117 @@ var Split = /** @class */ (function () {
         // mainCanvas.highlightEdge(mapData.getNearestEdge(Input.mouseGridPos));
     };
     return Split;
+}());
+var Properties = /** @class */ (function () {
+    function Properties() {
+    }
+    Properties.ShowData = function (obj) {
+        Properties.lastObject = obj;
+        if (obj.constructor.name == "Edge") {
+            Properties.EdgeData(obj);
+            return;
+        }
+        Properties.ClearData();
+        var header = document.createElement("h2");
+        header.innerHTML = obj.constructor.name + " properties:";
+        Properties.element.appendChild(header);
+        for (var propertyName in obj) {
+            if (obj[propertyName].constructor.name == "Vertex") {
+                Properties.VertexEditor(propertyName, obj[propertyName]);
+                Properties.element.appendChild(document.createElement("p"));
+            }
+            else {
+                console.log("No handler for property type: " + obj[propertyName].constructor.name + " with name " + propertyName);
+            }
+        }
+    };
+    Properties.Refresh = function () {
+        Properties.ShowData(Properties.lastObject);
+    };
+    Properties.EdgeData = function (edge) {
+        Properties.lastObject = edge;
+        Properties.ClearData();
+        var header = document.createElement("h2");
+        header.innerHTML = "Edge properties:";
+        Properties.element.appendChild(header);
+        Properties.VertexData("Start", edge.start);
+        Properties.NewLine();
+        Properties.VertexData("End", edge.end);
+        Properties.NewLine();
+        Properties.NewLine();
+        Properties.EdgeModifiers(edge.modifiers);
+    };
+    Properties.EdgeModifiers = function (modifiers) {
+        if (modifiers.length == 0)
+            return;
+        Properties.element.insertAdjacentHTML += "Modifiers: <p>";
+        var _loop_1 = function (i) {
+            var m = modifiers[i];
+            Properties.Label(m.name);
+            if (m.editorElement) {
+                Properties.element.appendChild(m.editorElement());
+            }
+            Properties.Button("Remove", function () {
+                modifiers.splice(modifiers.indexOf(m), 1);
+                Properties.Refresh();
+                dirty = true;
+            });
+            Properties.NewLine();
+            Properties.NewLine();
+        };
+        for (var i = 0; i < modifiers.length; i++) {
+            _loop_1(i);
+        }
+    };
+    Properties.Label = function (text) {
+        var elem = document.createElement("span");
+        elem.innerHTML = text;
+        Properties.element.appendChild(elem);
+    };
+    Properties.Button = function (name, onClick) {
+        var button = document.createElement("input");
+        button.type = "button";
+        button.value = name;
+        button.onclick = function () {
+            onClick();
+        };
+        Properties.element.appendChild(button);
+    };
+    Properties.NewLine = function () {
+        Properties.element.appendChild(document.createElement("br"));
+    };
+    Properties.VertexData = function (name, v) {
+        Properties.Label(name + " ( " + v.x + ", " + v.y + " )");
+    };
+    Properties.VertexEditor = function (name, v) {
+        Properties.Label(name);
+        Properties.element.appendChild(Properties.NumberField(v, "x"));
+        Properties.element.appendChild(Properties.NumberField(v, "y"));
+    };
+    Properties.NumberField = function (obj, prop) {
+        var span = document.createElement("span");
+        span.innerHTML = prop;
+        var elem = document.createElement("input");
+        elem.type = "number";
+        elem.value = obj[prop];
+        elem.style.width = "20%";
+        elem.onchange = function () {
+            obj[prop] = elem.value;
+            dirty = true;
+        };
+        span.appendChild(elem);
+        return span;
+    };
+    Properties.ClearData = function () {
+        if (Properties.element == null) {
+            Properties.element = document.getElementById(Properties.elementID);
+        }
+        while (Properties.element.hasChildNodes()) {
+            Properties.element.removeChild(Properties.element.lastChild);
+        }
+        Properties.element.innerHTML = "";
+    };
+    Properties.elementID = "properties";
+    return Properties;
 }());
 //# sourceMappingURL=jzbuilder.js.map

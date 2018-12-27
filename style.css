@@ -17,9 +17,9 @@ body {
     padding: 0.5%;
 }
 
-button {
+/* button {
     height:100%;
-}
+} */
 
 img.menuIcon {
     image-rendering: -moz-crisp-edges;

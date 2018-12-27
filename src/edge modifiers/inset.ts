@@ -1,4 +1,4 @@
-class EdgeInset {
+class EdgeInset implements EdgeModifier {
     private x:number;
     private y:number;
 
@@ -14,4 +14,6 @@ class EdgeInset {
         }
         return edge;
     }
+
+    public name:string = "Inset";
 }

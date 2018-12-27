@@ -13,7 +13,7 @@ class Edge {
         if (!this.dirty) {
             return this.processCache;
         } else {
-            this.dirty = false;
+            //this.dirty = false;
 
             let edge:ProcessedEdge = new ProcessedEdge();
             edge.vertices = new Array<Vertex>();
@@ -24,6 +24,7 @@ class Edge {
             }
             this.processCache = edge;
             return this.processCache;
+
         }
     }
 
@@ -32,6 +33,12 @@ class Edge {
         let x = (this.end.x - this.start.x) / l;
         let y = (this.end.y - this.start.y) / l;
         return new Vertex(-y, x);
+    }
+
+    public getNormal():Vertex {
+        let x = (this.end.x - this.start.x);
+        let y = (this.end.y - this.start.y);
+        return new Vertex(-y, x).normalised();
     }
 
     public getMidpoint():Vertex {
@@ -134,4 +141,6 @@ class ProcessedEdge {
 interface EdgeModifier {
     process(edge: ProcessedEdge):ProcessedEdge;
     toString():string;
+    name:string;
+    editorElement?():HTMLElement;
 }
