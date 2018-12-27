@@ -91,6 +91,10 @@ function onKeyDown(e : KeyboardEvent):void {
     if (Input.ctrlHeld && e.key == "z") {
         Undo.undo();
     }
+
+    if (e.key == "Tab") {
+        switchView();
+    }
 }
 
 function onKeyUp(e:KeyboardEvent):void {
