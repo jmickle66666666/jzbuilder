@@ -12,6 +12,8 @@ class Input3D {
     static leftAxis = new THREE.Vector3(-1, 0, 0);
     static rightAxis = new THREE.Vector3(1, 0, 0);
 
+    static flySpeed = 4;
+
     static Initialise() {
 
         window.addEventListener("keydown", Input3D.onKeyDown);
@@ -85,19 +87,19 @@ class Input3D {
 
     static update() {
         if (Input3D.forward) {
-            threecam.translateOnAxis(Input3D.forwardAxis, 0.05);
+            threecam.translateOnAxis(Input3D.forwardAxis, Input3D.flySpeed);
         }
 
         if (Input3D.backward) {
-            threecam.translateOnAxis(Input3D.backwardAxis, 0.05);
+            threecam.translateOnAxis(Input3D.backwardAxis, Input3D.flySpeed);
         }
 
         if (Input3D.left) {
-            threecam.translateOnAxis(Input3D.leftAxis, 0.05);
+            threecam.translateOnAxis(Input3D.leftAxis, Input3D.flySpeed);
         }
 
         if (Input3D.right) {
-            threecam.translateOnAxis(Input3D.rightAxis, 0.05);
+            threecam.translateOnAxis(Input3D.rightAxis, Input3D.flySpeed);
         }
     }
 }

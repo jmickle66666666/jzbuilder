@@ -520,16 +520,16 @@ var Input3D = /** @class */ (function () {
     };
     Input3D.update = function () {
         if (Input3D.forward) {
-            threecam.translateOnAxis(Input3D.forwardAxis, 0.05);
+            threecam.translateOnAxis(Input3D.forwardAxis, Input3D.flySpeed);
         }
         if (Input3D.backward) {
-            threecam.translateOnAxis(Input3D.backwardAxis, 0.05);
+            threecam.translateOnAxis(Input3D.backwardAxis, Input3D.flySpeed);
         }
         if (Input3D.left) {
-            threecam.translateOnAxis(Input3D.leftAxis, 0.05);
+            threecam.translateOnAxis(Input3D.leftAxis, Input3D.flySpeed);
         }
         if (Input3D.right) {
-            threecam.translateOnAxis(Input3D.rightAxis, 0.05);
+            threecam.translateOnAxis(Input3D.rightAxis, Input3D.flySpeed);
         }
     };
     Input3D.rotX = 0;
@@ -542,6 +542,7 @@ var Input3D = /** @class */ (function () {
     Input3D.backwardAxis = new THREE.Vector3(0, 0, 1);
     Input3D.leftAxis = new THREE.Vector3(-1, 0, 0);
     Input3D.rightAxis = new THREE.Vector3(1, 0, 0);
+    Input3D.flySpeed = 4;
     Input3D.dragging = false;
     return Input3D;
 }());
@@ -589,11 +590,17 @@ function init3dCam() {
 }
 function build3dScene() {
     threescene = new THREE.Scene();
-    var material = new THREE.MeshDepthMaterial();
+    var material = new THREE.MeshBasicMaterial();
+    var tex = new THREE.TextureLoader().load('test.png');
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(1 / 128, 1 / 128);
+    tex.magFilter = THREE.NearestFilter;
+    material.map = tex;
     mapData.sectors.forEach(function (s) {
         s.buildMesh(material);
     });
-    threecam.position.y = 0.5;
+    threecam.position.y = 64;
 }
 function switchView() {
     if (threeDView) {
@@ -1211,6 +1218,31 @@ var Edge = /** @class */ (function () {
     Edge.prototype.getAngle = function () {
         return Math.atan2(this.end.y - this.start.y, this.end.x - this.start.x);
     };
+    Edge.prototype.getGeometry = function () {
+        var points = this.process().vertices;
+        var off = 0;
+        var geo = new THREE.Geometry();
+        for (var i = 0; i < points.length - 1; i++) {
+            var g = new THREE.Geometry();
+            g.vertices.push(new THREE.Vector3(points[i].x, 0, points[i].y));
+            g.vertices.push(new THREE.Vector3(points[i + 1].x, 0, points[i + 1].y));
+            g.vertices.push(new THREE.Vector3(points[i].x, 128, points[i].y));
+            g.vertices.push(new THREE.Vector3(points[i + 1].x, 128, points[i + 1].y));
+            g.faces.push(new THREE.Face3(0, 2, 3));
+            g.faces.push(new THREE.Face3(0, 3, 1));
+            var len = Util.distance(points[i], points[i + 1]);
+            var uv00 = new THREE.Vector2(off, 0);
+            var uv01 = new THREE.Vector2(off, 128);
+            var uv11 = new THREE.Vector2(off + len, 128);
+            var uv10 = new THREE.Vector2(off + len, 0);
+            off += len;
+            g.faceVertexUvs[0].push([uv00, uv01, uv11]);
+            g.faceVertexUvs[0].push([uv00, uv11, uv10]);
+            g.uvsNeedUpdate = true;
+            geo.merge(g);
+        }
+        return geo;
+    };
     return Edge;
 }());
 var ProcessedEdge = /** @class */ (function () {
@@ -1261,20 +1293,46 @@ var Sector = /** @class */ (function () {
             index = this.edges.length - 1;
         return this.edges[index];
     };
+    Sector.prototype.toPoints = function () {
+        var output = new Array();
+        for (var i = 0; i < this.edges.length; i++) {
+            var e = this.edges[i].process();
+            for (var j = 0; j < e.vertices.length - 1; j++) {
+                output.push(e.vertices[j]);
+            }
+        }
+        output.push(this.edges[0].start);
+        return output;
+    };
     Sector.prototype.buildMesh = function (material) {
-        this.edges.forEach(function (e) {
-            if (!e.edgeLink) {
-                var g = new THREE.Geometry();
-                g.vertices.push(new THREE.Vector3(e.start.x / 32, 0, e.start.y / 32));
-                g.vertices.push(new THREE.Vector3(e.end.x / 32, 0, e.end.y / 32));
-                g.vertices.push(new THREE.Vector3(e.start.x / 32, 1, e.start.y / 32));
-                g.vertices.push(new THREE.Vector3(e.end.x / 32, 1, e.end.y / 32));
-                g.faces.push(new THREE.Face3(0, 2, 3));
-                g.faces.push(new THREE.Face3(0, 3, 1));
+        var points = this.toPoints();
+        for (var i = 0; i < this.edges.length; i++) {
+            if (this.edges[i].edgeLink == null) {
+                var g = this.edges[i].getGeometry();
                 var m = new THREE.Mesh(g, material);
                 threescene.add(m);
             }
-        });
+        }
+        var shape = new THREE.Shape();
+        shape.moveTo(points[0].x, -points[0].y);
+        for (var i = 1; i < points.length; i++) {
+            shape.lineTo(points[i].x, -points[i].y);
+        }
+        var geo = new THREE.ShapeGeometry(shape);
+        geo.rotateX(-Math.PI / 2);
+        var mesh = new THREE.Mesh(geo, material);
+        threescene.add(mesh);
+        points = points.reverse();
+        shape = new THREE.Shape();
+        shape.moveTo(points[0].x, points[0].y);
+        for (var i = 1; i < points.length; i++) {
+            shape.lineTo(points[i].x, points[i].y);
+        }
+        geo = new THREE.ShapeGeometry(shape);
+        geo.rotateX(Math.PI / 2);
+        geo.translate(0, 128, 0);
+        mesh = new THREE.Mesh(geo, material);
+        threescene.add(mesh);
     };
     return Sector;
 }());

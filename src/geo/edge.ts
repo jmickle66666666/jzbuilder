@@ -128,6 +128,40 @@ class Edge {
     public getAngle():number {
         return Math.atan2(this.end.y - this.start.y, this.end.x - this.start.x);
     }
+
+    public getGeometry() {
+
+        let points = this.process().vertices;
+        let off = 0;
+        let geo = new THREE.Geometry();
+        for (let i = 0; i < points.length - 1; i++) {
+            let g = new THREE.Geometry();
+            g.vertices.push(new THREE.Vector3(points[i].x, 0, points[i].y));
+            g.vertices.push(new THREE.Vector3(points[i+1].x, 0, points[i+1].y));
+            g.vertices.push(new THREE.Vector3(points[i].x, 128, points[i].y));
+            g.vertices.push(new THREE.Vector3(points[i+1].x, 128, points[i+1].y));
+
+            g.faces.push(new THREE.Face3(0, 2, 3));
+            g.faces.push(new THREE.Face3(0, 3, 1));
+
+            let len = Util.distance(points[i], points[i+1]);
+
+            let uv00 = new THREE.Vector2(off, 0);
+            let uv01 = new THREE.Vector2(off, 128);
+            let uv11 = new THREE.Vector2(off + len, 128);
+            let uv10 = new THREE.Vector2(off + len, 0);
+
+            off += len;
+
+            g.faceVertexUvs[0].push([uv00, uv01, uv11]);
+            g.faceVertexUvs[0].push([uv00, uv11, uv10]);
+
+            g.uvsNeedUpdate = true;
+
+            geo.merge(g);
+        }
+        return geo;
+    }
 }
 
 class ProcessedEdge {

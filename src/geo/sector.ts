@@ -46,24 +46,60 @@ class Sector {
         return this.edges[index];
     }
 
-    public buildMesh(material) {
-        this.edges.forEach(e => {
+    public toPoints():Array<Vertex> {
+        let output = new Array<Vertex>();
 
-            if (!e.edgeLink) {
-    
-            let g = new THREE.Geometry();
-            g.vertices.push(new THREE.Vector3(e.start.x / 32, 0, e.start.y / 32));
-            g.vertices.push(new THREE.Vector3(e.end.x / 32, 0, e.end.y / 32));
-            g.vertices.push(new THREE.Vector3(e.start.x / 32, 1, e.start.y / 32));
-            g.vertices.push(new THREE.Vector3(e.end.x / 32, 1, e.end.y / 32));
-    
-            g.faces.push(new THREE.Face3(0, 2, 3));
-            g.faces.push(new THREE.Face3(0, 3, 1));
-    
-            let m = new THREE.Mesh(g, material);
-            threescene.add(m);
+        for (let i = 0; i < this.edges.length; i++) {
+            let e = this.edges[i].process();
+            for (let j = 0; j < e.vertices.length - 1; j++) {
+                output.push(e.vertices[j]);
             }
-        })
+        }
+        output.push(this.edges[0].start);
+
+        return output;
+    }
+
+    public buildMesh(material) {
+
+        let points = this.toPoints();
+
+        for (let i = 0; i < this.edges.length; i++) {
+            if (this.edges[i].edgeLink == null) {
+                let g = this.edges[i].getGeometry();
+                let m = new THREE.Mesh(g, material);
+                threescene.add(m);
+            }
+        }
+
+        let shape = new THREE.Shape();
+
+        shape.moveTo(points[0].x, -points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            shape.lineTo(points[i].x, -points[i].y);
+        }
+
+        let geo = new THREE.ShapeGeometry( shape );
+        geo.rotateX(-Math.PI / 2);
+        let mesh = new THREE.Mesh(geo, material);
+        threescene.add(mesh);
+
+        points = points.reverse();
+
+        shape = new THREE.Shape();
+
+        shape.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            shape.lineTo(points[i].x, points[i].y);
+        }
+
+        geo = new THREE.ShapeGeometry( shape );
+        geo.rotateX(Math.PI / 2);
+        geo.translate(0, 128, 0);
+        mesh = new THREE.Mesh(geo, material);
+        threescene.add(mesh);
+
+
     }
 
 }

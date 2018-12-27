@@ -55,13 +55,19 @@ function init3dCam() {
 function build3dScene() {
 
     threescene = new THREE.Scene();
-    var material = new THREE.MeshDepthMaterial();
+    var material = new THREE.MeshBasicMaterial();
+    let tex = new THREE.TextureLoader().load('test.png');
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(1 / 128, 1 / 128);
+    tex.magFilter = THREE.NearestFilter;
+    material.map = tex;
 
     mapData.sectors.forEach(s => {
         s.buildMesh(material);
     })
 
-    threecam.position.y = 0.5;
+    threecam.position.y = 64;
 }
 
 function switchView() {
