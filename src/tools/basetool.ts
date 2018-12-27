@@ -37,10 +37,11 @@ class BaseTool implements ITool {
             this.dragged = false;
             this.dragging = true;
             this.lastPos = Input.mouseGridPos;
+            this.updateSelection();
         } else if (e.button == 2) {
 
             if (Input.mode == InputMode.VERTEX && this.selectedVertexes.length != 0) {
-
+                // Show selected vertexes with selection
                 ContextMenu.create(
                     new MenuItem(
                         "Selected Vertexes: " + this.selectedVertexes.length,
@@ -121,46 +122,7 @@ class BaseTool implements ITool {
 
         if (!this.dragged) {
 
-            if (!Input.shiftHeld) {
-                this.selectedVertexes.length = 0;
-                this.selectedEdges.length = 0;
-                this.selectedSectors.length = 0;
-            }
-    
-            if (Input.mode == InputMode.VERTEX) {
-                let v = mapData.getNearestVertex(Input.mousePos, 64);
-    
-                if (v) {
-                    mapData.getVerticesAt(v, this.selectedVertexes);
-                    this.updateActiveVertexes();
-                }
-            }
-    
-            if (Input.mode == InputMode.EDGE) {
-                let e = mapData.getNearestEdge(Input.mousePos, 64);
-                if (e) {
-                    let i = this.selectedEdges.indexOf(e);
-                    if (i >= 0) {
-                        this.selectedEdges.splice(i, 1);
-                    } else {
-                        this.selectedEdges.push(e);
-                    }
-                    this.updateActiveVertexes();
-                }
-            }
-    
-            if (Input.mode == InputMode.SECTOR) {
-                let s = mapData.getNearestSector(Input.mousePos);
-                if (s) {
-                    let i = this.selectedSectors.indexOf(s);
-                    if (i >= 0) {
-                        this.selectedSectors.splice(i, 1);
-                    } else {
-                        this.selectedSectors.push(s);
-                    }
-                    this.updateActiveVertexes();
-                }
-            }
+            this.updateSelection();
 
             mapData.updateEdgePairs();
             Undo.addState();
@@ -240,6 +202,50 @@ class BaseTool implements ITool {
 
     public onUnswitch():void {
         Input.lockModes = false;
+    }
+
+    updateSelection():void {
+
+        if (!Input.shiftHeld) {
+            this.selectedVertexes.length = 0;
+            this.selectedEdges.length = 0;
+            this.selectedSectors.length = 0;
+        }
+
+        if (Input.mode == InputMode.VERTEX) {
+            let v = mapData.getNearestVertex(Input.mousePos, 64);
+
+            if (v) {
+                mapData.getVerticesAt(v, this.selectedVertexes);
+                this.updateActiveVertexes();
+            }
+        }
+
+        if (Input.mode == InputMode.EDGE) {
+            let e = mapData.getNearestEdge(Input.mousePos, 64);
+            if (e) {
+                let i = this.selectedEdges.indexOf(e);
+                if (i >= 0) {
+                    this.selectedEdges.splice(i, 1);
+                } else {
+                    this.selectedEdges.push(e);
+                }
+                this.updateActiveVertexes();
+            }
+        }
+
+        if (Input.mode == InputMode.SECTOR) {
+            let s = mapData.getNearestSector(Input.mousePos);
+            if (s) {
+                let i = this.selectedSectors.indexOf(s);
+                if (i >= 0) {
+                    this.selectedSectors.splice(i, 1);
+                } else {
+                    this.selectedSectors.push(s);
+                }
+                this.updateActiveVertexes();
+            }
+        }
     }
 
     updateActiveVertexes():void {

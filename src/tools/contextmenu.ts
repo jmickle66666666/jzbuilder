@@ -71,13 +71,15 @@ class ContextMenu implements ITool {
         return Math.floor((v.y - pos.y) / ContextMenu.itemSpacing);
     }
 
-    public static create(...items:Array<MenuItem>) {
-        Tool.changeTool(
-            new ContextMenu(
-                Input.mousePos,
-                ...items
-            )
+    public static create(...items:Array<MenuItem>):ContextMenu {
+        let menu = new ContextMenu(
+            Input.mousePos,
+            ...items
         );
+        Tool.changeTool(
+            menu
+        );
+        return menu;
     } 
 }
 

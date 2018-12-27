@@ -1278,10 +1278,11 @@ var BaseTool = /** @class */ (function () {
             this.dragged = false;
             this.dragging = true;
             this.lastPos = Input.mouseGridPos;
+            this.updateSelection();
         }
         else if (e.button == 2) {
             if (Input.mode == InputMode.VERTEX && this.selectedVertexes.length != 0) {
-                ContextMenu.create(new MenuItem("Selected Vertexes: " + this.selectedVertexes.length, null));
+                ContextMenu.create(new MenuItem("Selected Vertexes: " + this.selectedVertexes.length, null)).onRender = this.onRender;
             }
             else if (Input.mode == InputMode.EDGE && this.selectedEdges.length != 0) {
                 if (this.selectedEdges.length == 1) {
@@ -1318,44 +1319,7 @@ var BaseTool = /** @class */ (function () {
         this.dragging = false;
         Input.lockModes = false;
         if (!this.dragged) {
-            if (!Input.shiftHeld) {
-                this.selectedVertexes.length = 0;
-                this.selectedEdges.length = 0;
-                this.selectedSectors.length = 0;
-            }
-            if (Input.mode == InputMode.VERTEX) {
-                var v = mapData.getNearestVertex(Input.mousePos, 64);
-                if (v) {
-                    mapData.getVerticesAt(v, this.selectedVertexes);
-                    this.updateActiveVertexes();
-                }
-            }
-            if (Input.mode == InputMode.EDGE) {
-                var e_1 = mapData.getNearestEdge(Input.mousePos, 64);
-                if (e_1) {
-                    var i = this.selectedEdges.indexOf(e_1);
-                    if (i >= 0) {
-                        this.selectedEdges.splice(i, 1);
-                    }
-                    else {
-                        this.selectedEdges.push(e_1);
-                    }
-                    this.updateActiveVertexes();
-                }
-            }
-            if (Input.mode == InputMode.SECTOR) {
-                var s = mapData.getNearestSector(Input.mousePos);
-                if (s) {
-                    var i = this.selectedSectors.indexOf(s);
-                    if (i >= 0) {
-                        this.selectedSectors.splice(i, 1);
-                    }
-                    else {
-                        this.selectedSectors.push(s);
-                    }
-                    this.updateActiveVertexes();
-                }
-            }
+            this.updateSelection();
             mapData.updateEdgePairs();
             Undo.addState();
         }
@@ -1418,6 +1382,46 @@ var BaseTool = /** @class */ (function () {
     };
     BaseTool.prototype.onUnswitch = function () {
         Input.lockModes = false;
+    };
+    BaseTool.prototype.updateSelection = function () {
+        if (!Input.shiftHeld) {
+            this.selectedVertexes.length = 0;
+            this.selectedEdges.length = 0;
+            this.selectedSectors.length = 0;
+        }
+        if (Input.mode == InputMode.VERTEX) {
+            var v = mapData.getNearestVertex(Input.mousePos, 64);
+            if (v) {
+                mapData.getVerticesAt(v, this.selectedVertexes);
+                this.updateActiveVertexes();
+            }
+        }
+        if (Input.mode == InputMode.EDGE) {
+            var e = mapData.getNearestEdge(Input.mousePos, 64);
+            if (e) {
+                var i = this.selectedEdges.indexOf(e);
+                if (i >= 0) {
+                    this.selectedEdges.splice(i, 1);
+                }
+                else {
+                    this.selectedEdges.push(e);
+                }
+                this.updateActiveVertexes();
+            }
+        }
+        if (Input.mode == InputMode.SECTOR) {
+            var s = mapData.getNearestSector(Input.mousePos);
+            if (s) {
+                var i = this.selectedSectors.indexOf(s);
+                if (i >= 0) {
+                    this.selectedSectors.splice(i, 1);
+                }
+                else {
+                    this.selectedSectors.push(s);
+                }
+                this.updateActiveVertexes();
+            }
+        }
     };
     BaseTool.prototype.updateActiveVertexes = function () {
         var _this = this;
@@ -1508,7 +1512,9 @@ var ContextMenu = /** @class */ (function () {
         for (var _i = 0; _i < arguments.length; _i++) {
             items[_i] = arguments[_i];
         }
-        Tool.changeTool(new (ContextMenu.bind.apply(ContextMenu, [void 0, Input.mousePos].concat(items)))());
+        var menu = new (ContextMenu.bind.apply(ContextMenu, [void 0, Input.mousePos].concat(items)))();
+        Tool.changeTool(menu);
+        return menu;
     };
     ContextMenu.fillColor = Color.rgbToHex(0.2, 0.2, 0.2);
     ContextMenu.selectFillColor = Color.rgbToHex(0.4, 0.4, 0.4);
