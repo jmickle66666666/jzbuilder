@@ -1,12 +1,14 @@
 class Edge {
 
+    // Serialised variables
     public start:Vertex;
     public end:Vertex;
-    
+    public modifiers : Array<EdgeModifier>;
+    // 
+
     public edgeLink:Edge;
     public sector : Sector;
     
-    public modifiers : Array<EdgeModifier>;
     public dirty:Boolean = true;
     private processCache:ProcessedEdge;
     public process():ProcessedEdge {
@@ -162,6 +164,36 @@ class Edge {
         }
         return geo;
     }
+
+    public serializable():object {
+        let mods = [];
+        this.modifiers.forEach(m => {
+            mods.push(m.serialised());
+        });
+
+        return {
+            a : this.start.x,
+            b : this.start.y,
+            c : this.end.x,
+            d : this.end.y,
+            m : mods
+        }
+    }
+
+    public static deserialize(edgeObject):Edge {
+        let output = new Edge(
+            new Vertex(edgeObject["a"], edgeObject["b"]), 
+            new Vertex(edgeObject["c"], edgeObject["d"])
+        );
+
+        edgeObject["m"].forEach(m => {
+            let mod = new window[m["classname"]]();
+            mod.deserialize(m);
+            output.modifiers.push(mod);
+        });
+
+        return output;
+    }
 }
 
 class ProcessedEdge {
@@ -177,4 +209,5 @@ interface EdgeModifier {
     toString():string;
     name:string;
     editorElement?():HTMLElement;
+    serialised():object;
 }

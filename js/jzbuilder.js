@@ -793,10 +793,10 @@ var MapData = /** @class */ (function () {
         this.quicksaveData = MapIO.serialize(this);
     };
     MapData.prototype.quickload = function () {
-        mapData = MapIO.unserialize(this.quicksaveData);
+        mapData = MapIO.deserialize(this.quicksaveData);
     };
     MapData.prototype.testload = function () {
-        mapData = MapIO.unserialize(MapIO.serialize(this));
+        mapData = MapIO.deserialize(MapIO.serialize(this));
     };
     return MapData;
 }());
@@ -1040,21 +1040,6 @@ var Color = /** @class */ (function () {
 //     output.push(nextPoint);
 //     return output;
 // }
-var EdgeInset = /** @class */ (function () {
-    function EdgeInset(x, y) {
-        this.name = "Inset";
-        this.x = x;
-        this.y = y;
-    }
-    EdgeInset.prototype.process = function (edge) {
-        for (var i = 1; i < edge.vertices.length - 1; i++) {
-            edge.vertices[i].x += this.x;
-            edge.vertices[i].y += this.y;
-        }
-        return edge;
-    };
-    return EdgeInset;
-}());
 var SinCurve = /** @class */ (function () {
     function SinCurve(points, distance) {
         if (points === void 0) { points = 5; }
@@ -1086,6 +1071,17 @@ var SinCurve = /** @class */ (function () {
         elem.appendChild(Properties.NumberField(this, "distance"));
         return elem;
     };
+    SinCurve.prototype.serialised = function () {
+        return {
+            points: this.points,
+            distance: this.distance,
+            classname: "SinCurve"
+        };
+    };
+    SinCurve.prototype.deserialize = function (obj) {
+        this.points = obj.points;
+        this.distance = obj.distance;
+    };
     return SinCurve;
 }());
 var EdgeSubdivider = /** @class */ (function () {
@@ -1111,6 +1107,15 @@ var EdgeSubdivider = /** @class */ (function () {
     };
     EdgeSubdivider.prototype.toString = function () {
         return "Edge Subdivide";
+    };
+    EdgeSubdivider.prototype.serialised = function () {
+        return {
+            subdivisions: this.subdivisions,
+            classname: "EdgeSubdivider"
+        };
+    };
+    EdgeSubdivider.prototype.deserialize = function (obj) {
+        this.subdivisions = obj.subdivisions;
     };
     return EdgeSubdivider;
 }());
@@ -1243,6 +1248,28 @@ var Edge = /** @class */ (function () {
         }
         return geo;
     };
+    Edge.prototype.serializable = function () {
+        var mods = [];
+        this.modifiers.forEach(function (m) {
+            mods.push(m.serialised());
+        });
+        return {
+            a: this.start.x,
+            b: this.start.y,
+            c: this.end.x,
+            d: this.end.y,
+            m: mods
+        };
+    };
+    Edge.deserialize = function (edgeObject) {
+        var output = new Edge(new Vertex(edgeObject["a"], edgeObject["b"]), new Vertex(edgeObject["c"], edgeObject["d"]));
+        edgeObject["m"].forEach(function (m) {
+            var mod = new window[m["classname"]]();
+            mod.deserialize(m);
+            output.modifiers.push(mod);
+        });
+        return output;
+    };
     return Edge;
 }());
 var ProcessedEdge = /** @class */ (function () {
@@ -1334,6 +1361,23 @@ var Sector = /** @class */ (function () {
         mesh = new THREE.Mesh(geo, material);
         threescene.add(mesh);
     };
+    Sector.prototype.serializable = function () {
+        var serialisedEdges = [];
+        this.edges.forEach(function (e) {
+            serialisedEdges.push(e.serializable());
+        });
+        return {
+            e: serialisedEdges
+        };
+    };
+    Sector.deserialize = function (sectorObject) {
+        var output = new Sector();
+        sectorObject["e"].forEach(function (e) {
+            output.edges.push(Edge.deserialize(e));
+        });
+        output.update();
+        return output;
+    };
     return Sector;
 }());
 var Vertex = /** @class */ (function () {
@@ -1398,75 +1442,43 @@ var MapIO = /** @class */ (function () {
         if (MapIO.profile) {
             MapIO.timer = Util.timer("serialize");
         }
-        var output = "JZB01\n";
+        var ident = "JZB02";
+        var sectors = [];
         data.sectors.forEach(function (s) {
-            output += MapIO.serializeSector(s) + "\n";
+            sectors.push(s.serializable());
+        });
+        var output = JSON.stringify({
+            ident: ident,
+            sectors: sectors
         });
         if (MapIO.profile) {
             MapIO.timer.stop();
         }
         return output;
     };
-    MapIO.serializeSector = function (sector) {
-        var output = "s(";
-        for (var i = 0; i < sector.edges.length; i++) {
-            output += MapIO.serializeEdge(sector.edges[i]);
-        }
-        return output;
-    };
-    MapIO.serializeEdge = function (edge) {
-        return "e(" + MapIO.serializeVertex(edge.start) + MapIO.serializeVertex(edge.end) + ")";
-    };
-    MapIO.serializeVertex = function (vertex) {
-        return "v(" + vertex.x + "," + vertex.y + ")";
-    };
-    MapIO.unserialize = function (data) {
+    MapIO.deserialize = function (data) {
         if (MapIO.profile) {
             MapIO.timer = Util.timer("unserialize");
         }
         var output = new MapData();
         output.sectors.length = 0;
-        var lines = data.split('\n');
-        if (lines[0] != "JZB01") {
-            console.error("Incorrect version. Expected JZB01, got " + lines[0]);
-            return null;
+        var dataObject = JSON.parse(data);
+        if (dataObject.ident == null) {
+            console.error("Couldn't find ident");
         }
-        for (var i = 1; i < lines.length; i++) {
-            output.sectors.push(MapIO.unserializeSector(lines[i]));
+        if (dataObject.ident != "JZB02") {
+            console.error("Incorrect version. Expected JZB02, got " + dataObject.ident);
         }
+        dataObject.sectors.forEach(function (s) {
+            output.sectors.push(Sector.deserialize(s));
+        });
         output.updateEdgePairs();
         if (MapIO.profile) {
             MapIO.timer.stop();
         }
         return output;
     };
-    MapIO.unserializeSector = function (data) {
-        var output = new Sector();
-        // s(e(v(1,1)v(1,1))e(v(1,1)v(1,1))e(v(1,1)v(1,1)))
-        var edges = data.split('e');
-        // s( (v(1,1)v(1,1)) (v(1,1)v(1,1)) (v(1,1)v(1,1)))
-        for (var i = 1; i < edges.length; i++) {
-            output.edges.push(MapIO.unserializeEdge(edges[i]));
-        }
-        output.update();
-        return output;
-    };
-    MapIO.unserializeEdge = function (data) {
-        // (v(1,1)v(1,1))...
-        var vs = data.split('v');
-        // ( (1,1) (1,1))...
-        var e = new Edge(MapIO.unserializeVertex(vs[1]), MapIO.unserializeVertex(vs[2]));
-        // console.log(e);
-        return e;
-    };
-    MapIO.unserializeVertex = function (data) {
-        var output = new Vertex(0, 0);
-        var commaIndex = data.indexOf(',');
-        output.x = Number(data.substr(1, commaIndex - 1));
-        output.y = Number(data.substr(commaIndex + 1, data.indexOf(')') - commaIndex - 1));
-        return output;
-    };
-    MapIO.profile = false;
+    MapIO.profile = true;
     return MapIO;
 }());
 var UDMF = /** @class */ (function () {
@@ -1486,7 +1498,7 @@ var Undo = /** @class */ (function () {
     };
     Undo.undo = function () {
         if (Undo.stack.length > 0) {
-            mapData = MapIO.unserialize(Undo.stack.pop());
+            mapData = MapIO.deserialize(Undo.stack.pop());
         }
         dirty = true;
     };

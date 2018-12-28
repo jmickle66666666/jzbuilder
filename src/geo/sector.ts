@@ -1,5 +1,8 @@
 class Sector {
+
+    // Serialised variables
     public edges : Array<Edge>;
+    //
 
     private _rect : Rect;
     public get rect():Rect {
@@ -98,8 +101,25 @@ class Sector {
         geo.translate(0, 128, 0);
         mesh = new THREE.Mesh(geo, material);
         threescene.add(mesh);
+    }
 
+    public serializable():object {
+        let serialisedEdges = [];
+        this.edges.forEach(e => {
+            serialisedEdges.push(e.serializable())
+        });
+        return {
+            e : serialisedEdges
+        };
+    }
 
+    public static deserialize(sectorObject):Sector {
+        let output = new Sector();
+        sectorObject["e"].forEach(e => {
+            output.edges.push(Edge.deserialize(e));
+        });
+        output.update();
+        return output;
     }
 
 }
