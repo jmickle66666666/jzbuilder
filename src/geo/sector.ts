@@ -46,4 +46,60 @@ class Sector {
         return this.edges[index];
     }
 
+    public toPoints():Array<Vertex> {
+        let output = new Array<Vertex>();
+
+        for (let i = 0; i < this.edges.length; i++) {
+            let e = this.edges[i].process();
+            for (let j = 0; j < e.vertices.length - 1; j++) {
+                output.push(e.vertices[j]);
+            }
+        }
+        output.push(this.edges[0].start);
+
+        return output;
+    }
+
+    public buildMesh(material) {
+
+        let points = this.toPoints();
+
+        for (let i = 0; i < this.edges.length; i++) {
+            if (this.edges[i].edgeLink == null) {
+                let g = this.edges[i].getGeometry();
+                let m = new THREE.Mesh(g, material);
+                threescene.add(m);
+            }
+        }
+
+        let shape = new THREE.Shape();
+
+        shape.moveTo(points[0].x, -points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            shape.lineTo(points[i].x, -points[i].y);
+        }
+
+        let geo = new THREE.ShapeGeometry( shape );
+        geo.rotateX(-Math.PI / 2);
+        let mesh = new THREE.Mesh(geo, material);
+        threescene.add(mesh);
+
+        points = points.reverse();
+
+        shape = new THREE.Shape();
+
+        shape.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            shape.lineTo(points[i].x, points[i].y);
+        }
+
+        geo = new THREE.ShapeGeometry( shape );
+        geo.rotateX(Math.PI / 2);
+        geo.translate(0, 128, 0);
+        mesh = new THREE.Mesh(geo, material);
+        threescene.add(mesh);
+
+
+    }
+
 }
