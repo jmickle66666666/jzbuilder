@@ -40,4 +40,17 @@ class SinCurve implements EdgeModifier {
         elem.appendChild(Properties.NumberField(this, "distance"));
         return elem;
     }
+
+    public serialised():object {
+        return {
+            points : this.points,
+            distance : this.distance,
+            classname : "SinCurve"
+        }
+    }
+
+    public deserialize(obj) {
+        this.points = obj.points;
+        this.distance = obj.distance;
+    }
 }

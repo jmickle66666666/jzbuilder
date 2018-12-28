@@ -1,4 +1,7 @@
 class Vertex {
+
+    // Vertexes are not serialised
+
     public x : number;
     public y : number;
 

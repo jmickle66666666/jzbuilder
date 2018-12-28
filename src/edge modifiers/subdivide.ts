@@ -34,4 +34,15 @@ class EdgeSubdivider implements EdgeModifier {
     public toString():string {
         return "Edge Subdivide";
     }
+
+    public serialised():object {
+        return {
+            subdivisions : this.subdivisions,
+            classname : "EdgeSubdivider"
+        }
+    }
+
+    public deserialize(obj) {
+        this.subdivisions = obj.subdivisions;
+    }
 }

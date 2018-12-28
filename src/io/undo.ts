@@ -7,7 +7,7 @@ class Undo {
 
     static undo():void {
         if (Undo.stack.length > 0) {
-            mapData = MapIO.unserialize(Undo.stack.pop());
+            mapData = MapIO.deserialize(Undo.stack.pop());
         }
 
         dirty = true;

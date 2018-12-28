@@ -185,11 +185,11 @@ class MapData {
     }
 
     quickload():void {
-        mapData = MapIO.unserialize(this.quicksaveData);
+        mapData = MapIO.deserialize(this.quicksaveData);
     }
 
     testload():void {
-        mapData = MapIO.unserialize(MapIO.serialize(this));
+        mapData = MapIO.deserialize(MapIO.serialize(this));
     }
 
     // Keeping this in case there's something i can take from it
